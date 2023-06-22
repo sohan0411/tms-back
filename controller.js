@@ -2,6 +2,9 @@ const bcrypt = require('bcrypt');
 const db = require('./db');
 const jwtUtils = require('./jwtUtils');
 const CircularJSON = require('circular-json');
+const secure = require('./secure');
+
+encryptKey = "SenseLive-Tms-Dashboard";
 
 db.query('SET time_zone = "Asia/Kolkata";', (err, results) => {
   if (err) {
@@ -131,8 +134,6 @@ function register(req, res) {
 }
 
 
-
-
 // Login function
 function login(req, res) {
   const { Username, Password } = req.body;
@@ -146,7 +147,7 @@ function login(req, res) {
       }
 
       if (rows.length === 0) {
-        return res.status(401).json({ message: 'Invalid credentials' });
+        return res.status(401).json({ message: 'User Does Not exist!' });
       }
 
       // Compare the provided password with the hashed password in the database
@@ -162,7 +163,7 @@ function login(req, res) {
           }
 
           // Generate a JWT token
-          const token = jwtUtils.generateToken({ userId: user.id });
+          const token = jwtUtils.generateToken({ Username: user.Username });
           res.json({ token });
         } catch (error) {
           console.error(error);
@@ -177,6 +178,34 @@ function login(req, res) {
 }
 
 
+
+// User details endpoint
+function getUserDetails(req, res) {
+  const token = req.headers.authorization.split(' ')[1]; // Extract the token from the Authorization header
+
+  // Verify the token
+  const decodedToken = jwtUtils.verifyToken(token);
+  if (!decodedToken) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+
+  // Fetch user details from the database using the decoded token information
+  const query = 'SELECT * FROM tms_users WHERE Username = ?';
+  db.query(query, [decodedToken.Username], (error, rows) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const user = rows[0];
+    res.json(user);
+  });
+}
+
 function fetchAllUsers(req, res) {
   try {
     const query = 'SELECT * FROM tms_users';
@@ -184,17 +213,17 @@ function fetchAllUsers(req, res) {
       if (error) {
         throw new Error('Error fetching users');
       }
+      const encryptedUsers = secure.encryptData(rows, encryptKey);
 
-      res.json({ users: rows });
+      res.json({ users: encryptedUsers });
+      console.log(rows);
+      console.log(encryptedUsers)
     });
   } catch (error) {
     console.error('Error fetching users:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 }
-
-
-
 
 
 // Helper function to generate a unique 10-digit user ID
@@ -214,4 +243,4 @@ function generateUserId() {
 }
 
 
-module.exports = { register, login, fetchAllUsers };
+module.exports = { register, login, getUserDetails, fetchAllUsers };
