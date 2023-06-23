@@ -1,8 +1,8 @@
 const bcrypt = require('bcrypt');
-const db = require('./db');
-const jwtUtils = require('./jwtUtils');
+const db = require('../db');
+const jwtUtils = require('../token/jwtUtils');
 const CircularJSON = require('circular-json');
-const secure = require('./secure');
+const secure = require('../token/secure');
 
 encryptKey = "SenseLive-Tms-Dashboard";
 
@@ -106,7 +106,7 @@ function register(req, res) {
 
                   try {
                     // Generate a JWT token
-                    const token = jwtUtils.generateToken({ userId: insertResult.insertId });
+                    const token = jwtUtils.generateToken({ companyEmail: companyEmail });
 
                     console.log('User registered successfully');
                     res.json({ token });
