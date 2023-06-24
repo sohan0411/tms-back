@@ -13,5 +13,9 @@ router.get('/user', authentication.getUserDetails);
 
 router.get('/users', authentication.fetchAllUsers);
 
+router.post('/verify', authentication.verifyToken);
+
+router.post('/re-verify-mail', authentication.resendToken);
+
 
 module.exports = router;

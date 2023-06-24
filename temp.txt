@@ -1,0 +1,112 @@
+CREATE TABLE reset_tokens (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT,
+  token VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES tms_users(UserId) ON DELETE CASCADE
+);
+
+
+
+// Forgot password
+function forgotPassword(req, res) {
+  const { email } = req.body;
+
+  // Check if the email exists in the database
+  const query = 'SELECT * FROM tms_users WHERE PersonalEmail = ?';
+  db.query(query, [email], (error, rows) => {
+    try {
+      if (error) {
+        throw new Error('Error during forgot password');
+      }
+
+      if (rows.length === 0) {
+        return res.status(404).json({ message: 'Email not found' });
+      }
+
+      // Generate a reset token
+      const resetToken = generateToken();
+
+      // Save the reset token in the database
+      const userId = rows[0].UserId;
+      const insertQuery = 'INSERT INTO reset_tokens (user_id, token) VALUES (?, ?)';
+      db.query(insertQuery, [userId, resetToken], (error, insertResult) => {
+        try {
+          if (error) {
+            throw new Error('Error saving reset token');
+          }
+
+          // Send the reset token to the user's email
+          sendResetTokenEmail(email, resetToken);
+
+          res.json({ message: 'Reset token sent to your email' });
+        } catch (error) {
+          console.error(error);
+          res.status(500).json({ message: 'Internal server error' });
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+}
+
+// Reset password
+function resetPassword(req, res) {
+  const { email, token, password } = req.body;
+
+  // Check if the email and reset token match in the database
+  const query = 'SELECT * FROM reset_tokens WHERE token = ?';
+  db.query(query, [token], (error, rows) => {
+    try {
+      if (error) {
+        throw new Error('Error during reset password');
+      }
+
+      if (rows.length === 0) {
+        return res.status(401).json({ message: 'Invalid token' });
+      }
+
+      const userId = rows[0].user_id;
+
+      // Hash the new password
+      bcrypt.hash(password, 10, (error, hashedPassword) => {
+        try {
+          if (error) {
+            throw new Error('Error during password hashing');
+          }
+
+          // Update the password in the database
+          const updateQuery = 'UPDATE tms_users SET Password = ? WHERE UserId = ?';
+          db.query(updateQuery, [hashedPassword, userId], (error, updateResult) => {
+            try {
+              if (error) {
+                throw new Error('Error updating password');
+              }
+
+              // Delete the reset token from the reset_tokens table
+              const deleteQuery = 'DELETE FROM reset_tokens WHERE token = ?';
+              db.query(deleteQuery, [token], (error, deleteResult) => {
+                if (error) {
+                  console.error('Error deleting reset token:', error);
+                }
+
+                res.json({ message: 'Password reset successful' });
+              });
+            } catch (error) {
+              console.error(error);
+              res.status(500).json({ message: 'Internal server error' });
+            }
+          });
+        } catch (error) {
+          console.error(error);
+          res.status(500).json({ message: 'Internal server error' });
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+}
