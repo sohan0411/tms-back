@@ -17,5 +17,10 @@ router.post('/verify', authentication.verifyToken);
 
 router.post('/re-verify-mail', authentication.resendToken);
 
+router.post('/forgot', authentication.forgotPassword);
+
+router.post('/resend-forgot', authentication.resendResetToken);
+
+router.post('/reset-password', authentication.resetPassword);
 
 module.exports = router;

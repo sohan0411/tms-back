@@ -27,116 +27,6 @@ db.query('SELECT @@session.time_zone;', (err, results) => {
   console.log('Time zone of current database:', results[0]['@@session.time_zone']);
 });
 
-// Registration function
-/*function register(req, res) {
-  const {
-    companyName,
-    companyEmail,
-    contact,
-    location,
-    firstName,
-    lastName,
-    personalEmail,
-    designation,
-    password,
-  } = req.body;
-
-  // Check if the company email is already registered
-  const emailCheckQuery = 'SELECT * FROM tms_users WHERE CompanyEmail = ?';
-  console.log('Email Check Query:', emailCheckQuery);
-  db.query(emailCheckQuery, [companyEmail], (error, emailCheckResult) => {
-    if (error) {
-      console.error('Error during email check:', error);
-      return res.status(500).json({ message: 'Internal server error' });
-    }
-
-    try {
-      if (emailCheckResult.length > 0) {
-        console.log('Company email already exists');
-        return res.status(400).json({ message: 'Company email already exists' });
-      }
-
-      // Check if the username (company email) is already registered
-      const usernameCheckQuery = 'SELECT * FROM tms_users WHERE Username = ?';
-      console.log('Username Check Query:', usernameCheckQuery);
-      db.query(usernameCheckQuery, [companyEmail], (error, usernameCheckResult) => {
-        if (error) {
-          console.error('Error during username check:', error);
-          return res.status(500).json({ message: 'Internal server error' });
-        }
-
-        try {
-          if (usernameCheckResult.length > 0) {
-            console.log('Username already exists');
-            return res.status(400).json({ message: 'Username already exists' });
-          }
-
-          // Generate a unique 10-digit user ID
-          const userId = generateUserId();
-
-          // Hash the password
-          bcrypt.hash(password, 10, (error, hashedPassword) => {
-            if (error) {
-              console.error('Error during password hashing:', error);
-              return res.status(500).json({ message: 'Internal server error' });
-            }
-
-            try {
-              // Insert the user into the database
-              const insertQuery =
-                'INSERT INTO tms_users (UserId, Username, FirstName, LastName, CompanyName, CompanyEmail, ContactNo, Location, UserType, PersonalEmail, Password, Designation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-              console.log('Insert Query:', insertQuery);
-              db.query(
-                insertQuery,
-                [
-                  userId,
-                  companyEmail,
-                  firstName,
-                  lastName,
-                  companyName,
-                  companyEmail,
-                  contact,
-                  location,
-                  'Admin',
-                  personalEmail,
-                  hashedPassword,
-                  designation,
-                ],
-                (error, insertResult) => {
-                  if (error) {
-                    console.error('Error during user insertion:', error);
-                    return res.status(500).json({ message: 'Internal server error' });
-                  }
-
-                  try {
-                    // Generate a JWT token
-                    const token = jwtUtils.generateToken({ companyEmail: companyEmail });
-
-                    console.log('User registered successfully');
-                    res.json({ token });
-                  } catch (error) {
-                    console.error('Error during JWT token generation:', error);
-                    res.status(500).json({ message: 'Internal server error' });
-                  }
-                }
-              );
-            } catch (error) {
-              console.error('Error during registration:', error);
-              res.status(500).json({ message: 'Internal server error' });
-            }
-          });
-        } catch (error) {
-          console.error('Error during registration:', error);
-          res.status(500).json({ message: 'Internal server error' });
-        }
-      });
-    } catch (error) {
-      console.error('Error during registration:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-}*/
-
 
 // Function to send an email with the token
 function sendTokenEmail(email, token) {
@@ -181,6 +71,48 @@ function sendTokenEmail(email, token) {
   });
 }
 
+function sendResetTokenEmail(personalEmail, resetToken) {
+  const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: 'kpohekar19@gmail.com',
+    pass: 'woptjevenzhqmrpp',
+  },
+});
+
+  // Read the email template file
+  const templatePath = path.join(__dirname, '../mail-body/email-template-forgot-password.ejs');
+  fs.readFile(templatePath, 'utf8', (err, templateData) => {
+    if (err) {
+      console.error('Error reading email template:', err);
+      return;
+    }
+
+    // Compile the email template with EJS
+    const compiledTemplate = ejs.compile(templateData);
+
+    // Render the template with the token
+    const html = compiledTemplate({ resetToken });
+
+    const mailOptions = {
+      from: 'kpohekar19@gmail.com',
+      to: personalEmail,
+      subject: 'Reset Password Link',
+      html: html,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+      } else {
+        console.log('Email sent:', info.response);
+      }
+    });
+  });
+}
+
 // Function to handle user registration
 function register(req, res) {
   const {
@@ -210,17 +142,17 @@ function register(req, res) {
       }
 
       // Check if the username (company email) is already registered
-      const usernameCheckQuery = 'SELECT * FROM tms_users WHERE Username = ?';
-      db.query(usernameCheckQuery, [companyEmail], (error, usernameCheckResult) => {
+      const personalEmailCheckQuery = 'SELECT * FROM tms_users WHERE PersonalEmail = ?';
+      db.query(personalEmailCheckQuery, [personalEmail], (error, personalEmailCheckResult) => {
         if (error) {
           console.error('Error during username check:', error);
           return res.status(500).json({ message: 'Internal server error' });
         }
 
         try {
-          if (usernameCheckResult.length > 0) {
+          if (personalEmailCheckResult.length > 0) {
             console.log('Username already exists');
-            return res.status(400).json({ message: 'Username already exists' });
+            return res.status(400).json({ message: 'User already exists' });
           }
 
           // Generate a unique 10-digit user ID
@@ -235,7 +167,7 @@ function register(req, res) {
 
             try {
               // Generate a verification token
-              const verificationToken = jwtUtils.generateToken({ companyEmail: companyEmail });
+              const verificationToken = jwtUtils.generateToken({ personalEmail: personalEmail });
 
               // Insert the user into the database
               const insertQuery =
@@ -244,14 +176,14 @@ function register(req, res) {
                 insertQuery,
                 [
                   userId,
-                  companyEmail,
+                  personalEmail,
                   firstName,
                   lastName,
                   companyName,
                   companyEmail,
                   contact,
                   location,
-                  'Admin',
+                  'Super Admin',
                   personalEmail,
                   hashedPassword,
                   designation,
@@ -266,7 +198,7 @@ function register(req, res) {
 
                   try {
                     // Send the verification token to the user's email
-                    sendTokenEmail(companyEmail, verificationToken);
+                    sendTokenEmail(personalEmail, verificationToken);
 
                     console.log('User registered successfully');
                     res.json({ message: 'Registration successful. Check your email for the verification token.' });
@@ -330,32 +262,53 @@ function verifyToken(req, res) {
 }
 
 // Function to resend the verification token
+
 function resendToken(req, res) {
-  const { companyEmail } = req.body;
+  const { personalEmail } = req.body;
 
-  // Generate a new verification token
-  const verificationToken = jwtUtils.generateToken({ companyEmail: companyEmail });
-
-  // Update the user's verification token in the database
-  const updateQuery = 'UPDATE tms_users SET VerificationToken = ? WHERE CompanyEmail = ?';
-  db.query(updateQuery, [verificationToken, companyEmail], (error, updateResult) => {
+  // Check if the user is available
+  const checkUserQuery = 'SELECT * FROM tms_users WHERE PersonalEmail = ?';
+  db.query(checkUserQuery, [personalEmail], (error, userResult) => {
     if (error) {
-      console.error('Error updating verification token:', error);
+      console.error('Error checking user availability:', error);
       return res.status(500).json({ message: 'Internal server error' });
     }
 
-    try {
-      // Send the new verification token to the user's email
-      sendTokenEmail(companyEmail, verificationToken);
+    // If no user found, send an error response
+    if (userResult.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-      console.log('Verification token resent');
-      res.json({ message: 'Verification token resent. Check your email for the new token.' });
-    } catch (error) {
-      console.error('Error sending verification token:', error);
-      res.status(500).json({ message: 'Internal server error' });
+    // If user is already verified, send a bad request error response
+    if (userResult[0].Verified === '1') {
+      return res.status(400).json({ message: 'User already verified' });
+    } else {
+      // Generate a new verification token
+      const verificationToken = jwtUtils.generateToken({ personalEmail: personalEmail });
+
+      // Update the user's verification token in the database
+      const updateQuery = 'UPDATE tms_users SET VerificationToken = ? WHERE PersonalEmail = ?';
+      db.query(updateQuery, [verificationToken, personalEmail], (error, updateResult) => {
+        if (error) {
+          console.error('Error updating verification token:', error);
+          return res.status(500).json({ message: 'Internal server error' });
+        }
+
+        try {
+          // Send the new verification token to the user's email
+          sendTokenEmail(personalEmail, verificationToken);
+
+          console.log('Verification token resent');
+          res.json({ message: 'Verification token resent. Check your email for the new token.' });
+        } catch (error) {
+          console.error('Error sending verification token:', error);
+          res.status(500).json({ message: 'Internal server error' });
+        }
+      });
     }
   });
 }
+
 
 // Login function
 function login(req, res) {
@@ -442,6 +395,7 @@ function fetchAllUsers(req, res) {
       }
       const encryptedUsers = secure.encryptData(rows, encryptKey);
 
+      res.json({ users: rows });
       res.json({ users: encryptedUsers });
       console.log(rows);
       console.log(encryptedUsers)
@@ -453,7 +407,151 @@ function fetchAllUsers(req, res) {
 }
 
 
-// Helper function to generate a unique 10-digit user ID
+// Forgot password
+function forgotPassword(req, res) {
+  const { personalEmail } = req.body;
+
+  // Check if the email exists in the database
+  const query = 'SELECT * FROM tms_users WHERE PersonalEmail = ?';
+  db.query(query, [personalEmail], (error, rows) => {
+    try {
+      if (error) {
+        throw new Error('Error during forgot password');
+      }
+
+      if (rows.length === 0) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Generate a reset token
+      const resetToken = jwtUtils.generateToken({ personalEmail: personalEmail });
+
+      // Save the reset token in the database
+      const userId = rows[0].UserId;
+      const insertQuery = 'INSERT INTO tms_reset_tokens (UserId, token) VALUES (?, ?)';
+      db.query(insertQuery, [userId, resetToken], (error, insertResult) => {
+        try {
+          if (error) {
+            throw new Error('Error saving reset token');
+          }
+
+          // Send the reset token to the user's email
+          sendResetTokenEmail(personalEmail, resetToken);
+
+          res.json({ message: 'Reset token sent to your email' });
+        } catch (error) {
+          console.error(error);
+          res.status(500).json({ message: 'Internal server error' });
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+}
+
+function resendResetToken(req, res) {
+  const { personalEmail } = req.body;
+
+  // Check if the user is available
+  const checkUserQuery = 'SELECT * FROM tms_users WHERE PersonalEmail = ?';
+  db.query(checkUserQuery, [personalEmail], (error, userResult) => {
+    if (error) {
+      console.error('Error checking user availability:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+
+    // If no user found, send an error response
+    if (userResult.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Generate a new verification token
+    const userId = userResult[0].UserId;
+    const verificationToken = jwtUtils.generateToken({ personalEmail: personalEmail });
+
+    // Update the user's verification token in the database
+    const updateQuery = 'UPDATE tms_reset_tokens SET token = ? WHERE UserId = ?';
+    db.query(updateQuery, [verificationToken, userId], (error, updateResult) => {
+      if (error) {
+        console.error('Error updating Resend link:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      try {
+        // Send the new verification token to the user's email
+        sendResetTokenEmail(personalEmail, verificationToken);
+
+        console.log('Resend link resent');
+        res.json({ message: 'Resend link resent. Check your email for the new token.' });
+      } catch (error) {
+        console.error('Error sending verification token:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    });
+  });
+}
+
+function resetPassword(req, res) {
+  const { token, password } = req.body;
+
+  // Check if the email and reset token match in the database
+  const query = 'SELECT * FROM tms_reset_tokens WHERE token = ?';
+  db.query(query, [token], (error, rows) => {
+    try {
+      if (error) {
+        throw new Error('Error during reset password');
+      }
+
+      if (rows.length === 0) {
+        return res.status(401).json({ message: 'Invalid token' });
+      }
+
+      const userId = rows[0].UserId;
+
+      // Hash the new password
+      bcrypt.hash(password, 10, (error, hashedPassword) => {
+        try {
+          if (error) {
+            throw new Error('Error during password hashing');
+          }
+
+          // Update the password in the database
+          const updateQuery = 'UPDATE tms_users SET Password = ? WHERE UserId = ?';
+          db.query(updateQuery, [hashedPassword, userId], (error, updateResult) => {
+            try {
+              if (error) {
+                throw new Error('Error updating password');
+              }
+
+              // Delete the reset token from the reset_tokens table
+              const deleteQuery = 'DELETE FROM tms_reset_tokens WHERE token = ?';
+              db.query(deleteQuery, [token], (error, deleteResult) => {
+                if (error) {
+                  console.error('Error deleting reset token:', error);
+                }
+
+                res.json({ message: 'Password reset successful' });
+              });
+            } catch (error) {
+              console.error(error);
+              res.status(500).json({ message: 'Internal server error' });
+            }
+          });
+        } catch (error) {
+          console.error(error);
+          res.status(500).json({ message: 'Internal server error' });
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+}
+
+
 // Helper function to generate a unique 10-digit user ID
 function generateUserId() {
   const userIdLength = 10;
@@ -473,9 +571,13 @@ function generateUserId() {
 module.exports = {
   register,
   sendTokenEmail,
+  sendResetTokenEmail,
   verifyToken,
   resendToken,
   login,
   getUserDetails,
   fetchAllUsers,
+  forgotPassword,
+  resendResetToken,
+  resetPassword
 };
