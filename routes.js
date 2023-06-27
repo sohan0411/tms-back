@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authentication = require('./auth/authentication');
-
+const dashboard = require('./dash/dashboard.js');
 // Registration route
 router.post('/register', authentication.register);
 
@@ -22,5 +22,7 @@ router.post('/forgot', authentication.forgotPassword);
 router.post('/resend-forgot', authentication.resendResetToken);
 
 router.post('/reset-password', authentication.resetPassword);
+
+router.get('/userdevices/:companyEmail', dashboard.userDevices);
 
 module.exports = router;
