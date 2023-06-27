@@ -183,7 +183,7 @@ function register(req, res) {
                   companyEmail,
                   contact,
                   location,
-                  'Super Admin',
+                  'Admin',
                   personalEmail,
                   hashedPassword,
                   designation,
