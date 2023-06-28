@@ -8,34 +8,36 @@ const fs = require('fs');
 const path = require('path');
 const ejs = require('ejs');
 
-function userDevices(req, res){
-	const companyEmail  =  req.params.companyEmail;
-	const userCheckQuery = 'SELECT * FROM tms_users WHERE CompanyEmail = ?';
-	db.query(userCheckQuery, [companyEmail], (error, userCheckResult) => {
+
+function userDevices(req, res) {
+  const companyEmail = req.params.companyEmail;
+  const userCheckQuery = 'SELECT * FROM tms_users WHERE CompanyEmail = ?';
+
+  db.query(userCheckQuery, [companyEmail], (error, userCheckResult) => {
     if (error) {
-      console.error('Error during token verification:', error);
+      console.error('Error during user check:', error);
       return res.status(500).json({ message: 'Internal server error' });
     }
 
     try {
       if (userCheckResult.length === 0) {
-        console.log('User not Found!');
-        return res.status(400).json({ message: 'User not Found!' });
+        console.log('User not found!');
+        return res.status(400).json({ message: 'User not found!' });
       }
 
-      // Token matches, update the user's status as verified
-      const devicesQuery = "SELECT * from tms_data where CompanyEmail = ?";
+      const devicesQuery = 'SELECT * from tms_data WHERE CompanyEmail = ?';
+
       db.query(devicesQuery, [companyEmail], (error, devices) => {
         if (error) {
-        	console.error("Fetching Devices", error);
+          console.error('Error fetching devices:', error);
           return res.status(500).json({ message: 'Internal server error' });
         }
 
-        res.json({ devices});
+        res.json({ devices });
         console.log(devices);
       });
     } catch (error) {
-    	console.error("Fetching User", error);
+      console.error('Error fetching user:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   });

@@ -396,7 +396,7 @@ function fetchAllUsers(req, res) {
       const encryptedUsers = secure.encryptData(rows, encryptKey);
 
       res.json({ users: rows });
-      res.json({ users: encryptedUsers });
+      /*res.json({ users: encryptedUsers });*/
       console.log(rows);
       console.log(encryptedUsers)
     });
