@@ -43,7 +43,43 @@ function userDevices(req, res) {
   });
 }
 
+function editDevice(req, res) {
+  const deviceId = req.params.deviceId;
+  const { DiviceLocation, CompanyUID}  = req.body; 
+  const deviceCheckQuery = 'SELECT * FROM tms_data WHERE DiviceId = ?';
+
+  db.query(deviceCheckQuery, [deviceId], (error, deivceCheckResult) => {
+    if (error) {
+      console.error('Error during device check:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+
+    try {
+      if (deivceCheckResult.length === 0) {
+        console.log('User not found!');
+        return res.status(400).json({ message: 'Device not found!' });
+      }
+
+      const devicesQuery = 'Update tms_data SET DiviceLocation = ?, CompanyUID = ? WHERE DiviceId = ?';
+
+      db.query(devicesQuery, [DiviceLocation, CompanyUID, deviceId], (error, devices) => {
+        if (error) {
+          console.error('Error fetching devices:', error);
+          return res.status(500).json({ message: 'Internal server error' });
+        }
+
+        res.json({ message: 'Device Updated SuccessFully' });
+        console.log(devices);
+      });
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+}
+
 
 module.exports = {
-	userDevices
+	userDevices,
+  editDevice
 };

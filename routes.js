@@ -25,4 +25,6 @@ router.post('/reset-password', authentication.resetPassword);
 
 router.get('/userdevices/:companyEmail', dashboard.userDevices);
 
+router.put('/editDevice/:deviceId', dashboard.editDevice);
+
 module.exports = router;
