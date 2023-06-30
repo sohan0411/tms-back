@@ -30,10 +30,13 @@ router.get('/userdevices/:companyEmail', dashboard.userDevices);
 
 router.put('/editDevice/:deviceId', dashboard.editDevice);
 
+
 router.put('/companyDetails/:UserId', dashboard.companyDetails);
 
 router.put('/personalDetails/:UserId', dashboard.personalDetails);
 
 router.put('/updatePassword/:UserId', dashboard.updatePassword);
+
+router.put('/editDeviceTrigger/:deviceId', dashboard.editDeviceTrigger);
 
 module.exports = router;
