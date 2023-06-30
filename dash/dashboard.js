@@ -125,5 +125,6 @@ function editDeviceTrigger(req, res) {
 
 module.exports = {
 	userDevices,
-  editDevice
+  editDevice,
+  editDeviceTrigger
 };
