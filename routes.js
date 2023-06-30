@@ -27,4 +27,6 @@ router.get('/userdevices/:companyEmail', dashboard.userDevices);
 
 router.put('/editDevice/:deviceId', dashboard.editDevice);
 
+router.put('/editDeviceTrigger/:deviceId', dashboard.editDeviceTrigger);
+
 module.exports = router;

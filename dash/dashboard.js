@@ -79,6 +79,50 @@ function editDevice(req, res) {
 }
 
 
+function editDeviceTrigger(req, res) {
+  const deviceId = req.params.deviceId;
+  const { TriggerValue, CompanyEmail}  = req.body; 
+  const deviceCheckQuery = 'SELECT * FROM tms_trigger WHERE DeviceId = ?';
+
+  db.query(deviceCheckQuery, [deviceId], (error, deivceCheckResult) => {
+    if (error) {
+      console.error('Error during device check:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+
+    try {
+      if (deivceCheckResult.length === 0) {
+        const insertTriggerQuery = 'INSERT INTO tms_trigger (DeviceId, TriggerValue ,CompanyEmail) VALUES (?,?,?)';
+
+        db.query(insertTriggerQuery, [deviceId, TriggerValue, CompanyEmail], (error, insertDevice) => {
+          if (error) {
+            console.error('Error While Inserting Device:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+          }
+
+          return res.json({ message: 'Device added SuccessFully!' });
+        });
+      } else {
+
+        const UpdateDeviceTrigger = 'Update tms_trigger SET TriggerValue = ?, CompanyEmail = ? WHERE DeviceId = ?';
+
+        db.query(UpdateDeviceTrigger, [DiviceLocation, CompanyUID, deviceId], (error, devices) => {
+          if (error) {
+            console.error('Error fetching devices:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+          }
+
+          res.json({ message: 'Device Updated SuccessFully' });
+        });
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+  });
+
+
+
 module.exports = {
 	userDevices,
   editDevice
