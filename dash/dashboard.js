@@ -25,7 +25,7 @@ function userDevices(req, res) {
         return res.status(400).json({ message: 'User not found!' });
       }
 
-      const devicesQuery = 'SELECT * from tms_data WHERE CompanyEmail = ?';
+      const devicesQuery = 'SELECT * from tms_devices WHERE CompanyEmail = ?';
 
       db.query(devicesQuery, [companyEmail], (error, devices) => {
         if (error) {
@@ -45,8 +45,8 @@ function userDevices(req, res) {
 
 function editDevice(req, res) {
   const deviceId = req.params.deviceId;
-  const { DiviceLocation, CompanyUID}  = req.body; 
-  const deviceCheckQuery = 'SELECT * FROM tms_data WHERE DiviceId = ?';
+  const { DeviceLocation, DeviceName}  = req.body; 
+  const deviceCheckQuery = 'SELECT * FROM tms_devices WHERE DeviceUID = ?';
 
   db.query(deviceCheckQuery, [deviceId], (error, deivceCheckResult) => {
     if (error) {
@@ -60,9 +60,9 @@ function editDevice(req, res) {
         return res.status(400).json({ message: 'Device not found!' });
       }
 
-      const devicesQuery = 'Update tms_data SET DiviceLocation = ?, CompanyUID = ? WHERE DiviceId = ?';
+      const devicesQuery = 'Update tms_devices SET DeviceLocation = ?, DeviceName = ? WHERE DeviceUID = ?';
 
-      db.query(devicesQuery, [DiviceLocation, CompanyUID, deviceId], (error, devices) => {
+      db.query(devicesQuery, [DeviceLocation, DeviceName, deviceId], (error, devices) => {
         if (error) {
           console.error('Error fetching devices:', error);
           return res.status(500).json({ message: 'Internal server error' });
@@ -196,7 +196,7 @@ function updatePassword(req, res) {
 function editDeviceTrigger(req, res) {
   const deviceId = req.params.deviceId;
   const { TriggerValue, CompanyEmail } = req.body;
-  const deviceCheckQuery = 'SELECT * FROM tms_trigger WHERE DeviceId = ?';
+  const deviceCheckQuery = 'SELECT * FROM tms_trigger WHERE DeviceUID = ?';
 
   db.query(deviceCheckQuery, [deviceId], (error, deviceCheckResult) => {
     if (error) {
@@ -206,7 +206,7 @@ function editDeviceTrigger(req, res) {
 
     try {
       if (deviceCheckResult.length === 0) {
-        const insertTriggerQuery = 'INSERT INTO tms_trigger (DeviceId, TriggerValue, CompanyEmail) VALUES (?,?,?)';
+        const insertTriggerQuery = 'INSERT INTO tms_trigger (DeviceUID, TriggerValue, CompanyEmail) VALUES (?,?,?)';
 
         db.query(insertTriggerQuery, [deviceId, TriggerValue, CompanyEmail], (error, insertResult) => {
           if (error) {
@@ -217,7 +217,7 @@ function editDeviceTrigger(req, res) {
           return res.json({ message: 'Device added successfully!' });
         });
       } else {
-        const updateDeviceTriggerQuery = 'UPDATE tms_trigger SET TriggerValue = ?, CompanyEmail = ? WHERE DeviceId = ?';
+        const updateDeviceTriggerQuery = 'UPDATE tms_trigger SET TriggerValue = ?, CompanyEmail = ? WHERE DeviceUID = ?';
 
         db.query(updateDeviceTriggerQuery, [TriggerValue, CompanyEmail, deviceId], (error, updateResult) => {
           if (error) {
