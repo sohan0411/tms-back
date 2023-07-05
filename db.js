@@ -2,11 +2,12 @@ const mysql = require('mysql');
 require('dotenv').config(); // Load environment variables from .env file
 
 const connection = mysql.createPool({
-  connectionLimit: 100, // Set the maximum number of connections in the pool
+  connectionLimit: 20, // Set the maximum number of connections in the pool
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  connectTimeout: 10000,
 });
 
 connection.getConnection((err, connection) => {
@@ -18,3 +19,4 @@ connection.getConnection((err, connection) => {
 });
 
 module.exports = connection;
+

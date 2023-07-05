@@ -43,6 +43,26 @@ function userDevices(req, res) {
   });
 }
 
+
+function fetchDeviceTriggers(req, res) {
+  const CompanyEmail = req.params.body;
+  try {
+    const query = 'SELECT * FROM tms_triggers where CompanyEmail = ?';
+    db.query(query, [CompanyEmail], (error, devices) => {
+      if (error) {
+        throw new Error('Error fetching devices');
+      }
+
+      res.json({ devices: devices });
+      /*res.json({ users: encryptedUsers });*/
+      console.log(devices);
+    });
+  } catch (error) {
+    console.error('Error fetching devices:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
 function editDevice(req, res) {
   const deviceId = req.params.deviceId;
   const { DeviceLocation, DeviceName}  = req.body; 
@@ -252,11 +272,10 @@ function editDeviceTrigger(req, res) {
   });
 }
 
-
-
 module.exports = {
 	userDevices,
   editDevice,
+  fetchDeviceTriggers,
   companyDetails,
   personalDetails,
   updatePassword,
