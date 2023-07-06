@@ -386,25 +386,7 @@ function getUserDetails(req, res) {
   });
 }
 
-function fetchAllUsers(req, res) {
-  try {
-    const query = 'SELECT * FROM tms_users';
-    db.query(query, (error, rows) => {
-      if (error) {
-        throw new Error('Error fetching users');
-      }
-      const encryptedUsers = secure.encryptData(rows, encryptKey);
 
-      res.json({ users: rows });
-      /*res.json({ users: encryptedUsers });*/
-      console.log(rows);
-      console.log(encryptedUsers)
-    });
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-}
 
 
 // Forgot password
@@ -576,7 +558,6 @@ module.exports = {
   resendToken,
   login,
   getUserDetails,
-  fetchAllUsers,
   forgotPassword,
   resendResetToken,
   resetPassword
