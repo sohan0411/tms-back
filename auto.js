@@ -45,9 +45,9 @@ function monitorDevice() {
 
     const deviceUIDs = deviceData.map((device) => device.DeviceUID);
 
-    const selectLatestDataQuery = `SELECT * FROM actual_data WHERE (DeviceUID, Timestamp) IN (SELECT DeviceUID, MAX(Timestamp) FROM actual_data GROUP BY DeviceUID)`;
+    const selectLatestDataQuery = `SELECT * FROM actual_data WHERE DeviceUID IN (${deviceUIDs.map(() => '?').join(', ')}) AND Timestamp >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)`;
 
-    db.query(selectLatestDataQuery, (error, latestDataResults) => {
+    db.query(selectLatestDataQuery, deviceUIDs, (error, latestDataResults) => {
       if (error) {
         console.error('Error executing the latest data select query: ', error);
         return;
@@ -84,6 +84,7 @@ function monitorDevice() {
     });
   });
 }
+
 
 
 setInterval(testData, 10000);
