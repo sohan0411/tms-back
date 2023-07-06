@@ -210,7 +210,7 @@ function updatePassword(req, res) {
 }
 
 
-/*function fetchDeviceTrigger(req, res){
+function fetchDeviceTrigger(req, res){
   const deviceId = req.params.deviceId;
   const deviceTriggerQuery = 'select * from tms_trigger where DeviceUID = ?';
 
@@ -227,7 +227,7 @@ function updatePassword(req, res) {
       console.error('Error in device check:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
-}*/
+}
 
 
 function editDeviceTrigger(req, res) {
