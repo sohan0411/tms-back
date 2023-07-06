@@ -315,34 +315,54 @@ function week_log(req, res) {
   });
 }
 
+function getDataByTimeInterval(req, res) {
+  try {
+    const deviceId = req.params.deviceId;
+    const timeInterval = req.query.interval;
+    if (!timeInterval) {
+      return res.status(400).json({ message: 'Invalid time interval' });
+    }
 
-
-function TimeInterval(req, res) {
-  const deviceId = req.params.deviceId;
-  const timeInterval = req.query.interval;
-  const startDate = req.query.start;
-  const endDate = req.query.end;
-  //const csv = require('fast-csv');
-  //const jsonexport = require('jsonexport');
-
-
-  if (timeInterval) {
     let duration;
     switch (timeInterval) {
+      case '30sec':
+        duration = 'INTERVAL 30 SECOND';
+        break;
       case '1min':
         duration = 'INTERVAL 1 MINUTE';
+        break;
+      case '2min':
+        duration = 'INTERVAL 2 MINUTE';
         break;
       case '5min':
         duration = 'INTERVAL 5 MINUTE';
         break;
+      case '10min':
+        duration = 'INTERVAL 10 MINUTE';
+        break;
+      case '30min':
+        duration = 'INTERVAL 30 MINUTE';
+        break;
       case '1hour':
         duration = 'INTERVAL 1 HOUR';
         break;
-      case '5hour':
-        duration = 'INTERVAL 5 HOUR';
+      case '2hour':
+        duration = 'INTERVAL 2 HOUR';
         break;
-      case '1month':
-        duration = 'INTERVAL 1 MONTH';
+      case '10hour':
+        duration = 'INTERVAL 10 HOUR';
+        break;
+      case '12hour':
+        duration = 'INTERVAL 12 HOUR';
+        break;
+      case '1day':
+        duration = 'INTERVAL 1 DAY';
+        break;
+      case '7day':
+        duration = 'INTERVAL 7 DAY';
+        break;
+      case '30day':
+        duration = 'INTERVAL 30 DAY';
         break;
       default:
         return res.status(400).json({ message: 'Invalid time interval' });
@@ -354,10 +374,25 @@ function TimeInterval(req, res) {
         console.error('Error fetching data:', error);
         return res.status(500).json({ message: 'Internal server error' });
       }
-
       res.json({ data: results });
     });
-  } else if (startDate && endDate) {
+  } catch (error) {
+    console.error('An error occurred:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+function getDataByCustomDate(req, res) {
+  try {
+    const deviceId = req.params.deviceId;
+    const startDate = req.query.start;
+    const endDate = req.query.end;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: 'Invalid parameters' });
+    }
+
     const sql = `SELECT * FROM actual_data WHERE DeviceUID = ? AND Timestamp >= ? AND Timestamp <= ?`;
     db.query(sql, [deviceId, startDate, endDate], (error, results) => {
       if (error) {
@@ -367,12 +402,13 @@ function TimeInterval(req, res) {
 
       res.json({ data: results });
     });
-  } else {
-    return res.status(400).json({ message: 'Invalid parameters' });
+  } catch (error) {
+    console.error('An error occurred:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-
-  
 }
+
+
 
 
 module.exports = {
@@ -386,5 +422,6 @@ module.exports = {
   editDeviceTrigger,
   week_log,
   week_logs,
-  TimeInterval
+  getDataByTimeInterval,
+  getDataByCustomDate
 };

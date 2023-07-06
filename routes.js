@@ -46,7 +46,9 @@ router.get('/logs/week', dashboard.week_logs);
 
 router.get('/log/week/:deviceId', dashboard.week_log);
 
-router.get('/data/:deviceId', dashboard.TimeInterval);
+router.get('/data/:deviceId/intervals', dashboard.getDataByTimeInterval);
+
+router.get('/data/:deviceId', dashboard.getDataByCustomDate);
 
 
 //SA
