@@ -95,5 +95,5 @@ function monitorDevice() {
 
 
 
-setInterval(testData, 10000);
-setInterval(monitorDevice, 10000);
+setInterval(testData, 1000);
+setInterval(monitorDevice, 1000);
