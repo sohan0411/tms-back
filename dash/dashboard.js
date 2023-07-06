@@ -240,7 +240,7 @@ function fetchAllDeviceTrigger(req, res){
           return res.status(500).json({ message: 'Internal server error' });
         }
 
-        res.status(200).json(devices : devicetriggerkResult);
+        res.status(200).json(devicetriggerkResult);
       });
     } catch (error) {
       console.error('Error in device check:', error);
