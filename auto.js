@@ -35,6 +35,11 @@ async function monitorDevice() {
 
     const deviceResults = await db.query(selectDevicesQuery);
 
+    if (!Array.isArray(deviceResults)) {
+      console.error('Device results are not iterable:', deviceResults);
+      return;
+    }
+
     for (const device of deviceResults) {
       const deviceUID = device.DeviceUID;
 
@@ -70,6 +75,7 @@ async function monitorDevice() {
     console.error('Error occurred during monitoring devices:', error);
   }
 }
+
 
 setInterval(monitorDevice, 1000);
 setInterval(testData, 1000);
