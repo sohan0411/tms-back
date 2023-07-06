@@ -23,7 +23,7 @@ function testData() {
       if (error) {
         console.log("Error while inserting data", error);
       } else {
-        console.log("Data inserted successfully!");
+        /*console.log("Data inserted successfully!");*/
       }
     });
   }

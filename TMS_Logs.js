@@ -58,7 +58,7 @@ function monitorDevice() {
             console.error('Error inserting the device data into tms_log: ', error);
             return;
           }
-          console.log('Device data inserted into tms_log successfully!');
+         /* console.log('Device data inserted into tms_log successfully!');*/
         });
       }
     });
