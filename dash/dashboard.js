@@ -248,8 +248,6 @@ function fetchAllDeviceTrigger(req, res){
     }
 }
 
-
-
 function editDeviceTrigger(req, res) {
   const deviceId = req.params.deviceId;
   const { TriggerValue, CompanyEmail } = req.body;
