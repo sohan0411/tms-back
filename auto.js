@@ -24,7 +24,6 @@ function testData() {
         console.log("Error while inserting data", error);
       } else {
         console.log("Data inserted successfully!");
-        monitorDevice(DeviceUID, Temperature, Humidity, Timestamp);
       }
     });
   }
@@ -60,7 +59,7 @@ async function monitorDevice() {
         status = 'Online';
       }
 
-      const insertLogQuery = `INSERT INTO tms_trigger_logs (DeviceUID, Temperature, Humidity, Timestamp, Status) VALUES (?, ?, ?, ?, ?)`;
+      const insertLogQuery = `INSERT INTO tms_trigger_logs (DeviceUID, Temperature, Humidity, TimeStamp, Status) VALUES (?, ?, ?, ?, ?)`;
       const insertLogValues = [deviceUID, temperature, humidity, timestamp, status];
 
       await db.query(insertLogQuery, insertLogValues);
