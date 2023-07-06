@@ -35,11 +35,8 @@ async function monitorDevice() {
 
     const deviceResults = await db.query(selectDevicesQuery);
 
-    if (!Array.isArray(deviceResults)) {
-      console.error('Device results are not iterable:', deviceResults);
-      return;
-    }
-
+    const devices = Array.from(deviceResults);
+    
     for (const device of deviceResults) {
       const deviceUID = device.DeviceUID;
 
