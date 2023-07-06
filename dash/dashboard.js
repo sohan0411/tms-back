@@ -293,107 +293,6 @@ function editDeviceTrigger(req, res) {
 }
 
 
-/*function fetchTriggers(req, res) {
-  const companyEmail = req.params.companyEmail;
-  const userCheckQuery = 'SELECT * FROM tms_trigger WHERE CompanyEmail = ?';
-
-  db.query(userCheckQuery, [companyEmail], (error, userCheckResult) => {
-    if (error) {
-      console.error('Error during user check:', error);
-      return res.status(500).json({ message: 'Internal server error' });
-    }
-
-    try {
-      if (userCheckResult.length === 0) {
-        console.log('User not found!');
-        return res.status(400).json({ message: 'User not found!' });
-      }
-
-      const triggersQuery = 'SELECT * from tms_trigger WHERE CompanyEmail = ?';
-
-      db.query(triggersQuery, [companyEmail], (error, triggers) => {
-        if (error) {
-          console.error('Error fetching Triggers:', error);
-          return res.status(500).json({ message: 'Internal server error' });
-        }
-
-        res.json({ triggers });
-        console.log(triggers);
-      });
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-}
-
-function TimeInterval(req, res){
-  const deviceId = req.params.deviceId;
-  const timeInterval = req.query.interval;
-
-  let duration;
-  switch (timeInterval) {
-    case '30sec':
-      duration = 'INTERVAL 30 SECOND';
-      break;
-    case '1min':
-      duration = 'INTERVAL 1 MINUTE';
-      break;
-    case '2min':
-      duration = 'INTERVAL 2 MINUTES';
-      break;
-    case '5min':
-      duration = 'INTERVAL 5 MINUTE';
-      break;
-    case '10min':
-      duration = 'INTERVAL 10 MINUTE';
-      break;
-    case '30min':
-      duration = 'INTERVAL 30 MINUTE';
-      break;
-    case '1hour':
-      duration = 'INTERVAL 1 HOUR';
-      break;
-    case '2hour':
-      duration = 'INTERVAL 2 HOUR';
-      break;
-    case '10hour':
-        duration = 'INTERVAL 10 HOUR';
-        break;
-    case '12hour':
-      duration = 'INTERVAL 12 HOUR';
-      break;
-    case '1day':
-      duration = 'INTERVAL 1 DAY';
-      break;
-    case '7days':
-      duration = 'INTERVAL 7 DAY';
-      break;
-
-    case '30days':
-        duration = 'INTERVAL 30 DAY';
-        break;
-
-    default:
-      return res.status(400).json({ message: 'Invalid time interval' });
-  }
-
-  const sql = `SELECT * FROM actual_data WHERE DeviceUID = ? AND Timestamp >= DATE_SUB(NOW(), ${duration})`;
-  db.query(sql, [deviceId], (error, results) => {
-    if (error) {
-      console.error('Error fetching data:', error);
-      return res.status(500).json({ message: 'Internal server error' });
-    }
-
-    res.json({ data: results });
-  });
-}*/
-
-
-
-
-
->>>>>>> 1b0ded1f983f627b8742741334bbc5793435a00f
 module.exports = {
 	userDevices,
   editDevice,
@@ -403,6 +302,4 @@ module.exports = {
   personalDetails,
   updatePassword,
   editDeviceTrigger,
-/*  fetchTriggers,
-  TimeInterval,*/
 };

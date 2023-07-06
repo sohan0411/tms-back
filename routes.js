@@ -13,9 +13,6 @@ router.post('/login', authentication.login);
 
 router.get('/user', authentication.getUserDetails);
 
-
-//router.get('/users', authentication.fetchAllUsers);
-
 router.post('/verify', authentication.verifyToken);
 
 router.post('/re-verify-mail', authentication.resendToken);
@@ -45,9 +42,6 @@ router.get('/device-trigger/:deviceId', dashboard.fetchDeviceTriggers);
 
 router.get('/user-devices-trigger/:CompanyEmail', dashboard.fetchAllDeviceTrigger);
 
-/*router.get('/fetchTriggers/:companyEmail', dashboard.fetchTriggers);
-
-router.get('/TimeInterval/:deviceId', dashboard.TimeInterval);*/
 
 //SA
 
@@ -68,9 +62,5 @@ router.put('/updateDevice/:deviceUID', SA.updateDevice);
 
 // Delete a device by its unique identifier
 router.delete('/deleteDevice/:deviceUID', SA.deleteDevice);
-
-//fetch company details
-router.get('/fetchCompanyDetails/:deviceUID', SA.fetchCompanyDetails);
-
 
 module.exports = router;
