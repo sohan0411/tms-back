@@ -36,8 +36,8 @@ async function monitorDevice() {
     const deviceResults = await db.query(selectDevicesQuery);
 
     const devices = Array.isArray(deviceResults) ? deviceResults : [deviceResults];
-    
-    for (const device of deviceResults) {
+
+    devices.map(async (device) => {
       const deviceUID = device.DeviceUID;
 
       const selectTriggerQuery = 'SELECT * FROM tms_trigger WHERE DeviceUID = ?';
@@ -46,7 +46,7 @@ async function monitorDevice() {
       const selectActualDataQuery = `SELECT * FROM actual_data WHERE DeviceUID = ? ORDER BY TimeStamp DESC LIMIT 1`;
       const actualDataResult = await db.query(selectActualDataQuery, deviceUID);
       const actualData = actualDataResult[0];
-      
+
       const triggerValue = triggerResults[0].TriggerValue;
       const temperature = actualData.Temperature;
       const humidity = actualData.Humidity;
@@ -67,11 +67,12 @@ async function monitorDevice() {
       await db.query(insertLogQuery, insertLogValues);
 
       console.log('Device data inserted into TMS_trigger_logs successfully!');
-    }
+    });
   } catch (error) {
     console.error('Error occurred during monitoring devices:', error);
   }
 }
+
 
 
 setInterval(monitorDevice, 1000);
