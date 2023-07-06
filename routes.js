@@ -42,6 +42,12 @@ router.get('/device-trigger/:deviceId', dashboard.fetchDeviceTriggers);
 
 router.get('/user-devices-trigger/:CompanyEmail', dashboard.fetchAllDeviceTrigger);
 
+router.get('/logs/week', dashboard.week_logs);
+
+router.get('/log/week/:deviceId', dashboard.week_log);
+
+router.get('/data/:deviceId', dashboard.TimeInterval);
+
 
 //SA
 

@@ -292,6 +292,90 @@ function editDeviceTrigger(req, res) {
   });
 }
 
+function week_logs(req, res) {
+  const sql = 'SELECT * FROM actual_data WHERE Timestamp >= DATE_SUB(NOW(), INTERVAL 1 WEEK)';
+  db.query(sql, (error, results) => {
+    if (error) {
+      console.error('Error while fetching data', error);
+      res.status(500).json({ error: 'An error occurred' });
+    } else {
+      res.send(results);
+    }
+  });
+}
+
+function week_log(req, res) {
+  const deviceId = req.params.deviceId;
+  const sql = 'SELECT * FROM actual_data WHERE DeviceUID = ? AND Timestamp >= DATE_SUB(NOW(), INTERVAL 1 WEEK)';
+  db.query(sql, [deviceId], (error, results) => {
+    if (error) {
+      console.error('Error while fetching data', error);
+      res.status(500).json({ error: 'An error occurred' });
+    } else {
+      res.send(results);
+    }
+  });
+}
+
+
+
+function TimeInterval(req, res) {
+  const deviceId = req.params.deviceId;
+  const timeInterval = req.query.interval;
+  const startDate = req.query.start;
+  const endDate = req.query.end;
+  //const csv = require('fast-csv');
+  //const jsonexport = require('jsonexport');
+
+
+  if (timeInterval) {
+    let duration;
+    switch (timeInterval) {
+      case '1min':
+        duration = 'INTERVAL 1 MINUTE';
+        break;
+      case '5min':
+        duration = 'INTERVAL 5 MINUTE';
+        break;
+      case '1hour':
+        duration = 'INTERVAL 1 HOUR';
+        break;
+      case '5hour':
+        duration = 'INTERVAL 5 HOUR';
+        break;
+      case '1month':
+        duration = 'INTERVAL 1 MONTH';
+        break;
+      default:
+        return res.status(400).json({ message: 'Invalid time interval' });
+    }
+
+    const sql = `SELECT * FROM actual_data WHERE DeviceUID = ? AND Timestamp >= DATE_SUB(NOW(), ${duration})`;
+    db.query(sql, [deviceId], (error, results) => {
+      if (error) {
+        console.error('Error fetching data:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      res.json({ data: results });
+    });
+  } else if (startDate && endDate) {
+    const sql = `SELECT * FROM actual_data WHERE DeviceUID = ? AND Timestamp >= ? AND Timestamp <= ?`;
+    db.query(sql, [deviceId, startDate, endDate], (error, results) => {
+      if (error) {
+        console.error('Error fetching data:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      res.json({ data: results });
+    });
+  } else {
+    return res.status(400).json({ message: 'Invalid parameters' });
+  }
+
+  
+}
+
 
 module.exports = {
 	userDevices,
@@ -302,4 +386,7 @@ module.exports = {
   personalDetails,
   updatePassword,
   editDeviceTrigger,
+  week_log,
+  week_logs,
+  TimeInterval
 };
