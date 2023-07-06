@@ -41,6 +41,6 @@ router.put('/editDeviceTrigger/:deviceId', dashboard.editDeviceTrigger);
 
 router.get('/device-trigger/:deviceId', dashboard.fetchDeviceTriggers);
 
-router.get('/user-devices-trigger/:CompanyEmail', dashboard.fetchAllDeviceTriggers);
+router.get('/user-devices-trigger/:CompanyEmail', dashboard.fetchAllDeviceTrigger);
 
 module.exports = router;
