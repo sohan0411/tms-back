@@ -43,6 +43,11 @@ async function monitorDevice() {
       const selectTriggerQuery = 'SELECT * FROM tms_trigger WHERE DeviceUID = ?';
       const triggerResults = await db.query(selectTriggerQuery, deviceUID);
 
+      if (triggerResults.length === 0) {
+        console.log('No trigger results found for DeviceUID:', deviceUID);
+        return;
+      }
+
       const selectActualDataQuery = `SELECT * FROM actual_data WHERE DeviceUID = ? ORDER BY TimeStamp DESC LIMIT 1`;
       const actualDataResult = await db.query(selectActualDataQuery, deviceUID);
       const actualData = actualDataResult[0];
@@ -50,7 +55,7 @@ async function monitorDevice() {
       const triggerValue = triggerResults[0].TriggerValue;
       const temperature = actualData.Temperature;
       const humidity = actualData.Humidity;
-      const timestamp = new Date(actualData.Timestamp).toISOString();
+      const timestamp = new Date(actualData.TimeStamp).toISOString();
 
       let status;
       if (triggerValue < temperature) {
