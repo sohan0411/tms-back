@@ -30,66 +30,47 @@ function testData() {
   }
 }
 
-function monitorDevice() {
-  const selectTriggerQuery = 'SELECT DeviceUID FROM tms_trigger';
+async function monitorDevice() {
+  try {
+    const selectDevicesQuery = 'SELECT * FROM tms_devices';
 
-  db.query(selectTriggerQuery, (error, triggerResults) => {
-    if (error) {
-      console.error('Error executing the select query: ', error);
-      return;
+    const deviceResults = await db.query(selectDevicesQuery);
+
+    for (const device of deviceResults) {
+      const deviceUID = device.DeviceUID;
+
+      const selectTriggerQuery = 'SELECT * FROM tms_trigger WHERE DeviceUID = ?';
+      const triggerResults = await db.query(selectTriggerQuery, deviceUID);
+
+      const selectActualDataQuery = `SELECT * FROM actual_data WHERE DeviceUID = ? ORDER BY TimeStamp DESC LIMIT 1`;
+      const actualDataResult = await db.query(selectActualDataQuery, deviceUID);
+      const actualData = actualDataResult[0];
+      
+      const triggerValue = triggerResults[0].TriggerValue;
+      const temperature = actualData.Temperature;
+      const humidity = actualData.Humidity;
+      const timestamp = new Date(actualData.Timestamp).toISOString();
+
+      let status;
+      if (triggerValue < temperature) {
+        status = 'Heating';
+      } else if (new Date() - new Date(timestamp) <= 5 * 60 * 1000) {
+        status = 'Offline';
+      } else {
+        status = 'Online';
+      }
+
+      const insertLogQuery = `INSERT INTO tms_trigger_logs (DeviceUID, Temperature, Humidity, Timestamp, Status) VALUES (?, ?, ?, ?, ?)`;
+      const insertLogValues = [deviceUID, temperature, humidity, timestamp, status];
+
+      await db.query(insertLogQuery, insertLogValues);
+
+      console.log('Device data inserted into TMS_trigger_logs successfully!');
     }
-
-    const deviceUIDs = triggerResults.map((trigger) => trigger.DeviceUID);
-
-    const selectActualDataQuery = `SELECT * FROM actual_data WHERE DeviceUID IN (${deviceUIDs.map(() => '?').join(',')})`;
-
-    db.query(selectActualDataQuery, deviceUIDs, (error, actualDataResults) => {
-      if (error) {
-        console.error('Error executing the actual data select query: ', error);
-        return;
-      }
-
-      const filteredData = actualDataResults.filter((actualData) => actualData.Temperature > 30);
-
-      const insertLogQuery = `INSERT INTO tms_trigger_logs (DeviceUID, Temperature, Humidity, Timestamp) VALUES ?`;
-      const insertLogValues = filteredData.map((data) => [
-        data.DeviceUID,
-        data.Temperature,
-        data.Humidity,
-        new Date().toISOString(),
-      ]);
-
-      if (insertLogValues.length > 0) {
-        db.query(insertLogQuery, [insertLogValues], (error) => {
-          if (error) {
-            console.error('Error inserting the device data into TMS_trigger_logs: ', error);
-            return;
-          }
-          console.log('Device data inserted into TMS_trigger_logs successfully!');
-        });
-      }
-
-      //Device status in tms_trigger_logs
-      const updateStatusQuery = `UPDATE tms_trigger_logs SET Status = CASE WHEN Timestamp >= ? THEN 'online' ELSE 'offline' END WHERE DeviceUID IN (${deviceUIDs.map(() => '?').join(',')})`;
-
-      const lastFiveMinutes = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-      const updateStatusValues = [lastFiveMinutes, ...deviceUIDs];
-
-      db.query(updateStatusQuery, updateStatusValues, (error) => {
-        if (error) {
-          console.error('Error updating device status in TMS_trigger_logs: ', error);
-          return;
-        }
-        console.log('Device status updated in TMS_trigger_logs successfully!');
-      });
-    });
-  });
+  } catch (error) {
+    console.error('Error occurred during monitoring devices:', error);
+  }
 }
 
-
-
-
-testData();
-monitorDevice();
-
-setInterval(testData, 10000);
+setInterval(monitorDevice, 1000);
+setInterval(testData, 1000);
