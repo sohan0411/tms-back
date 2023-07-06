@@ -53,21 +53,21 @@ function monitorDevice() {
         return;
       }
 
-      const insertLogQuery = `INSERT INTO tms_log (DeviceUID, Temperature, Humidity, Timestamp, Status) VALUES ?`;
+      const insertLogQuery = `INSERT INTO tms_trigger_logs (DeviceUID, Temperature, Humidity, TimeStamp, Status) VALUES ?`;
       const insertLogValues = [];
 
       deviceData.forEach((device) => {
         const latestData = latestDataResults.find((data) => data.DeviceUID === device.DeviceUID);
 
         if (latestData) {
-          const { DeviceUID, Temperature, Humidity, Timestamp } = latestData;
-          const status = new Date(Timestamp) >= new Date(Date.now() - 5 * 60 * 1000) ? 'online' : 'offline';
+          const { DeviceUID, Temperature, Humidity, TimeStamp } = latestData;
+          const status = new Date(TimeStamp) >= new Date(Date.now() - 5 * 60 * 1000) ? 'online' : 'offline';
           const triggerValue = device.TriggerValue;
 
           if (Temperature > triggerValue) {
-            insertLogValues.push([DeviceUID, Temperature, Humidity, Timestamp, 'heating']);
+            insertLogValues.push([DeviceUID, Temperature, Humidity, TimeStamp, 'heating']);
           } else {
-            insertLogValues.push([DeviceUID, Temperature, Humidity, Timestamp, status]);
+            insertLogValues.push([DeviceUID, Temperature, Humidity, TimeStamp, status]);
           }
         }
       });
