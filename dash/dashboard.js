@@ -234,13 +234,13 @@ function fetchAllDeviceTrigger(req, res){
   const deviceTriggerQuery = 'select * from tms_trigger where CompanyEmail = ?';
 
     try {
-      db.query(deviceTriggerQuery, [CompanyEmail], (error, devicetriggerkResult) => {
+      db.query(deviceTriggerQuery, [CompanyEmail], (error, triggers) => {
         if (error) {
           console.error('Error during device check:', error);
           return res.status(500).json({ message: 'Internal server error' });
         }
 
-        res.status(200).json(devicetriggerkResult);
+        res.status(200).json({triggers});
       });
     } catch (error) {
       console.error('Error in device check:', error);
