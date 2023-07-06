@@ -29,60 +29,62 @@ function testData() {
   }
 }
 
-async function monitorDevice() {
-  try {
-    const selectDevicesQuery = 'SELECT * FROM tms_devices';
+function monitorDevice() {
+  const selectTriggerQuery = 'SELECT tms_trigger.DeviceUID, tms_devices.TriggerValue FROM tms_trigger JOIN tms_devices ON tms_trigger.DeviceUID = tms_devices.DeviceUID';
 
-    const deviceResults = await db.query(selectDevicesQuery);
+  db.query(selectTriggerQuery, (error, triggerResults) => {
+    if (error) {
+      console.error('Error executing the select query: ', error);
+      return;
+    }
 
-    const devices = Array.isArray(deviceResults) ? deviceResults : [deviceResults];
+    const deviceData = triggerResults.map((trigger) => ({
+      DeviceUID: trigger.DeviceUID,
+      TriggerValue: trigger.TriggerValue
+    }));
 
-    devices.map(async (device) => {
-      const deviceUID = device.DeviceUID;
+    const deviceUIDs = deviceData.map((device) => device.DeviceUID);
 
-      console.log('Processing device:', deviceUID);
+    const selectLatestDataQuery = `SELECT * FROM actual_data WHERE (DeviceUID, Timestamp) IN (SELECT DeviceUID, MAX(Timestamp) FROM actual_data GROUP BY DeviceUID)`;
 
-      const selectTriggerQuery = 'SELECT * FROM tms_trigger WHERE DeviceUID = ?';
-      const triggerResults = await db.query(selectTriggerQuery, deviceUID);
-
-      console.log('Trigger results:', triggerResults);
-
-      if (triggerResults.length === 0) {
-        console.log('No trigger results found for DeviceUID:', deviceUID);
+    db.query(selectLatestDataQuery, (error, latestDataResults) => {
+      if (error) {
+        console.error('Error executing the latest data select query: ', error);
         return;
       }
 
-      const selectActualDataQuery = `SELECT * FROM actual_data WHERE DeviceUID = ? ORDER BY TimeStamp DESC LIMIT 1`;
-      const actualDataResult = await db.query(selectActualDataQuery, deviceUID);
-      const actualData = actualDataResult[0];
+      const insertLogQuery = `INSERT INTO tms_log (DeviceUID, Temperature, Humidity, Timestamp, Status) VALUES ?`;
+      const insertLogValues = [];
 
-      const triggerValue = triggerResults[0].TriggerValue;
-      const temperature = actualData.Temperature;
-      const humidity = actualData.Humidity;
-      const timestamp = new Date(actualData.Timestamp).toISOString();
+      deviceData.forEach((device) => {
+        const latestData = latestDataResults.find((data) => data.DeviceUID === device.DeviceUID);
 
-      let status;
-      if (triggerValue < temperature) {
-        status = 'Heating';
-      } else if (new Date() - new Date(timestamp) <= 5 * 60 * 1000) {
-        status = 'Offline';
-      } else {
-        status = 'Online';
+        if (latestData) {
+          const { DeviceUID, Temperature, Humidity, Timestamp } = latestData;
+          const status = new Date(Timestamp) >= new Date(Date.now() - 5 * 60 * 1000) ? 'online' : 'offline';
+          const triggerValue = device.TriggerValue;
+
+          if (Temperature > triggerValue) {
+            insertLogValues.push([DeviceUID, Temperature, Humidity, Timestamp, 'heating']);
+          } else {
+            insertLogValues.push([DeviceUID, Temperature, Humidity, Timestamp, status]);
+          }
+        }
+      });
+
+      if (insertLogValues.length > 0) {
+        db.query(insertLogQuery, [insertLogValues], (error) => {
+          if (error) {
+            console.error('Error inserting the device data into tms_log: ', error);
+            return;
+          }
+          console.log('Device data inserted into tms_log successfully!');
+        });
       }
-
-      const insertLogQuery = `INSERT INTO tms_trigger_logs (DeviceUID, Temperature, Humidity, TimeStamp, Status) VALUES (?, ?, ?, ?, ?)`;
-      const insertLogValues = [deviceUID, temperature, humidity, timestamp, status];
-
-      await db.query(insertLogQuery, insertLogValues);
-
-      console.log('Device data inserted into TMS_trigger_logs successfully!');
     });
-  } catch (error) {
-    console.error('Error occurred during monitoring devices:', error);
-  }
+  });
 }
 
 
-
+setInterval(testData, 10000);
 setInterval(monitorDevice, 1000);
-setInterval(testData, 1000);
