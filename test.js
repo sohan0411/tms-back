@@ -29,4 +29,4 @@ function testData() {
   }
 }
 
-setInterval(testData, 1000);
+setInterval(testData, 20000);

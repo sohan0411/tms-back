@@ -66,4 +66,4 @@ function monitorDevice() {
 }
 
 
-setInterval(monitorDevice, 1000);
+setInterval(monitorDevice, 20000);
