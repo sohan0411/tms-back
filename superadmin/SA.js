@@ -141,77 +141,12 @@ function fetchAllUsers(req, res) {
     }
   }
 
-  // function fetchCompanyDetails(req, res) {
-  //   const UserId = req.params.;
-  //   const companyQuery = 'SELECT CompanyName, ContactNo, Location, Designation FROM tms_users WHERE UserId = ?';
-  //   const standardUserCountQuery = 'SELECT COUNT(*) AS standardUserCount FROM tms_users WHERE UserType = "Standard"';
-  //   const adminCountQuery = 'SELECT COUNT(*) AS adminCount FROM tms_users WHERE UserType = "Admin"';
-  //   const deviceCountQuery = 'SELECT COUNT(*) AS deviceCount FROM tms_devices';
-  
-  //   try {
-  //     db.query(companyQuery, [UserId], (error, companyResult) => {
-  //       if (error) {
-  //         console.error('Error fetching company details:', error);
-  //         throw new Error('Internal server error');
-  //       }
-  
-  //       if (companyResult.length === 0) {
-  //         console.log('User not found!');
-  //         return res.status(404).json({ message: 'User not found!' });
-  //       }
-  
-  //       const company = companyResult[0];
-  
-  //       db.query(standardUserCountQuery, (error, standardUserResult) => {
-  //         if (error) {
-  //           console.error('Error fetching standard user count:', error);
-  //           throw new Error('Internal server error');
-  //         }
-  
-  //         const standardUserCount = standardUserResult[0].standardUserCount;
-  
-  //         db.query(adminCountQuery, (error, adminResult) => {
-  //           if (error) {
-  //             console.error('Error fetching admin count:', error);
-  //             throw new Error('Internal server error');
-  //           }
-  
-  //           const adminCount = adminResult[0].adminCount;
-  
-  //           db.query(deviceCountQuery, (error, deviceResult) => {
-  //             if (error) {
-  //               console.error('Error fetching device count:', error);
-  //               throw new Error('Internal server error');
-  //             }
-  
-  //             const deviceCount = deviceResult[0].deviceCount;
-  
-  //             res.json({
-  //               companyDetails: company,
-  //               standardUserCount: standardUserCount,
-  //               adminCount: adminCount,
-  //               deviceCount: deviceCount,
-  //             });
-  //           });
-  //         });
-  //       });
-  //     });
-  //   } catch (error) {
-  //     console.error('Error occurred:', error);
-  //     res.status(500).json({ message: 'Internal server error' });
-  //   }
-  // }
-  
-  
-  
   
 module.exports = {
   fetchAllUsers,
   fetchAllDevices,
-  fetchCompanyDetails,
   addDevice,
   getDeviceByUID,
   updateDevice,
-  deleteDevice
-  
+  deleteDevice  
 };
