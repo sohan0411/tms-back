@@ -35,7 +35,7 @@ async function monitorDevice() {
 
     const deviceResults = await db.query(selectDevicesQuery);
 
-    const devices = Array.from(deviceResults);
+    const devices = Array.isArray(deviceResults) ? deviceResults : [deviceResults];
     
     for (const device of deviceResults) {
       const deviceUID = device.DeviceUID;
