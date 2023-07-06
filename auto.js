@@ -30,7 +30,7 @@ function testData() {
 }
 
 function monitorDevice() {
-  const selectTriggerQuery = 'SELECT tms_trigger.DeviceUID, tms_devices.TriggerValue FROM tms_trigger JOIN tms_devices ON tms_trigger.DeviceUID = tms_devices.DeviceUID';
+  const selectTriggerQuery = 'SELECT tms_devices.DeviceUID, tms_trigger.TriggerValue FROM tms_trigger JOIN tms_devices ON tms_trigger.DeviceUID = tms_devices.DeviceUID';
 
   db.query(selectTriggerQuery, (error, triggerResults) => {
     if (error) {
