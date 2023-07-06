@@ -229,6 +229,25 @@ function fetchDeviceTrigger(req, res){
     }
 }
 
+function fetchAllDeviceTrigger(req, res){
+  const CompanyEmail = req.params.CompanyEmail;
+  const deviceTriggerQuery = 'select * from tms_trigger where CompanyEmail = ?';
+
+    try {
+      db.query(deviceTriggerQuery, [CompanyEmail], (error, devicetriggerkResult) => {
+        if (error) {
+          console.error('Error during device check:', error);
+          return res.status(500).json({ message: 'Internal server error' });
+        }
+
+        res.status(200).json(devices : devicetriggerkResult);
+      });
+    } catch (error) {
+      console.error('Error in device check:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 
 function editDeviceTrigger(req, res) {
   const deviceId = req.params.deviceId;
@@ -276,8 +295,9 @@ module.exports = {
 	userDevices,
   editDevice,
   fetchDeviceTriggers,
+  fetchAllDeviceTrigger,
   companyDetails,
   personalDetails,
   updatePassword,
-  editDeviceTrigger
+  editDeviceTrigger,  
 };

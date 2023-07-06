@@ -39,6 +39,8 @@ router.put('/updatePassword/:UserId', dashboard.updatePassword);
 
 router.put('/editDeviceTrigger/:deviceId', dashboard.editDeviceTrigger);
 
-router.get('/devices-trigger/:CompanyEmail', dashboard.fetchDeviceTriggers);
+router.get('/device-trigger/:deviceId', dashboard.fetchDeviceTriggers);
+
+router.get('/user-devices-trigger/:CompanyEmail', dashboard.fetchAllDeviceTriggers);
 
 module.exports = router;
