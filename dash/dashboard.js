@@ -393,7 +393,7 @@ function getDataByCustomDate(req, res) {
       return res.status(400).json({ message: 'Invalid parameters' });
     }
 
-    const sql = `SELECT * FROM actual_data WHERE DeviceUID = ? AND Timestamp >= ? AND Timestamp <= ?`;
+    const sql = `SELECT * FROM actual_data WHERE DeviceUID = ? AND TimeStamp >= ? AND TimeStamp <= ?`;
     db.query(sql, [deviceId, startDate, endDate], (error, results) => {
       if (error) {
         console.error('Error fetching data:', error);
