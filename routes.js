@@ -50,6 +50,10 @@ router.get('/data/:deviceId/intervals', dashboard.getDataByTimeInterval);
 
 router.get('/data/:deviceId', dashboard.getDataByCustomDate);
 
+router.get('/dataStatus/:deviceId/intervals', dashboard.getDataByTimeIntervalStatus);
+
+router.get('/dataStatus/:deviceId', dashboard.getDataByCustomDateStatus);
+
 
 //SA
 

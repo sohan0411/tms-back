@@ -368,7 +368,7 @@ function getDataByTimeInterval(req, res) {
         return res.status(400).json({ message: 'Invalid time interval' });
     }
 
-    const sql = `SELECT * FROM actual_data WHERE DeviceUID = ? AND Timestamp >= DATE_SUB(NOW(), ${duration})`;
+    const sql = `SELECT * FROM actual_data WHERE DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), ${duration})`;
     db.query(sql, [deviceId], (error, results) => {
       if (error) {
         console.error('Error fetching data:', error);
@@ -381,6 +381,85 @@ function getDataByTimeInterval(req, res) {
     res.status(500).json({ message: 'Internal server error' });
   }
 }
+
+function getDataByTimeIntervalStatus(req, res) {
+  const deviceId = req.params.deviceId;
+  const timeInterval = req.query.interval;
+  if (!timeInterval) {
+    return res.status(400).json({ message: 'Invalid time interval' });
+  }
+
+  let duration;
+  switch (timeInterval) {
+    case '30sec':
+      duration = 'INTERVAL 30 SECOND';
+      break;
+    case '1min':
+      duration = 'INTERVAL 1 MINUTE';
+      break;
+    case '2min':
+      duration = 'INTERVAL 2 MINUTE';
+      break;
+    case '5min':
+      duration = 'INTERVAL 5 MINUTE';
+      break;
+    case '10min':
+      duration = 'INTERVAL 10 MINUTE';
+      break;
+    case '30min':
+      duration = 'INTERVAL 30 MINUTE';
+      break;
+    case '1hour':
+      duration = 'INTERVAL 1 HOUR';
+      break;
+    case '2hour':
+      duration = 'INTERVAL 2 HOUR';
+      break;
+    case '10hour':
+      duration = 'INTERVAL 10 HOUR';
+      break;
+    case '12hour':
+      duration = 'INTERVAL 12 HOUR';
+      break;
+    case '1day':
+      duration = 'INTERVAL 1 DAY';
+      break;
+    case '7day':
+      duration = 'INTERVAL 7 DAY';
+      break;
+    case '30day':
+      duration = 'INTERVAL 30 DAY';
+      break;
+    default:
+      return res.status(400).json({ message: 'Invalid time interval' });
+  }
+
+  const sql = `SELECT Status, COUNT(*) as count FROM tms_trigger_logs WHERE DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), ${duration}) GROUP BY Status`;
+  db.query(sql, [deviceId], (error, results) => {
+    if (error) {
+      console.error('Error fetching data:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+
+    try {
+      // Calculate total count
+      const totalCount = results.reduce((total, entry) => total + entry.count, 0);
+
+      // Calculate percentage for each status
+      const dataWithPercentage = results.map((entry) => ({
+        status: entry.Status,
+        count: entry.count,
+        percentage: (entry.count / totalCount) * 100
+      }));
+
+      res.json({ data: dataWithPercentage });
+    } catch (error) {
+      console.error('An error occurred:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+}
+
 
 
 function getDataByCustomDate(req, res) {
@@ -408,6 +487,42 @@ function getDataByCustomDate(req, res) {
   }
 }
 
+function getDataByCustomDateStatus(req, res) {
+  try {
+    const deviceId = req.params.deviceId;
+    const startDate = req.query.start;
+    const endDate = req.query.end;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: 'Invalid parameters' });
+    }
+
+    const sql = `SELECT Status, COUNT(*) as count FROM tms_trigger_logs WHERE DeviceUID = ? AND TimeStamp >= ? AND TimeStamp <= ? GROUP BY Status`;
+    db.query(sql, [deviceId, startDate, endDate], (error, results) => {
+      if (error) {
+        console.error('Error fetching data:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      // Calculate total count
+      const totalCount = results.reduce((total, entry) => total + entry.count, 0);
+
+      // Calculate percentage for each status
+      const dataWithPercentage = results.map((entry) => ({
+        status: entry.Status,
+        count: entry.count,
+        percentage: (entry.count / totalCount) * 100
+      }));
+
+      res.json({ data: dataWithPercentage });
+    });
+  } catch (error) {
+    console.error('An error occurred:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
 
 
 
@@ -423,5 +538,7 @@ module.exports = {
   week_log,
   week_logs,
   getDataByTimeInterval,
-  getDataByCustomDate
+  getDataByCustomDate,
+  getDataByTimeIntervalStatus,
+  getDataByCustomDateStatus
 };
