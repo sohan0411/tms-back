@@ -452,7 +452,7 @@ function getDataByTimeIntervalStatus(req, res) {
         percentage: (entry.count / totalCount) * 100
       }));
 
-      res.json({ data: dataWithPercentage });
+      res.json({ dataStatus: dataWithPercentage });
     } catch (error) {
       console.error('An error occurred:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -514,7 +514,7 @@ function getDataByCustomDateStatus(req, res) {
         percentage: (entry.count / totalCount) * 100
       }));
 
-      res.json({ data: dataWithPercentage });
+      res.json({ dataStatus: dataWithPercentage });
     });
   } catch (error) {
     console.error('An error occurred:', error);
