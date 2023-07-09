@@ -473,7 +473,7 @@ function getDataByCustomDate(req, res) {
     }
 
     const sql = `SELECT * FROM actual_data WHERE DeviceUID = ? AND TimeStamp >= ? AND TimeStamp <= ?`;
-    db.query(sql, [deviceId, startDate, endDate], (error, results) => {
+    db.query(sql, [deviceId, startDate + 'T00:00:00.000Z', endDate + 'T23:59:59.999Z'], (error, results) => {
       if (error) {
         console.error('Error fetching data:', error);
         return res.status(500).json({ message: 'Internal server error' });
@@ -498,7 +498,7 @@ function getDataByCustomDateStatus(req, res) {
     }
 
     const sql = `SELECT Status, COUNT(*) as count FROM tms_trigger_logs WHERE DeviceUID = ? AND TimeStamp >= ? AND TimeStamp <= ? GROUP BY Status`;
-    db.query(sql, [deviceId, startDate, endDate], (error, results) => {
+    db.query(sql, [deviceId, startDate + 'T00:00:00.000Z', endDate + 'T23:59:59.999Z'], (error, results) => {
       if (error) {
         console.error('Error fetching data:', error);
         return res.status(500).json({ message: 'Internal server error' });

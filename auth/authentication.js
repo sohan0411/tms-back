@@ -10,24 +10,6 @@ const ejs = require('ejs');
 
 encryptKey = "SenseLive-Tms-Dashboard";
 
-db.query('SET time_zone = "Asia/Kolkata";', (err, results) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  console.log('Time zone set to Asia/Kolkata');
-});
-
-
-db.query('SELECT @@session.time_zone;', (err, results) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  console.log('Time zone of current database:', results[0]['@@session.time_zone']);
-});
-
-
 // Function to send an email with the token
 function sendTokenEmail(email, token) {
   const transporter = nodemailer.createTransport({

@@ -1,6 +1,5 @@
 const db = require('./db');
 
-
 function monitorDevice() {
   const selectTriggerQuery = 'SELECT tms_devices.DeviceUID, tms_trigger.TriggerValue FROM tms_trigger JOIN tms_devices ON tms_trigger.DeviceUID = tms_devices.DeviceUID';
 
@@ -12,7 +11,7 @@ function monitorDevice() {
 
     const deviceData = triggerResults.map((trigger) => ({
       DeviceUID: trigger.DeviceUID,
-      TriggerValue: trigger.TriggerValue
+      TriggerValue: trigger.TriggerValue,
     }));
 
     const deviceUIDs = deviceData.map((device) => device.DeviceUID);
@@ -20,8 +19,8 @@ function monitorDevice() {
     const selectLatestDataQuery = `
       SELECT *
       FROM actual_data
-      WHERE (DeviceUID, Timestamp) IN (
-        SELECT DeviceUID, MAX(Timestamp) AS MaxTimestamp
+      WHERE (DeviceUID, TimeStamp) IN (
+        SELECT DeviceUID, MAX(TimeStamp) AS MaxTimeStamp
         FROM actual_data
         WHERE DeviceUID IN (${deviceUIDs.map(() => '?').join(', ')})
         GROUP BY DeviceUID
@@ -33,21 +32,29 @@ function monitorDevice() {
         return;
       }
 
-      const insertLogQuery = `INSERT INTO tms_trigger_logs (DeviceUID, Temperature, Humidity, TimeStamp, Status) VALUES ?`;
+      const insertLogQuery = 'INSERT INTO tms_trigger_logs (DeviceUID, Temperature, Humidity, TimeStamp, Status) VALUES ?';
       const insertLogValues = [];
+      const currentTimestamp = new Date().toISOString();
 
       deviceData.forEach((device) => {
         const latestData = latestDataResults.find((data) => data.DeviceUID === device.DeviceUID);
 
         if (latestData) {
           const { DeviceUID, Temperature, Humidity, TimeStamp } = latestData;
-          const status = new Date(TimeStamp) >= new Date(Date.now() - 5 * 60 * 1000) ? 'online' : 'offline';
-          const triggerValue = device.TriggerValue;
+          const latestDateTime = new Date(TimeStamp);
+          
+          const timeDifference = new Date() - latestDateTime;
+          
+          const isDeviceOnline = timeDifference <= 5 * 60 * 1000;
 
-          if (Temperature > triggerValue) {
-            insertLogValues.push([DeviceUID, Temperature, Humidity, TimeStamp, 'heating']);
+          if (isDeviceOnline) {
+            if (Temperature > device.TriggerValue) {
+              insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimestamp, 'heating']);
+            } else {
+              insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimestamp, 'online']);
+            }
           } else {
-            insertLogValues.push([DeviceUID, Temperature, Humidity, TimeStamp, status]);
+            insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimestamp, 'offline']);
           }
         }
       });
@@ -63,6 +70,5 @@ function monitorDevice() {
     });
   });
 }
-
 
 setInterval(monitorDevice, 20000);
