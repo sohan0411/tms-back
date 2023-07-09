@@ -1,5 +1,6 @@
 /*const db = require('./db');
 
+
 function monitorDevice() {
   const selectTriggerQuery = 'SELECT tms_devices.DeviceUID, tms_trigger.TriggerValue FROM tms_trigger JOIN tms_devices ON tms_trigger.DeviceUID = tms_devices.DeviceUID';
 
@@ -84,7 +85,7 @@ function monitorDevice() {
     const deviceUIDs = deviceData.map((device) => device.DeviceUID);
 
     const selectLatestDataQuery = `
-      SELECT *
+      SELECT DeviceUID, Temperature, Humidity
       FROM actual_data
       WHERE (DeviceUID, Timestamp) IN (
         SELECT DeviceUID, MAX(Timestamp) AS MaxTimestamp
@@ -106,22 +107,12 @@ function monitorDevice() {
         const latestData = latestDataResults.find((data) => data.DeviceUID === device.DeviceUID);
 
         if (latestData) {
-          const { DeviceUID, Temperature, Humidity, TimeStamp } = latestData;
+          const { DeviceUID, Temperature, Humidity } = latestData;
+          const currentTimeStamp = new Date();
           const triggerValue = device.TriggerValue;
-          let status;
+          const status = (Temperature > triggerValue && currentTimeStamp >= new Date(currentTimeStamp - 5 * 60 * 1000)) ? 'heating' : 'offline';
 
-          if (Temperature > triggerValue) {
-            status = 'heating';
-          } else {
-            const currentTimeStamp = new Date().toISOString();
-            const lastDataTimeStamp = new Date(TimeStamp).toISOString();
-            const isRecentData = new Date(lastDataTimeStamp) >= new Date(Date.now() - 5 * 60 * 1000);
-
-            status = isRecentData ? 'online' : 'offline';
-            TimeStamp = isRecentData ? TimeStamp : currentTimeStamp;
-          }
-
-          insertLogValues.push([DeviceUID, Temperature, Humidity, TimeStamp, status]);
+          insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimeStamp, status]);
         }
       });
 
@@ -131,11 +122,11 @@ function monitorDevice() {
             console.error('Error inserting the device data into tms_log: ', error);
             return;
           }
+          /* console.log('Device data inserted into tms_log successfully!'); */
         });
       }
     });
   });
 }
-
 
 setInterval(monitorDevice, 20000);
