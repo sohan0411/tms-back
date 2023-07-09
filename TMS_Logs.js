@@ -108,7 +108,7 @@ function monitorDevice() {
 
         if (latestData) {
           const { DeviceUID, Temperature, Humidity } = latestData;
-          const currentTimeStamp = new Date().toISOString();
+          const currentTimeStamp = new Date();
           const triggerValue = device.TriggerValue;
           const status = (Temperature > triggerValue && currentTimeStamp >= new Date(currentTimeStamp - 5 * 60 * 1000)) ? 'heating' : 'offline';
 
