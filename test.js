@@ -9,7 +9,7 @@ function testData() {
     const DeviceUID = `SL0120230${i}`;
     const Temperature = getRandomNumber(35, 50).toFixed(2);
     const Humidity = getRandomNumber(40, 70).toFixed(2);
-    const Timestamp = new Date();
+    const Timestamp = new Date().toISOString();
 
     const data = {
       DeviceUID,
