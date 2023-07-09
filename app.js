@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const router = require('./routes');
-/*const test = require('./test.js');
-const TMS_logs = require('./TMS_Logs.js');*/
+/*const test = require('./test.js');*/
+const TMS_logs = require('./TMS_Logs.js');
 
 const app = express();
 const port = 3000;
