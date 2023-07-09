@@ -108,7 +108,18 @@ function monitorDevice() {
         if (latestData) {
           const { DeviceUID, Temperature, Humidity, TimeStamp } = latestData;
           const triggerValue = device.TriggerValue;
-          const status = (Temperature > triggerValue && new Date(TimeStamp) >= new Date(Date.now() - 5 * 60 * 1000)) ? 'heating' : 'offline';
+          let status;
+
+          if (Temperature > triggerValue) {
+            status = 'heating';
+          } else {
+            const currentTimeStamp = new Date().toISOString();
+            const lastDataTimeStamp = new Date(TimeStamp).toISOString();
+            const isRecentData = new Date(lastDataTimeStamp) >= new Date(Date.now() - 5 * 60 * 1000);
+
+            status = isRecentData ? 'online' : 'offline';
+            TimeStamp = isRecentData ? TimeStamp : currentTimeStamp;
+          }
 
           insertLogValues.push([DeviceUID, Temperature, Humidity, TimeStamp, status]);
         }
@@ -125,5 +136,6 @@ function monitorDevice() {
     });
   });
 }
+
 
 setInterval(monitorDevice, 20000);
