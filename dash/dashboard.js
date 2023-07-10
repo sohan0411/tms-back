@@ -566,5 +566,7 @@ module.exports = {
   getDataByTimeInterval,
   getDataByCustomDate,
   getDataByTimeIntervalStatus,
-  getDataByCustomDateStatus
+  getDataByCustomDateStatus,
+  getDeviceDetails,
+  getLiveStatusDetails
 };
