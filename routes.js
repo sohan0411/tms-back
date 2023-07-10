@@ -56,6 +56,16 @@ router.get('/live-device-status/:deviceId', dashboard.getLiveStatusDetails);
 
 router.get('/user-data/:userId', dashboard.getUserData);
 
+router.post('/new-message', dashboard.insertNewMessage);
+
+router.put('/mark-read-message/:messageId', dashboard.markMessageAsRead);
+
+router.delete('/delete-message/:messageId', dashboard.deleteMessage);
+
+router.get('/unread-message/:receiver', dashboard.countUnreadMessages);
+
+router.get('/messages/:receiver', dashboard.getUserMessages);
+
 
 //SA
 

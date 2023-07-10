@@ -579,6 +579,124 @@ function getUserData(req, res) {
 }
 
 
+function insertNewMessage(req, res) {
+  try {
+    const { sender, receiver, message } = req.body;
+    const timestamp = new Date();
+    const isRead = 0; // Assuming the initial value for isRead is 0 (false)
+
+    const insertQuery = 'INSERT INTO tms_notifications (sender, receiver, message, timestamp, isRead) VALUES (?, ?, ?, ?, ?)';
+    db.query(insertQuery, [sender, receiver, message, timestamp, isRead], (error, result) => {
+      if (error) {
+        console.error('Error inserting new message:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      const insertedMessage = {
+        sender,
+        receiver,
+        message,
+        timestamp,
+        isRead
+      };
+
+      res.status(201).json({message : 'Message Send SuccessFully'});
+    });
+  } catch (error) {
+    console.error('An error occurred:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+function markMessageAsRead(req, res) {
+  try {
+    const messageId = req.params.messageId;
+
+    const updateQuery = 'UPDATE tms_notifications SET isRead = 1 WHERE msgid = ?';
+    db.query(updateQuery, [messageId], (error, result) => {
+      if (error) {
+        console.error('Error updating message status:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Message not found' });
+      }
+
+      res.status(200).json({ message: 'Message marked as read' });
+    });
+  } catch (error) {
+    console.error('An error occurred:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+function deleteMessage(req, res) {
+  try {
+    const messageId = req.params.messageId;
+
+    const deleteQuery = 'DELETE FROM tms_notifications WHERE msgid = ?';
+    db.query(deleteQuery, [messageId], (error, result) => {
+      if (error) {
+        console.error('Error deleting message:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Message not found' });
+      }
+
+      res.status(200).json({ message: 'Message deleted' });
+    });
+  } catch (error) {
+    console.error('An error occurred:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+function countUnreadMessages(req, res) {
+  try {
+    const receiver = req.params.receiver;
+
+    const countQuery = 'SELECT COUNT(*) AS unreadCount FROM tms_notifications WHERE receiver = ? AND isRead = 0';
+    db.query(countQuery, [receiver], (error, result) => {
+      if (error) {
+        console.error('Error counting unread messages:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      const unreadCount = result[0].unreadCount;
+
+      res.status(200).json({ unreadCount });
+    });
+  } catch (error) {
+    console.error('An error occurred:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+function getUserMessages(req, res) {
+  try {
+    const receiver = req.params.receiver;
+
+    const messagesQuery = 'SELECT * FROM tms_notifications WHERE receiver = ? ORDER BY timestamp desc';
+    db.query(messagesQuery, [receiver], (error, messages) => {
+      if (error) {
+        console.error('Error fetching user messages:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      res.status(200).json(messages);
+    });
+  } catch (error) {
+    console.error('An error occurred:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
 
 module.exports = {
 	userDevices,
@@ -595,5 +713,10 @@ module.exports = {
   getDataByCustomDateStatus,
   getDeviceDetails,
   getLiveStatusDetails,
-  getUserData
+  getUserData,
+  insertNewMessage,
+  markMessageAsRead,
+  deleteMessage,
+  countUnreadMessages,
+  getUserMessages
 };
