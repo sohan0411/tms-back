@@ -54,6 +54,8 @@ router.get('/live-device-detail/:deviceId', dashboard.getDeviceDetails);
 
 router.get('/live-device-status/:deviceId', dashboard.getLiveStatusDetails);
 
+router.get('/user-data/:userId', dashboard.getUserData);
+
 
 //SA
 

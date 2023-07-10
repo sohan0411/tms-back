@@ -552,6 +552,33 @@ function getLiveStatusDetails(req, res) {
   }
 }
 
+function getUserData(req, res) {
+  try {
+    const userId = req.params.userId;
+
+    // Validate the deviceId parameter if necessary
+
+    const userDetailsQuery = 'SELECT * FROM tms_users WHERE UserId = ?';
+    db.query(userDetailsQuery, [userId], (error, userDetail) => {
+      if (error) {
+        console.error('Error fetching User:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      if (userDetail.length === 0) {
+        // Handle the case when no device details are found
+        return res.status(404).json({ message: 'User details not found' });
+      }
+
+      res.status(200).json(userDetail);
+    });
+  } catch (error) {
+    console.error('An error occurred:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
 
 module.exports = {
 	userDevices,
@@ -567,5 +594,6 @@ module.exports = {
   getDataByTimeIntervalStatus,
   getDataByCustomDateStatus,
   getDeviceDetails,
-  getLiveStatusDetails
+  getLiveStatusDetails,
+  getUserData
 };
