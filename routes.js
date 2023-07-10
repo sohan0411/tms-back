@@ -52,7 +52,7 @@ router.get('/dataStatus/:deviceId', dashboard.getDataByCustomDateStatus);
 
 router.get('/live-device-detail', dashboard.getDeviceDetails);
 
-rouetr.get('/live-device-status', dashboard.getLiveStatusDetails);
+router.get('/live-device-status', dashboard.getLiveStatusDetails);
 
 
 //SA
