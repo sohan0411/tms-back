@@ -290,30 +290,7 @@ function editDeviceTrigger(req, res) {
   });
 }
 
-function week_logs(req, res) {
-  const sql = 'SELECT * FROM actual_data WHERE Timestamp >= DATE_SUB(NOW(), INTERVAL 1 WEEK)';
-  db.query(sql, (error, results) => {
-    if (error) {
-      console.error('Error while fetching data', error);
-      res.status(500).json({ error: 'An error occurred' });
-    } else {
-      res.send(results);
-    }
-  });
-}
 
-function week_log(req, res) {
-  const deviceId = req.params.deviceId;
-  const sql = 'SELECT * FROM actual_data WHERE DeviceUID = ? AND Timestamp >= DATE_SUB(NOW(), INTERVAL 1 WEEK)';
-  db.query(sql, [deviceId], (error, results) => {
-    if (error) {
-      console.error('Error while fetching data', error);
-      res.status(500).json({ error: 'An error occurred' });
-    } else {
-      res.send(results);
-    }
-  });
-}
 
 function getDataByTimeInterval(req, res) {
   try {
@@ -523,7 +500,58 @@ function getDataByCustomDateStatus(req, res) {
 }
 
 
+function getDeviceDetails(req, res) {
+  try {
+    const deviceId = req.params.deviceId;
 
+    // Validate the deviceId parameter if necessary
+
+    const deviceDetailsQuery = 'SELECT * FROM tms_devices WHERE DeviceUID = ?';
+    db.query(deviceDetailsQuery, [deviceId], (error, deviceDetail) => {
+      if (error) {
+        console.error('Error fetching data:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      if (deviceDetail.length === 0) {
+        // Handle the case when no device details are found
+        return res.status(404).json({ message: 'Device details not found' });
+      }
+
+      res.status(200).json(deviceDetail);
+    });
+  } catch (error) {
+    console.error('An error occurred:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+function getLiveStatusDetails(req, res) {
+  try {
+    const deviceId = req.params.deviceId;
+
+    // Validate the deviceId parameter if necessary
+
+    const liveStatusQuery = 'SELECT * FROM tms_trigger_logs WHERE DeviceUID = ? ORDER BY TimeStamp DESC LIMIT 1';
+    db.query(liveStatusQuery, [deviceId], (error, liveStatus) => {
+      if (error) {
+        console.error('Error fetching data:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      if (liveStatus.length === 0) {
+        // Handle the case when no live status details are found
+        return res.status(404).json({ message: 'Live status details not found' });
+      }
+
+      res.status(200).json(liveStatus);
+    });
+  } catch (error) {
+    console.error('An error occurred:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
 
 
 module.exports = {
@@ -535,8 +563,6 @@ module.exports = {
   personalDetails,
   updatePassword,
   editDeviceTrigger,
-  week_log,
-  week_logs,
   getDataByTimeInterval,
   getDataByCustomDate,
   getDataByTimeIntervalStatus,

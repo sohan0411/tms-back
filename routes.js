@@ -42,10 +42,6 @@ router.get('/device-trigger/:deviceId', dashboard.fetchDeviceTriggers);
 
 router.get('/user-devices-trigger/:CompanyEmail', dashboard.fetchAllDeviceTrigger);
 
-router.get('/logs/week', dashboard.week_logs);
-
-router.get('/log/week/:deviceId', dashboard.week_log);
-
 router.get('/data/:deviceId/intervals', dashboard.getDataByTimeInterval);
 
 router.get('/data/:deviceId', dashboard.getDataByCustomDate);
@@ -53,6 +49,10 @@ router.get('/data/:deviceId', dashboard.getDataByCustomDate);
 router.get('/dataStatus/:deviceId/intervals', dashboard.getDataByTimeIntervalStatus);
 
 router.get('/dataStatus/:deviceId', dashboard.getDataByCustomDateStatus);
+
+router.get('/live-device-detail', dashboard.getDeviceDetails);
+
+rouetr.get('/live-device-status', dashboard.getLiveStatusDetails);
 
 
 //SA
