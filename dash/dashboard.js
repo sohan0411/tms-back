@@ -582,7 +582,7 @@ function getUserData(req, res) {
 function insertNewMessage(req, res) {
   try {
     const { sender, receiver, message } = req.body;
-    const timestamp = new Date();
+    const timestamp = new Date().toISOString();
     const isRead = 0; // Assuming the initial value for isRead is 0 (false)
 
     const insertQuery = 'INSERT INTO tms_notifications (sender, receiver, message, timestamp, isRead) VALUES (?, ?, ?, ?, ?)';
