@@ -50,9 +50,9 @@ router.get('/dataStatus/:deviceId/intervals', dashboard.getDataByTimeIntervalSta
 
 router.get('/dataStatus/:deviceId', dashboard.getDataByCustomDateStatus);
 
-router.get('/live-device-detail', dashboard.getDeviceDetails);
+router.get('/live-device-detail/:deviceId', dashboard.getDeviceDetails);
 
-router.get('/live-device-status', dashboard.getLiveStatusDetails);
+router.get('/live-device-status/:deviceId', dashboard.getLiveStatusDetails);
 
 
 //SA
