@@ -3,13 +3,23 @@ const router = express.Router();
 const authentication = require('./auth/authentication');
 const dashboard = require('./dash/dashboard.js');
 const SA = require('./superadmin/SA.js');
+const limitter = require('express-rate-limit');
 
+
+const registerLimitter = limitter({
+    windowMS : 5*60*1000,
+    max: 2,
+})
 
 // Registration route
-router.post('/register', authentication.register);
+router.post('/register',registerLimitter, authentication.register);
 
+const loginLimit = limitter({
+    windowMS : 1*60*1000,
+    max: 5,
+})
 // Login route
-router.post('/login', authentication.login);
+router.post('/login', loginLimit,authentication.login);
 
 router.get('/user', authentication.getUserDetails);
 
