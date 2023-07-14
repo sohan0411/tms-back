@@ -36,7 +36,7 @@ function fetchAllUsers(req, res) {
         if (error) {
           throw new Error('Error fetching devices');
         }
-        res.json({ users: rows });
+        res.json({ devices: rows });
         console.log(rows);
       });
     } catch (error) {
@@ -141,12 +141,93 @@ function fetchAllUsers(req, res) {
     }
   }
 
+
+ 
+  function fetchCompanyDetails(req, res) {
+    const CompanyEmail = req.params.CompanyEmail;
+    const companyQuery = 'SELECT CompanyName, ContactNo, Location, Designation FROM tms_users WHERE CompanyEmail = ?';
+  
+    db.query(companyQuery, [CompanyEmail], (error, companyResult) => {
+      if (error) {
+        console.error('Error fetching company details:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+  
+      if (companyResult.length === 0) {
+        console.log('company not found!');
+        return res.status(404).json({ message: 'company not found!' });
+      }
+  
+      const company = companyResult[0];
+      res.json({ companyDetails: company });
+    });
+  }
+
+  function fetchCounts(req, res) {
+    const CompanyEmail = req.params.CompanyEmail;
+    const standardUserCountQuery = 'SELECT COUNT(*) AS standardUserCount FROM tms_users WHERE CompanyEmail = ? AND UserType = "Standard"';
+    const adminCountQuery = 'SELECT COUNT(*) AS adminCount FROM tms_users WHERE CompanyEmail = ? AND UserType = "Admin"';
+    const deviceCountQuery = 'SELECT COUNT(*) AS deviceCount FROM tms_devices WHERE CompanyEmail = ?';
+    const userCountQuery = 'SELECT COUNT(*) AS userCount FROM tms_users WHERE CompanyEmail = ?';
+  
+    try {
+      db.query(standardUserCountQuery, [CompanyEmail], (error, standardUserResult) => {
+        if (error) {
+          console.error('Error fetching standard user count:', error);
+          throw new Error('Internal server error');
+        }
+  
+        const standardUserCount = standardUserResult[0].standardUserCount;
+  
+        db.query(adminCountQuery, [CompanyEmail], (error, adminResult) => {
+          if (error) {
+            console.error('Error fetching admin count:', error);
+            throw new Error('Internal server error');
+          }
+  
+          const adminCount = adminResult[0].adminCount;
+  
+          db.query(deviceCountQuery, [CompanyEmail], (error, deviceResult) => {
+            if (error) {
+              console.error('Error fetching device count:', error);
+              throw new Error('Internal server error');
+            }
+  
+            const deviceCount = deviceResult[0].deviceCount;
+  
+            db.query(userCountQuery, [CompanyEmail], (error, userResult) => {
+              if (error) {
+                console.error('Error fetching user count:', error);
+                throw new Error('Internal server error');
+              }
+  
+              const userCount = userResult[0].userCount;
+  
+              res.json({
+                standardUserCount: standardUserCount,
+                adminCount: adminCount,
+                deviceCount: deviceCount,
+                userCount: userCount,
+              });
+            });
+          });
+        });
+      });
+    } catch (error) {
+      console.error('Error occurred:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+  
   
 module.exports = {
   fetchAllUsers,
   fetchAllDevices,
+  fetchCompanyDetails,
   addDevice,
   getDeviceByUID,
   updateDevice,
-  deleteDevice  
+  deleteDevice,
+  fetchCounts,
+  //deleteDevice  
 };

@@ -1,3 +1,4 @@
+
 const bcrypt = require('bcrypt');
 const db = require('../db');
 const jwtUtils = require('../token/jwtUtils');
@@ -133,7 +134,6 @@ function companyDetails(req, res) {
 }
 
 
-
 function personalDetails(req, res) {
   const UserId = req.params.UserId;
   const {FirstName, LastName}  = req.body; 
@@ -210,23 +210,23 @@ function updatePassword(req, res) {
 }
 
 
-function fetchDeviceTrigger(req, res){
-  const deviceId = req.params.deviceId;
-  const deviceTriggerQuery = 'select * from tms_trigger where DeviceUID = ?';
-    try {
-      db.query(deviceTriggerQuery, [deviceId], (error, devicetriggerkResult) => {
-        if (error) {
-          console.error('Error during device check:', error);
-          return res.status(500).json({ message: 'Internal server error' });
-        }
+// function fetchDeviceTrigger(req, res){
+//   const deviceId = req.params.deviceId;
+//   const deviceTriggerQuery = 'select * from tms_trigger where DeviceUID = ?';
+//     try {
+//       db.query(deviceTriggerQuery, [deviceId], (error, devicetriggerkResult) => {
+//         if (error) {
+//           console.error('Error during device check:', error);
+//           return res.status(500).json({ message: 'Internal server error' });
+//         }
 
-        res.status(200).json(devicetriggerkResult);
-      });
-    } catch (error) {
-      console.error('Error in device check:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-}
+//         res.status(200).json(devicetriggerkResult);
+//       });
+//     } catch (error) {
+//       console.error('Error in device check:', error);
+//       res.status(500).json({ message: 'Internal server error' });
+//     }
+// }
 
 function fetchAllDeviceTrigger(req, res){
   const CompanyEmail = req.params.CompanyEmail;
@@ -435,7 +435,6 @@ function getDataByTimeIntervalStatus(req, res) {
     }
   });
 }
-
 
 
 function getDataByCustomDate(req, res) {
@@ -701,12 +700,15 @@ function getUserMessages(req, res) {
 module.exports = {
 	userDevices,
   editDevice,
-  fetchDeviceTrigger,
+  //fetchDeviceTrigger,
   fetchAllDeviceTrigger,
   companyDetails,
   personalDetails,
   updatePassword,
   editDeviceTrigger,
+
+/*  fetchTriggers,
+  TimeInterval,*/
   getDataByTimeInterval,
   getDataByCustomDate,
   getDataByTimeIntervalStatus,

@@ -36,19 +36,24 @@ router.post('/reset-password', authentication.resetPassword);
 
 //Dashboard
 
+//fetching the devices using its email
 router.get('/userdevices/:companyEmail', dashboard.userDevices);
 
+//updating a device by its deviceid
 router.put('/editDevice/:deviceId', dashboard.editDevice);
 
+//update company details
 router.put('/companyDetails/:UserId', dashboard.companyDetails);
 
+//update personaldetails
 router.put('/personalDetails/:UserId', dashboard.personalDetails);
 
+//update password
 router.put('/updatePassword/:UserId', dashboard.updatePassword);
 
 router.put('/editDeviceTrigger/:deviceId', dashboard.editDeviceTrigger);
 
-router.get('/device-trigger/:deviceId', dashboard.fetchDeviceTrigger);
+//router.get('/device-trigger/:deviceId', dashboard.fetchDeviceTrigger);
 
 router.get('/user-devices-trigger/:CompanyEmail', dashboard.fetchAllDeviceTrigger);
 
@@ -82,19 +87,32 @@ router.get('/messages/:receiver', dashboard.getUserMessages);
 // Fetch all devices
 router.get('/fetchAllDevices', SA.fetchAllDevices);
 
+
 // Fetch all users
 router.get('/fetchAllUsers', SA.fetchAllUsers);
+
 
 // Add a new device
 router.post('/addDevice', SA.addDevice);
 
-// Get a device by its unique identifier
+
+// Get a device by its unique deviceUID
 router.get('/getDeviceByUID/:deviceUID', SA.getDeviceByUID);
 
-// Update a device by its unique identifier
+
+// Update a device by its deviceUID
 router.put('/updateDevice/:deviceUID', SA.updateDevice);
 
-// Delete a device by its unique identifier
+
+// Delete a device by its deviceUID
 router.delete('/deleteDevice/:deviceUID', SA.deleteDevice);
+
+
+//fetch company details by its email
+router.get('/fetchCompanyDetails/:CompanyEmail', SA.fetchCompanyDetails);
+
+
+//fetch standardUserCount,adminCount, deviceCount, userCount
+router.get('/fetchCounts/:CompanyEmail', SA.fetchCounts);
 
 module.exports = router;
