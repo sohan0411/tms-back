@@ -698,6 +698,7 @@ function fetchCompanyUser(req, res) {
 module.exports = {
 	userDevices,
   editDevice,
+  fetchDeviceTrigger,
   fetchAllDeviceTrigger,
   companyDetails,
   personalDetails,
