@@ -45,24 +45,6 @@ function userDevices(req, res) {
 }
 
 
-/*function fetchDeviceTriggers(req, res) {
-  const CompanyEmail = req.params.body;
-  try {
-    const query = 'SELECT * FROM tms_triggers where CompanyEmail = ?';
-    db.query(query, [CompanyEmail], (error, devices) => {
-      if (error) {
-        throw new Error('Error fetching devices');
-      }
-
-      res.json({ devices: devices });
-      console.log(devices);
-    });
-  } catch (error) {
-    console.error('Error fetching devices:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-}*/
-
 function editDevice(req, res) {
   const deviceId = req.params.deviceId;
   const { DeviceLocation, DeviceName}  = req.body; 
@@ -99,11 +81,11 @@ function editDevice(req, res) {
 }
 
 function companyDetails(req, res) {
-  const UserId = req.params.UserId;
-  const { CompanyName, ContactNo, Location, Designation}  = req.body; 
-  const userCheckQuery = 'SELECT * FROM tms_users WHERE UserId = ?';
+  const CompanyEmail = req.params.CompanyEmail;
+  const { CompanyName, ContactNo, Location}  = req.body; 
+  const userCheckQuery = 'SELECT * FROM tms_users WHERE CompanyEmail = ?';
 
-  db.query(userCheckQuery, [UserId], (error, useridCheckResult) => {
+  db.query(userCheckQuery, [CompanyEmail], (error, useridCheckResult) => {
     if (error) {
       console.error('Error during UserId check:', error);
       return res.status(500).json({ message: 'Internal server error' });
@@ -115,11 +97,11 @@ function companyDetails(req, res) {
         return res.status(400).json({ message: 'User not found!' });
       }
 
-      const userQuery = 'Update tms_users SET CompanyName=?, ContactNo=?, Location=?, Designation=? WHERE UserId=?';
+      const userQuery = 'Update tms_users SET CompanyName=?, ContactNo=?, Location=? WHERE CompanyEmail=?';
 
-      db.query(userQuery, [CompanyName, ContactNo, Location, Designation, UserId],(error, details) => {
+      db.query(userQuery, [CompanyName, ContactNo, Location, CompanyEmail],(error, details) => {
         if (error) {
-          console.error('Error fetching devices:', error);
+          console.error('Error fetching company details:', error);
           return res.status(500).json({ message: 'Internal server error' });
         }
 
@@ -696,19 +678,31 @@ function getUserMessages(req, res) {
   }
 }
 
+function fetchCompanyUser(req, res) {
+  const CompanyEmail = req.params.body;
+  try {
+    const query = 'SELECT * FROM tms_users where CompanyEmail = ?';
+    db.query(query, [CompanyEmail], (error, users) => {
+      if (error) {
+        throw new Error('Error fetching users');
+      }
+
+      res.json({ users: users });
+    });
+  } catch (error) {
+    console.error('Error fetching devices:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
 
 module.exports = {
 	userDevices,
   editDevice,
-  //fetchDeviceTrigger,
   fetchAllDeviceTrigger,
   companyDetails,
   personalDetails,
   updatePassword,
   editDeviceTrigger,
-
-/*  fetchTriggers,
-  TimeInterval,*/
   getDataByTimeInterval,
   getDataByCustomDate,
   getDataByTimeIntervalStatus,
@@ -720,5 +714,6 @@ module.exports = {
   markMessageAsRead,
   deleteMessage,
   countUnreadMessages,
-  getUserMessages
+  getUserMessages,
+  fetchCompanyUser
 };
