@@ -679,7 +679,7 @@ function getUserMessages(req, res) {
 }
 
 function fetchCompanyUser(req, res) {
-  const CompanyEmail = req.params.body;
+  const CompanyEmail = req.params.CompanyEmail;
   try {
     const query = 'SELECT * FROM tms_users where CompanyEmail = ?';
     db.query(query, [CompanyEmail], (error, users) => {
