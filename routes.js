@@ -53,7 +53,7 @@ router.put('/updatePassword/:UserId', dashboard.updatePassword);
 
 router.put('/editDeviceTrigger/:deviceId', dashboard.editDeviceTrigger);
 
-//router.get('/device-trigger/:deviceId', dashboard.fetchDeviceTrigger);
+router.get('/device-trigger/:deviceId', dashboard.fetchDeviceTrigger);
 
 router.get('/user-devices-trigger/:CompanyEmail', dashboard.fetchAllDeviceTrigger);
 

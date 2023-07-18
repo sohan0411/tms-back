@@ -81,11 +81,11 @@ function editDevice(req, res) {
 }
 
 function companyDetails(req, res) {
-  const CompanyEmail = req.params.CompanyEmail;
-  const { CompanyName, ContactNo, Location}  = req.body; 
-  const userCheckQuery = 'SELECT * FROM tms_users WHERE CompanyEmail = ?';
+  const UserId = req.params.UserId;
+  const { Designation, ContactNo, Location}  = req.body; 
+  const userCheckQuery = 'SELECT * FROM tms_users WHERE UserId = ?';
 
-  db.query(userCheckQuery, [CompanyEmail], (error, useridCheckResult) => {
+  db.query(userCheckQuery, [UserId], (error, useridCheckResult) => {
     if (error) {
       console.error('Error during UserId check:', error);
       return res.status(500).json({ message: 'Internal server error' });
@@ -97,9 +97,9 @@ function companyDetails(req, res) {
         return res.status(400).json({ message: 'User not found!' });
       }
 
-      const userQuery = 'Update tms_users SET CompanyName=?, ContactNo=?, Location=? WHERE CompanyEmail=?';
+      const userQuery = 'Update tms_users SET Designation=?, ContactNo=?, Location=? WHERE UserId=?';
 
-      db.query(userQuery, [CompanyName, ContactNo, Location, CompanyEmail],(error, details) => {
+      db.query(userQuery, [Designation, ContactNo, Location, UserId],(error, details) => {
         if (error) {
           console.error('Error fetching company details:', error);
           return res.status(500).json({ message: 'Internal server error' });
