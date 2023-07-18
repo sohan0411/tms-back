@@ -687,7 +687,7 @@ function fetchCompanyUser(req, res) {
         throw new Error('Error fetching users');
       }
 
-      res.json(users);
+      res.status(200).json(users);
     });
   } catch (error) {
     console.error('Error fetching devices:', error);
