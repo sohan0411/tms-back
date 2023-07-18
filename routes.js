@@ -43,7 +43,7 @@ router.get('/userdevices/:companyEmail', dashboard.userDevices);
 router.put('/editDevice/:deviceId', dashboard.editDevice);
 
 //update company details
-router.put('/companyDetails/:CompanyEmail', dashboard.companyDetails);
+router.put('/companyDetails/:UserId', dashboard.companyDetails);
 
 //update personaldetails
 router.put('/personalDetails/:UserId', dashboard.personalDetails);
