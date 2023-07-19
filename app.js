@@ -4,6 +4,7 @@ const router = require('./routes');
 const test = require('./test.js');
 const TMS_logs = require('./TMS_Logs.js');
 const limitter = require('express-rate-limit');
+const { startWebSocketServer } = require('./webSocket/websocket.js');
 
 const app = express();
 /*
@@ -28,3 +29,5 @@ app.use(router);
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+
+startWebSocketServer();

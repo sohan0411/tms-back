@@ -81,7 +81,10 @@ router.get('/unread-message/:receiver', dashboard.countUnreadMessages);
 
 router.get('/messages/:receiver', dashboard.getUserMessages);
 
-router.get('/Company-users/:CompanyEmail', dashboard.fetchCompanyUser);
+router.get('/Company-users/:CompanyEmail', (req, res) => {
+  dashboard.fetchCompanyUser(req, res);
+  setInterval(() => dashboard.fetchCompanyUser(req, res), 5000);
+});
 
 
 //SA
