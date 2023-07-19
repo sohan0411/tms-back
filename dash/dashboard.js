@@ -1,4 +1,3 @@
-
 const bcrypt = require('bcrypt');
 const db = require('../db');
 const jwtUtils = require('../token/jwtUtils');
@@ -9,6 +8,11 @@ const fs = require('fs');
 const path = require('path');
 const ejs = require('ejs');
 
+let ioInstance; // Variable to store the 'io' instance
+
+function initialize(io) {
+  ioInstance = io; // Store the 'io' instance in the variable
+}
 
 function userDevices(req, res) {
   const companyEmail = req.params.companyEmail;
@@ -271,8 +275,6 @@ function editDeviceTrigger(req, res) {
   });
 }
 
-
-
 function getDataByTimeInterval(req, res) {
   try {
     const deviceId = req.params.deviceId;
@@ -479,7 +481,6 @@ function getDataByCustomDateStatus(req, res) {
   }
 }
 
-
 function getDeviceDetails(req, res) {
   try {
     const deviceId = req.params.deviceId;
@@ -637,7 +638,6 @@ function deleteMessage(req, res) {
   }
 }
 
-
 function countUnreadMessages(req, res) {
   try {
     const receiver = req.params.receiver;
@@ -680,6 +680,32 @@ function getUserMessages(req, res) {
 
 function fetchCompanyUser(req, res) {
   const CompanyEmail = req.params.CompanyEmail;
+  
+  // Define the interval function
+  const interval = setInterval(() => {
+    try {
+      const query = 'SELECT * FROM tms_users where CompanyEmail = ?';
+      db.query(query, [CompanyEmail], (error, users) => {
+        if (error) {
+          throw new Error('Error fetching users');
+        }
+  
+        // Emit the users data to connected clients
+        ioInstance.sockets.emit('companyUsers', users);
+        console.log(users);
+      });
+    } catch (error) {
+      console.error('Error fetching devices:', error);
+      clearInterval(interval); // Stop the interval in case of an error
+    }
+  }, 5000);
+
+  // Handle disconnect event to stop the interval when the client disconnects
+  ioInstance.on('disconnect', () => {
+    clearInterval(interval);
+  });
+
+  // Initial fetch and response
   try {
     const query = 'SELECT * FROM tms_users where CompanyEmail = ?';
     db.query(query, [CompanyEmail], (error, users) => {
@@ -696,6 +722,7 @@ function fetchCompanyUser(req, res) {
 }
 
 module.exports = {
+  initialize,
 	userDevices,
   editDevice,
   fetchDeviceTrigger,

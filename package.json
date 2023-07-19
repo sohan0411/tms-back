@@ -21,6 +21,7 @@
     "express-ws": "^5.0.2",
     "fast-csv": "^4.3.6",
     "fs": "^0.0.1-security",
+    "http": "^0.0.1-security",
     "jsonexport": "^3.2.0",
     "jsonwebtoken": "^9.0.0",
     "mssql": "^9.1.1",
