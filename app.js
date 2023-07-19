@@ -4,13 +4,9 @@ const router = require('./routes');
 const test = require('./test.js');
 const TMS_logs = require('./TMS_Logs.js');
 const limitter = require('express-rate-limit');
-const http = require('http');
-const socketIO = require('socket.io');
-const dashboard = require('./dash/dashboard.js');
+
 
 const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
 /*
 app.use(limitter({
   windowMS : 5000,
@@ -22,17 +18,7 @@ app.use(limitter({
 })) 
 */
 
-io.on('connection', (socket) => {
-  console.log('A client connected');
-
-  // Handle disconnect event
-  socket.on('disconnect', () => {
-    console.log('A client disconnected');
-  });
-});
-
 const port = 3000;
-dashboard.initialize(io);
 
 app.use(cors({
   origin: 'http://localhost:4200'
@@ -40,6 +26,6 @@ app.use(cors({
 app.use(express.json());
 app.use(router);
 
-server.listen(port, () => {
+app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
