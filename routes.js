@@ -20,6 +20,7 @@ const loginLimit = limitter({
 })
 // Login route
 router.post('/login', loginLimit,authentication.login);
+router.post('/register-dashboard', authentication.register_dashboard);
 router.get('/user', authentication.getUserDetails);
 router.post('/verify', authentication.verifyToken);
 router.post('/re-verify-mail', authentication.resendToken);
