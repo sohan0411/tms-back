@@ -11,7 +11,7 @@ const ejs = require('ejs');
 encryptKey = "SenseLive-Tms-Dashboard";
 
 // Function to send an email with the token
-function sendTokenEmail(name, email, token) {
+function sendTokenEmail(email, token) {
   const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 465,
@@ -34,7 +34,7 @@ function sendTokenEmail(name, email, token) {
     const compiledTemplate = ejs.compile(templateData);
 
     // Render the template with the token
-    const html = compiledTemplate({ name, token });
+    const html = compiledTemplate({ token });
 
     const mailOptions = {
       from: 'your-email@example.com',
@@ -95,7 +95,7 @@ function sendTokenDashboardEmail(email, token) {
   });
 }
 
-function sendResetTokenEmail(name, personalEmail, resetToken) {
+function sendResetTokenEmail(personalEmail, resetToken) {
   const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 465,
@@ -118,7 +118,7 @@ function sendResetTokenEmail(name, personalEmail, resetToken) {
     const compiledTemplate = ejs.compile(templateData);
 
     // Render the template with the token
-    const html = compiledTemplate({ name, resetToken });
+    const html = compiledTemplate({ resetToken });
 
     const mailOptions = {
       from: 'kpohekar19@gmail.com',
@@ -222,7 +222,7 @@ function register(req, res) {
 
                   try {
                     // Send the verification token to the user's email
-                    sendTokenEmail(firstName, personalEmail, verificationToken);
+                    sendTokenEmail(personalEmail, verificationToken);
 
                     console.log('User registered successfully');
                     res.json({ message: 'Registration successful. Check your email for the verification token.' });
@@ -414,8 +414,7 @@ function resendToken(req, res) {
 
         try {
           // Send the new verification token to the user's email
-          const name = userResult[0].FirstName;
-          sendTokenEmail(name, personalEmail, verificationToken);
+          sendTokenEmail(personalEmail, verificationToken);
 
           console.log('Verification token resent');
           res.json({ message: 'Verification token resent. Check your email for the new token.' });
@@ -673,6 +672,7 @@ module.exports = {
   register,
   register_dashboard,
   sendTokenEmail,
+  sendTokenDashboardEmail,
   sendResetTokenEmail,
   verifyToken,
   resendToken,
