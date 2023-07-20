@@ -695,6 +695,27 @@ function fetchCompanyUser(req, res) {
   }
 }
 
+
+function addDeviceTrigger(req, res) {
+  const { DeviceUID, TriggerValue, CompanyEmail } = req.body;
+    try {
+        const insertTriggerQuery = 'INSERT INTO tms_trigger (DeviceUID, TriggerValue, CompanyEmail) VALUES (?,?,?)';
+
+        db.query(insertTriggerQuery, [DeviceUID, TriggerValue, CompanyEmail], (error, insertResult) => {
+          if (error) {
+            console.error('Error while inserting device:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+          }
+
+          return res.json({ message: 'Device Trigger added successfully!' });
+        });
+
+    } catch (error) {
+      console.error('Error in device check:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = {
 	userDevices,
   editDevice,
@@ -716,5 +737,6 @@ module.exports = {
   deleteMessage,
   countUnreadMessages,
   getUserMessages,
-  fetchCompanyUser
+  fetchCompanyUser,
+  addDeviceTrigger
 };
