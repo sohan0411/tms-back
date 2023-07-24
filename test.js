@@ -56,3 +56,12 @@ function testData2() {
 
 setInterval(testData, 20000);
 setInterval(testData2, 20000);
+
+
+/*
+DB_HOST=salasardb1.cl4hxfnr1mxc.us-east-1.rds.amazonaws.com
+DB_USER=admin
+DB_PASSWORD=admin_123
+DB_NAME=tmp
+
+*/
