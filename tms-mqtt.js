@@ -42,7 +42,7 @@ client.on('connect', () => {
       client.publish(topic, message);
     }, 20000);
   }
-  for (let i = 10; i <= 100; i++) {
+  /*for (let i = 10; i <= 100; i++) {
       const deviceId = `SL012023${i}`;
       const topic = `sense/live/${deviceId}`;
 
@@ -50,7 +50,7 @@ client.on('connect', () => {
         const message = generateRandomData(deviceId);
         client.publish(topic, message);
       }, 20000);
-    }
+    }*/
   } 
 );
 
