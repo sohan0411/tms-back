@@ -4,6 +4,8 @@ const router = require('./routes');
 const test = require('./test.js');
 const TMS_logs = require('./TMS_Logs.js');
 const limitter = require('express-rate-limit');
+const http = require('http');
+const Socket = require('./socket');
 
 
 const app = express();
@@ -17,6 +19,11 @@ app.use(limitter({
   }
 })) 
 */
+const server = http.createServer(app);
+
+Socket(server);
+
+
 
 const port = 3000;
 
