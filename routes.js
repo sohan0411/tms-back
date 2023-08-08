@@ -27,6 +27,8 @@ router.post('/re-verify-mail', authentication.resendToken);
 router.post('/forgot', authentication.forgotPassword);
 router.post('/resend-forgot', authentication.resendResetToken);
 router.post('/reset-password', authentication.resetPassword);
+router.put('/setUserOnline/:UserId', authentication.setUserOnline);
+router.put('/setUserOffline/:UserId', authentication.setUserOffline);
 
 //Dashboard
 router.get('/userdevices/:companyEmail', dashboard.userDevices);
