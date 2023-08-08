@@ -50,14 +50,14 @@ function monitorDevice() {
           if (isDeviceOnline) {
             if (Temperature > device.TriggerValue) {
               insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimestamp, 'heating']);
-              console.log(`DeviceUID: ${DeviceUID}, Status: heating`);
+              //console.log(`DeviceUID: ${DeviceUID}, Status: heating`);
             } else {
               insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimestamp, 'online']);
-              console.log(`DeviceUID: ${DeviceUID}, Status: online`);
+              //console.log(`DeviceUID: ${DeviceUID}, Status: online`);
             }
           } else {
             insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimestamp, 'offline']);
-            console.log(`DeviceUID: ${DeviceUID}, Status: offline`);
+            //console.log(`DeviceUID: ${DeviceUID}, Status: offline`);
           }
         }
       });

@@ -1,9 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const router = require('./routes');
-/*const test = require('./test.js');
-const TMS_logs = require('./TMS_Logs.js');*/
+const test = require('./test.js');
+const TMS_logs = require('./TMS_Logs.js');
 const limitter = require('express-rate-limit');
+const http = require('http');
+const Socket = require('./socket');
 
 
 const app = express();
@@ -17,12 +19,15 @@ app.use(limitter({
   }
 })) 
 */
+const server = http.createServer(app);
+
+Socket(server);
+
+
 
 const port = 3000;
 
-app.use(cors({
-  origin: 'http://localhost:4200'
-}));
+app.use(cors());
 app.use(express.json());
 app.use(router);
 

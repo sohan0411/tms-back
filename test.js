@@ -30,7 +30,7 @@ function testData() {
 }
 
 function testData2() {
-  for (let i = 10; i <= 100; i++) {
+  for (let i = 10; i <= 1000; i++) {
     const DeviceUID = `SL012023${i}`;
     const Temperature = getRandomNumber(35, 50).toFixed(2);
     const Humidity = getRandomNumber(40, 70).toFixed(2);
