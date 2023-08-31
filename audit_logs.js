@@ -34,8 +34,8 @@ function log(req, res, next) {
         if (error) {
           throw new Error('Error fetching logs');
         }
-        res.json({ devices: rows });
-        console.log(rows);
+        res.json({ logs: rows });
+        //console.log(rows);
       });
     } catch (error) {
       console.error('Error fetching logs:', error);
