@@ -3,6 +3,7 @@ const cors = require('cors');
 const router = require('./routes');
 const limitter = require('express-rate-limit');
 const fs = require('fs');
+const logMiddleware = require('./logger');
 // const mqtt_pub = require('./pub');
 // const mqtt_sub = require('./sub');
 // const MinuteData = require('./dash/interval_min');
@@ -13,9 +14,10 @@ const fs = require('fs');
 const app = express();
 const port = 3000;
 
+
 app.use(cors());
 app.use(express.json());
-
+app.use(logMiddleware);
 // Log middleware
 app.use((req, res, next) => {
   const { method, url, body } = req;
