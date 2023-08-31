@@ -4,6 +4,7 @@ const authentication = require('./auth/authentication');
 const dashboard = require('./dash/dashboard.js');
 const SA = require('./superadmin/SA.js');
 const limitter = require('express-rate-limit');
+const logs = require('./audit_logs');
 
 
 const registerLimitter = limitter({
@@ -64,5 +65,6 @@ router.put('/updateDevice/:deviceUID', SA.updateDevice);
 router.delete('/deleteDevice/:deviceUID', SA.deleteDevice);
 router.get('/fetchCompanyDetails/:CompanyEmail', SA.fetchCompanyDetails);
 router.get('/fetchCounts/:CompanyEmail', SA.fetchCounts);
+router.get('/logs', logs.fetchLogs);
 
 module.exports = router;
