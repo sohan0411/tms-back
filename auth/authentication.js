@@ -7,6 +7,8 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 const ejs = require('ejs');
+const { logExecution } = require('../apiusage');
+const { v4: uuidv4 } = require('uuid');
 
 encryptKey = "SenseLive-Tms-Dashboard";
 
@@ -428,25 +430,89 @@ function resendToken(req, res) {
 }
 
 
-// Login function
+// // Login function
+// function login(req, res) {
+//   const { Username, Password } = req.body;
+
+//    // Generate a UUID for tenant_id
+//    const tenantId = uuidv4();
+//    let errorOccurred = false;
+
+//   // Check if the user exists in the database
+//   const query = 'SELECT * FROM tms_users WHERE Username = ?';
+//   db.query(query, [Username], (error, rows) => {
+//     try {
+//       if (error) {
+//         throw new Error('Error during login');
+//       }
+
+//       if (rows.length === 0) {
+//         return res.status(401).json({ message: 'User does not exist!' });
+//       }
+
+//       const user = rows[0];
+
+//       if (user.Verified === '0') {
+//         return res.status(401).json({ message: 'User is not verified. Please verify your account.' });
+//       }
+
+//       // Compare the provided password with the hashed password in the database
+//       bcrypt.compare(Password, user.Password, (error, isPasswordValid) => {
+//         try {
+//           if (error) {
+//             throw new Error('Error during password comparison');
+//           }
+
+//           if (!isPasswordValid) {
+//             return res.status(401).json({ message: 'Invalid credentials' });
+//           }
+
+//           // Generate a JWT token
+//           const token = jwtUtils.generateToken({ Username: user.Username });
+//           res.json({ token });
+//         } catch (error) {
+//           console.error(error);
+//           res.status(500).json({ message: 'Internal server error' });
+//         }
+//       });
+//     } catch (error) {
+//       console.error(error);
+//       res.status(500).json({ message: 'Internal server error' });
+//     }
+//   });
+// }
+
 function login(req, res) {
   const { Username, Password } = req.body;
+
+  // Generate a UUID for tenant_id
+  const tenantId = uuidv4();
+
+  // Log the start of the function execution
+  logExecution('login', tenantId, 'INFO', 'User login attempt');
 
   // Check if the user exists in the database
   const query = 'SELECT * FROM tms_users WHERE Username = ?';
   db.query(query, [Username], (error, rows) => {
     try {
       if (error) {
+        console.error('Error during login:', error);
+        // Log the error
+        logExecution('login', tenantId, 'ERROR', 'Error during login');
         throw new Error('Error during login');
       }
 
       if (rows.length === 0) {
+        // Log the end of the function execution with an error message
+        logExecution('login', tenantId, 'ERROR', 'User does not exist');
         return res.status(401).json({ message: 'User does not exist!' });
       }
 
       const user = rows[0];
 
       if (user.Verified === '0') {
+        // Log the end of the function execution with an error message
+        logExecution('login', tenantId, 'ERROR', 'User is not verified');
         return res.status(401).json({ message: 'User is not verified. Please verify your account.' });
       }
 
@@ -454,15 +520,23 @@ function login(req, res) {
       bcrypt.compare(Password, user.Password, (error, isPasswordValid) => {
         try {
           if (error) {
+            console.error('Error during password comparison:', error);
+            // Log the error
+            logExecution('login', tenantId, 'ERROR', 'Error during password comparison');
             throw new Error('Error during password comparison');
           }
 
           if (!isPasswordValid) {
+            // Log the end of the function execution with an error message
+            logExecution('login', tenantId, 'ERROR', 'Invalid credentials');
             return res.status(401).json({ message: 'Invalid credentials' });
           }
 
           // Generate a JWT token
           const token = jwtUtils.generateToken({ Username: user.Username });
+
+          // Log the end of the function execution with a success message
+          logExecution('login', tenantId, 'INFO', 'User login successful');
           res.json({ token });
         } catch (error) {
           console.error(error);
