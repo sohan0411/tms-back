@@ -68,5 +68,6 @@ router.get('/fetchCompanyDetails/:CompanyEmail', SA.fetchCompanyDetails);
 router.get('/fetchCounts/:CompanyEmail', SA.fetchCounts);
 router.get('/logs', logs.fetchLogs);
 router.get('/apilogs', apilogs.apilogs);
+router.get('/devicelogs', apilogs.devicelogs);
 
 module.exports = router;

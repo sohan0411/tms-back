@@ -40,7 +40,7 @@ const mqttClient = mqtt.connect(broker);
 
 // Handle MQTT connection event
 mqttClient.on('connect', () => {
-  console.log('Connected to MQTT broker');
+  //console.log('Connected to MQTT broker');
 
   for (let i = 1; i <= 9; i++) {
     const deviceId = `SL0120230${i}`;
@@ -49,7 +49,7 @@ mqttClient.on('connect', () => {
       if (error) {
         console.error(`Error subscribing to ${topic}:`, error);
       } else {
-        console.log(`Subscribed to ${topic}`);
+       // console.log(`Subscribed to ${topic}`);
       }
     });
   }
@@ -76,7 +76,7 @@ mqttClient.on('message', (topic, message) => {
       if (error) {
         console.error('Error inserting data into MySQL:', error);
       } else {
-        console.log('Data inserted into MySQL');
+       // console.log('Data inserted into MySQL');
       }
     });
   } catch (error) {

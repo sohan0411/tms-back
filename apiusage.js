@@ -102,7 +102,23 @@ function apilogs(req, res) {
     }
   }
 
+  function devicelogs(req, res) {
+    try {
+      const query = 'SELECT * FROM device_info';
+      db.query(query, (error, rows) => {
+        if (error) {
+          throw new Error('Error fetching logs');
+        }
+        res.json({ logs: rows });
+      });
+    } catch (error) {
+      console.error('Error fetching logs:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
 module.exports = {
   logExecution,
-  apilogs
+  apilogs,
+  devicelogs
 };

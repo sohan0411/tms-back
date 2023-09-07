@@ -123,14 +123,32 @@ function monitorDevice() {
           if (isDeviceOnline) {
             if (Temperature > device.TriggerValue) {
               insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimestamp, 'heating']);
-              //console.log(`DeviceUID: ${DeviceUID}, Status: heating`);
+              // Update status in 'actual_data' table
+              const updateStatusQuery = 'UPDATE actual_data SET status = ? WHERE DeviceUID = ?';
+              db.query(updateStatusQuery, ['heating', DeviceUID], (error) => {
+                if (error) {
+                  console.error('Error updating status in actual_data table: ', error);
+                }
+              });
             } else {
               insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimestamp, 'online']);
-              //console.log(`DeviceUID: ${DeviceUID}, Status: online`);
+              // Update status in 'actual_data' table
+              const updateStatusQuery = 'UPDATE actual_data SET status = ? WHERE DeviceUID = ?';
+              db.query(updateStatusQuery, ['online', DeviceUID], (error) => {
+                if (error) {
+                  console.error('Error updating status in actual_data table: ', error);
+                }
+              });
             }
           } else {
             insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimestamp, 'offline']);
-            //console.log(`DeviceUID: ${DeviceUID}, Status: offline`);
+            // Update status in 'actual_data' table
+            const updateStatusQuery = 'UPDATE actual_data SET status = ? WHERE DeviceUID = ?';
+            db.query(updateStatusQuery, ['offline', DeviceUID], (error) => {
+              if (error) {
+                console.error('Error updating status in actual_data table: ', error);
+              }
+            });
           }
         }
       });
@@ -148,3 +166,4 @@ function monitorDevice() {
 }
 
 setInterval(monitorDevice, 20000);
+

@@ -30,7 +30,7 @@ const client = mqtt.connect(brokerUrl);
 
 // Handle MQTT connection event
 client.on('connect', () => {
-  console.log('Connected to MQTT broker');
+  //console.log('Connected to MQTT broker');
 
   // Publish random data for each device ID every 1 second
   for (let i = 1; i <= 9; i++) {
