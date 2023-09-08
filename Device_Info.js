@@ -1,5 +1,7 @@
 const db = require('./db');
 
+const maxEntriesToKeep = 10; // Change this value to the maximum number of entries you want to keep
+
 function DeviceIP(limit, callback) {
   const selectQuery = `
     SELECT
@@ -38,7 +40,40 @@ function DeviceInfo(device) {
     if (error) {
       console.error('Error inserting device data:', error);
     } else {
-      console.log('Inserted device data into device_info table');
+      // Insertion successful, now delete old data if necessary
+      deleteOldDeviceInfo(maxEntriesToKeep);
+    }
+  });
+}
+
+function deleteOldDeviceInfo(maxEntries) {
+  const selectIdsQuery = `
+    SELECT id
+    FROM device_info
+    ORDER BY timestamp DESC
+    LIMIT ?
+  `;
+
+  db.query(selectIdsQuery, [maxEntries], (error, results) => {
+    if (error) {
+      console.error('Error selecting IDs to keep:', error);
+    } else {
+      const idsToKeep = results.map((result) => result.id);
+
+      if (idsToKeep.length > 0) {
+        const deleteQuery = `
+          DELETE FROM device_info
+          WHERE id NOT IN (${idsToKeep.join(',')})
+        `;
+
+        db.query(deleteQuery, (deleteError, deleteResult) => {
+          if (deleteError) {
+            console.error('Error deleting old device data:', deleteError);
+          } else {
+            //console.log('Deleted old device data from device_info table');
+          }
+        });
+      }
     }
   });
 }
@@ -50,13 +85,7 @@ function runCode() {
     if (error) {
       console.error('Error:', error);
     } else {
-      console.log('Latest Device Data:');
       devices.forEach((device) => {
-        console.log(
-          `Device ID: ${device.deviceuid}, IP Address: ${device.ip_address}, Status: ${device.status}, Timestamp: ${device.timestamp}`
-        );
-
-        // Insert device data into the device_info table
         DeviceInfo(device);
       });
     }
