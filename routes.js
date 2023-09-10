@@ -4,7 +4,7 @@ const authentication = require('./auth/authentication');
 const dashboard = require('./dash/dashboard.js');
 const SA = require('./superadmin/SA.js');
 const limitter = require('express-rate-limit');
-const logs = require('./audit_logs');
+const logs = require('./auditlogs');
 const apilogs=require('./apiusage');
 
 
