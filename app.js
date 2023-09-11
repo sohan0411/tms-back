@@ -4,10 +4,10 @@ const router = require('./routes');
 const limitter = require('express-rate-limit');
 const fs = require('fs');
 const bodyParser = require('body-parser');
-const audit_logs = require('./audit_logs');
-const mqtt_sub = require('./sub');
-const mqtt_pub = require('./pub');
-const TMS_logs = require('./TMS_Logs.js');
+const auditlogs = require('./auditlogs.js');
+// const mqtt_sub = require('./sub');
+// const mqtt_pub = require('./pub');
+const TMS_logs = require('./tms_trigger_logs');
 const devicelogs = require('./Device_Info');
 // const MinuteData = require('./dash/interval_min');
 // const hourData = require('./dash/interval_hour');
@@ -21,7 +21,7 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(audit_logs.log)
+// app.use(auditlogs.log)
 
 
 // Use the router for handling routes
