@@ -219,6 +219,26 @@ function fetchAllUsers(req, res) {
     }
   }
   
+
+  function usermanagement(req, res) {
+    const userQuery = 'SELECT UserId,Username,CompanyName, Designation,PersonalEmail FROM tms_users';
+  
+    db.query(userQuery, (error, userResult) => {
+      if (error) {
+        console.error('Error fetching user details:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+  
+      if (userResult.length === 0) {
+        console.log('users not found!');
+        return res.status(404).json({ message: 'users not found!' });
+      }
+  
+      const users = userResult;
+      res.json({ userDetails: users });
+    });
+  }
+
   
 module.exports = {
   fetchAllUsers,
@@ -229,5 +249,6 @@ module.exports = {
   updateDevice,
   deleteDevice,
   fetchCounts,
-  //deleteDevice  
+  //deleteDevice,
+  usermanagement 
 };

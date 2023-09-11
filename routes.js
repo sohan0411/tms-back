@@ -6,6 +6,7 @@ const SA = require('./superadmin/SA.js');
 const limitter = require('express-rate-limit');
 const logs = require('./audit_logs');
 const apilogs=require('./apiusage');
+const device=require('./Device_Info');
 
 
 const registerLimitter = limitter({
@@ -69,5 +70,7 @@ router.get('/fetchCounts/:CompanyEmail', SA.fetchCounts);
 router.get('/logs', logs.fetchLogs);
 router.get('/apilogs', apilogs.apilogs);
 router.get('/devicelogs', apilogs.devicelogs);
+router.delete('/deleteDevicedata/:deviceUID', device.deleteDevicedata);
+router.get('/usermanagement', SA.usermanagement);
 
 module.exports = router;
