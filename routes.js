@@ -73,5 +73,6 @@ router.get('/devicelogs', apilogs.devicelogs);
 router.delete('/deleteDevicedata/:deviceUID', device.deleteDevicedata);
 router.get('/usermanagement', SA.usermanagement);
 router.get('/userInfo', apilogs.userInfo);
+router.get('/compInfo', apilogs.companyinfo);
 
 module.exports = router;
