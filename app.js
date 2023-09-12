@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const auditlogs = require('./auditlogs.js');
 // const mqtt_sub = require('./sub');
 // const mqtt_pub = require('./pub');
+const dev = require('./dev');
 const TMS_logs = require('./tms_trigger_logs');
 const devicelogs = require('./Device_Info');
 // const MinuteData = require('./dash/interval_min');
