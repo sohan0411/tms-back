@@ -4,9 +4,7 @@ const authentication = require('./auth/authentication');
 const dashboard = require('./dash/dashboard.js');
 const SA = require('./superadmin/SA.js');
 const limitter = require('express-rate-limit');
-const logs = require('./auditlogs');
-const apilogs=require('./apiusage');
-const device=require('./Device_Info');
+
 
 
 const registerLimitter = limitter({
@@ -67,14 +65,14 @@ router.put('/updateDevice/:deviceUID', SA.updateDevice);
 router.delete('/deleteDevice/:deviceUID', SA.deleteDevice);
 router.get('/fetchCompanyDetails/:CompanyEmail', SA.fetchCompanyDetails);
 router.get('/fetchCounts/:CompanyEmail', SA.fetchCounts);
-router.get('/logs', logs.fetchLogs);
-router.get('/apilogs', apilogs.apilogs);
-router.get('/devicelogs', apilogs.devicelogs);
-router.delete('/deleteDevicedata/:deviceUID', device.deleteDevicedata);
+router.get('/logs', SA.fetchLogs);
+router.get('/apilogs', SA.apilogs);
+router.get('/devicelogs', SA.devicelogs);
+router.delete('/deleteDevicedata/:deviceUID', SA.deleteDevicedata);
 router.get('/usermanagement', SA.usermanagement);
-router.get('/userInfo', apilogs.userInfo);
-router.get('/compInfo', apilogs.companyinfo);
-router.get('/alarms', apilogs.alarms);
-router.get('/notification', apilogs.Notification);
+router.get('/userInfo', SA.userInfo);
+router.get('/compInfo', SA.companyinfo);
+router.get('/alarms', SA.alarms);
+router.get('/notification', SA.notification);
 
 module.exports = router;
