@@ -25,7 +25,7 @@ const app = express();
 
 app.use(limitter({
   windowMS : 5000,
-  max:5,
+  max:50,
   message:{
     code: 429,
     message:'Too many request'
