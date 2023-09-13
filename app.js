@@ -7,8 +7,8 @@ const bodyParser = require('body-parser');
 const auditlogs = require('./auditlogs.js');
 // const mqtt_sub = require('./sub');
 // const mqtt_pub = require('./pub');
-const dev = require('./dev');
-const comp = require('./comp');
+// const dev = require('./dev');
+// const comp = require('./comp');
 const TMS_logs = require('./tms_trigger_logs');
 const devicelogs = require('./Device_Info');
 // const MinuteData = require('./dash/interval_min');
@@ -23,8 +23,7 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-//app.use(auditlogs.log);
-
+app.use(auditlogs.log);
 
 // Use the router for handling routes
 app.use(router);
