@@ -146,10 +146,42 @@ function apilogs(req, res) {
     }
   }
 
+  function alarms(req, res) {
+    try {
+      const query = 'SELECT * FROM alarms';
+      db.query(query, (error, rows) => {
+        if (error) {
+          throw new Error('Error fetching logs');
+        }
+        res.json({ logs: rows });
+      });
+    } catch (error) {
+      console.error('Error fetching logs:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+  function Notification(req, res) {
+    try {
+      const query = 'SELECT * FROM messages';
+      db.query(query, (error, rows) => {
+        if (error) {
+          throw new Error('Error fetching logs');
+        }
+        res.json({ logs: rows });
+      });
+    } catch (error) {
+      console.error('Error fetching logs:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
 module.exports = {
   logExecution,
   apilogs,
   devicelogs,
   userInfo,
-  companyinfo
+  companyinfo,
+  alarms,
+  Notification
 };

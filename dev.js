@@ -1,7 +1,8 @@
 const db = require('./db');
 
 function userInfo() {
-  let totalUsers, activeUsers, inactiveUsers; // Define variables in the outermost scope
+  // Define variables in the outermost scope
+  let totalUsers, activeUsers, inactiveUsers;
 
   const userCountQuery = 'SELECT COUNT(*) as total_users FROM tms_users';
   const activeUserCountQuery = 'SELECT COUNT(*) as active_users FROM tms_users WHERE is_online = 1';
@@ -33,6 +34,7 @@ function userInfo() {
           return;
         }
 
+        // After deleting old data, proceed to fetch new data and insert it
         connection.query(userCountQuery, (err, userCountResult) => {
           if (err) {
             console.error('Error calculating total users:', err);
@@ -104,4 +106,4 @@ function userInfo() {
   });
 }
 
-setInterval(userInfo, 10000);
+setInterval(userInfo, 100000);

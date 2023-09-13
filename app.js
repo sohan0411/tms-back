@@ -23,7 +23,7 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(auditlogs.log);
+//app.use(auditlogs.log);
 
 
 // Use the router for handling routes

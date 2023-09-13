@@ -74,5 +74,7 @@ router.delete('/deleteDevicedata/:deviceUID', device.deleteDevicedata);
 router.get('/usermanagement', SA.usermanagement);
 router.get('/userInfo', apilogs.userInfo);
 router.get('/compInfo', apilogs.companyinfo);
+router.get('/alarms', apilogs.alarms);
+router.get('/notification', apilogs.Notification);
 
 module.exports = router;
