@@ -106,4 +106,4 @@ function userInfo() {
   });
 }
 
-setInterval(userInfo, 100000);
+setInterval(userInfo, 10000);
