@@ -414,8 +414,9 @@ function fetchAllUsers(req, res) {
       }
     }
 
-    const maxEntriesToKeep = 10; // Change this value to the maximum number of entries you want to keep
+//device_info table
 
+const maxEntriesToKeep = 10; 
     function DeviceIP(limit, callback) {
       const selectQuery = `
         SELECT
@@ -443,20 +444,19 @@ function fetchAllUsers(req, res) {
     
     function DeviceInfo(device) {
       const insertQuery = `
-        INSERT INTO device_info (deviceuid, ip_address, status, timestamp,company_name,company_location)
-        VALUES (?, ?, ?, ?,?,?)
+        INSERT INTO device_info (deviceuid, ip_address, status, timestamp, company_name, company_location)
+        VALUES (?, ?, ?, ?, ?, ?)
       `;
     
       const { deviceuid, ip_address, status, timestamp } = device;
       const statusToInsert = status || 'offline';
-      const company_name="Senselive";
-      const company_location="Nagpur";
+      const company_name = "Senselive";
+      const company_location = "Nagpur";
     
-      db.query(insertQuery, [deviceuid, ip_address, statusToInsert, timestamp,company_name,company_location], (error, result) => {
+      db.query(insertQuery, [deviceuid, ip_address, statusToInsert, timestamp, company_name, company_location], (error, result) => {
         if (error) {
           console.error('Error inserting device data:', error);
         } else {
-          // Insertion successful, now delete old data if necessary
           deleteOldDeviceInfo(maxEntriesToKeep);
         }
       });
@@ -510,6 +510,7 @@ function fetchAllUsers(req, res) {
     }
     
     runCode();
+    
     
     function deleteDevicedata(req, res) {
       try {
