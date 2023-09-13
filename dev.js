@@ -90,7 +90,7 @@ function userInfo() {
                         connection.release();
                       });
                     } else {
-                      console.log('Inserted successfully.');
+                      //console.log('Inserted successfully.');
                       connection.release();
                     }
                   });
