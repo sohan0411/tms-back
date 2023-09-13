@@ -60,7 +60,7 @@ function calculateCompanyStatistics(connection, companyName) {
                     if (err) {
                         console.error(`Error inserting company data for ${companyName}:`, err);
                     } else {
-                        console.log(`Company data for ${companyName} inserted successfully.`);
+                        //console.log(`Company data for ${companyName} inserted successfully.`);
                     }
                 });
             });
