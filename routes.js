@@ -68,7 +68,6 @@ router.get('/fetchCounts/:CompanyEmail', SA.fetchCounts);
 router.get('/logs', SA.fetchLogs);
 router.get('/apilogs', SA.apilogs);
 router.get('/devicelogs', SA.devicelogs);
-router.delete('/removeDevice/:deviceUID', SA.deleteDevicedata);
 router.delete('/removeUser/:userId', SA.removeUser);
 router.get('/usermanagement', SA.usermanagement);
 router.get('/userInfo', SA.userInfo);
