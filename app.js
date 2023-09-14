@@ -23,15 +23,6 @@ const TMS_logs = require('./tms_trigger_logs');
 // const mqtt_pub = require('./pub');
 const app = express();
 
-app.use(limitter({
-  windowMS : 5000,
-  max:50,
-  message:{
-    code: 429,
-    message:'Too many request'
-  }
-})) 
-
 const port = 3000;
 
 

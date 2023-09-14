@@ -3,7 +3,7 @@ const mysql = require('mysql2');
 const dbConfig = {
     host: 'senselivedb.cn5vfllmzwrp.ap-south-1.rds.amazonaws.com',
     user: 'admin',
-    password: 'sense123',
+    password: 'sense!123',
     database: 'tmp',
   };
 

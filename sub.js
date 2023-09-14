@@ -9,7 +9,7 @@ const broker = 'ws://broker.emqx.io:8083/mqtt';
 const mysqlConfig = {
     host: 'senselivedb.cn5vfllmzwrp.ap-south-1.rds.amazonaws.com',
         user: 'admin',
-        password: 'sense123',
+        password: 'sense!123',
         database: 'tmp',
   port: 3306, // MySQL default port is 3306
 };
