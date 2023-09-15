@@ -295,7 +295,7 @@ function fetchAllUsers(req, res) {
   
     function devicelogs(req, res) {
       try {
-        const query = 'SELECT * FROM device_info';
+        const query = 'SELECT * FROM tms_trigger';
         db.query(query, (error, rows) => {
           if (error) {
             throw new Error('Error fetching logs');
@@ -416,101 +416,150 @@ function fetchAllUsers(req, res) {
 
 //device_info table
 
-const maxEntriesToKeep = 10; 
-    function DeviceIP(limit, callback) {
-      const selectQuery = `
-        SELECT
-          deviceuid,
-          ip_address,
-          status,
-          timestamp
-        FROM
-          actual_data
-        ORDER BY
-          timestamp DESC
-        LIMIT ?
-      `;
-    
-      db.query(selectQuery, [limit], (error, results) => {
-        if (error) {
-          console.error('Error fetching device data:', error);
-          callback(error, null);
-        } else {
-          const devices = results;
-          callback(null, devices);
-        }
-      });
+const maxEntriesToKeep = 10;
+const batchSize = 50; // Number of data sets to process before deleting old entries
+let processedDataSets = 0;
+
+function DeviceIP(limit, callback) {
+  const selectQuery = `
+    SELECT
+      deviceuid,
+      ip_address,
+      status,
+      timestamp
+    FROM
+      actual_data
+    ORDER BY
+      timestamp DESC
+    LIMIT ?
+  `;
+
+  db.query(selectQuery, [limit], (error, results) => {
+    if (error) {
+      console.error('Error fetching device data:', error);
+      callback(error, null);
+    } else {
+      const devices = results;
+      callback(null, devices);
     }
-    
-    function DeviceInfo(device) {
-      const insertQuery = `
-        INSERT INTO device_info (deviceuid, ip_address, status, timestamp, company_name, company_location)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `;
-    
-      const { deviceuid, ip_address, status, timestamp } = device;
-      const statusToInsert = status || 'offline';
-      const company_name = "Senselive";
-      const company_location = "Nagpur";
-    
-      db.query(insertQuery, [deviceuid, ip_address, statusToInsert, timestamp, company_name, company_location], (error, result) => {
-        if (error) {
-          console.error('Error inserting device data:', error);
-        } else {
-          deleteOldDeviceInfo(maxEntriesToKeep);
-        }
-      });
+  });
+}
+
+function DeviceInfo(device) {
+  const insertQuery = `
+    INSERT INTO device_info (deviceuid, ip_address, status, timestamp, company_name, company_location)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+
+  const { deviceuid, ip_address, status, timestamp } = device;
+  const statusToInsert = status || 'offline';
+  const company_name = "Senselive";
+  const company_location = "Nagpur";
+
+  db.query(insertQuery, [deviceuid, ip_address, statusToInsert, timestamp, company_name, company_location], (error, result) => {
+    if (error) {
+      console.error('Error inserting device data:', error);
+    } else {
+      // Update the device object with default values
+      device.status = statusToInsert;
+      device.company_name = company_name;
+      device.company_location = company_location;
+
+      processedDataSets++; // Increment the processed data sets count
+
+      if (processedDataSets % batchSize === 0) {
+        // When we reach a multiple of batchSize, delete old entries
+        deleteOldDeviceInfo(maxEntriesToKeep);
+      }
+
+      // Update tms_trigger with the same device data
+      updateTmsTrigger(device);
     }
-    
-    function deleteOldDeviceInfo(maxEntries) {
-      const selectIdsQuery = `
-        SELECT id
-        FROM device_info
-        ORDER BY timestamp DESC
-        LIMIT ?
-      `;
-    
-      db.query(selectIdsQuery, [maxEntries], (error, results) => {
-        if (error) {
-          console.error('Error selecting IDs to keep:', error);
-        } else {
-          const idsToKeep = results.map((result) => result.id);
-    
-          if (idsToKeep.length > 0) {
-            const deleteQuery = `
-              DELETE FROM device_info
-              WHERE id NOT IN (${idsToKeep.join(',')})
-            `;
-    
-            db.query(deleteQuery, (deleteError, deleteResult) => {
-              if (deleteError) {
-                console.error('Error deleting old device data:', deleteError);
-              } else {
-                //console.log('Deleted old device data from device_info table');
-              }
-            });
+  });
+}
+
+function deleteOldDeviceInfo(maxEntries) {
+  const selectIdsQuery = `
+    SELECT id
+    FROM device_info
+    ORDER BY timestamp DESC
+    LIMIT ?
+  `;
+
+  db.query(selectIdsQuery, [maxEntries], (error, results) => {
+    if (error) {
+      console.error('Error selecting IDs to keep:', error);
+    } else {
+      const idsToKeep = results.map((result) => result.id);
+
+      if (idsToKeep.length > 0) {
+        const deleteQuery = `
+          DELETE FROM device_info
+          WHERE id NOT IN (${idsToKeep.join(',')})
+        `;
+
+        db.query(deleteQuery, (deleteError, deleteResult) => {
+          if (deleteError) {
+            console.error('Error deleting old device data:', deleteError);
+          } else {
+            //console.log('Deleted old device data from device_info table');
           }
-        }
+        });
+      }
+    }
+  });
+}
+
+function updateTmsTrigger(device) {
+  const updateQuery = `
+    UPDATE tms_trigger
+    SET
+      ip_address = ?,
+      status = ?,
+      timestamp = ?,
+      company_name = ?,
+      company_location = ?
+    WHERE deviceuid = ?
+  `;
+
+  const {
+    ip_address,
+    status,
+    timestamp,
+    company_name,
+    company_location,
+    deviceuid
+  } = device;
+
+  db.query(
+    updateQuery,
+    [ip_address, status, timestamp, company_name, company_location, deviceuid],
+    (error, result) => {
+      if (error) {
+        console.error('Error updating tms_trigger:', error);
+      } else {
+        //console.log(`Updated tms_trigger for device with deviceuid: ${deviceuid}`);
+      }
+    }
+  );
+}
+
+const limit = 9;
+
+function runCode() {
+  DeviceIP(limit, (error, devices) => {
+    if (error) {
+      console.error('Error:', error);
+    } else {
+      devices.forEach((device) => {
+        DeviceInfo(device);
       });
     }
-    
-    const limit = 9;
-    
-    function runCode() {
-      DeviceIP(limit, (error, devices) => {
-        if (error) {
-          console.error('Error:', error);
-        } else {
-          devices.forEach((device) => {
-            DeviceInfo(device);
-          });
-        }
-        setTimeout(runCode, 5000);
-      });
-    }
-    
-    runCode();
-    
+    setTimeout(runCode, 5000);
+  });
+}
+
+runCode();
     
     function deleteDevice(req, res) {
       try {
