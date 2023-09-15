@@ -1,4 +1,3 @@
-
 const bcrypt = require('bcrypt');
 const db = require('../db');
 const jwtUtils = require('../token/jwtUtils');
@@ -747,6 +746,16 @@ function addDevice(req, res) {
   }
 }
 
+function Manish_energy(res ,req){
+  
+  const jsonString = req.body; // Access the JSON data sent in the request
+  // Process jsonData here as needed
+
+  // Send a response with the processed data
+  res.json({ message: 'Data received and processed successfully', data: jsonString });
+
+}
+
 
 module.exports = {
 	userDevices,
@@ -771,5 +780,7 @@ module.exports = {
   getUserMessages,
   fetchCompanyUser,
   addDeviceTrigger,
-  addDevice
+  addDevice,
+  Manish_energy
 };
+
