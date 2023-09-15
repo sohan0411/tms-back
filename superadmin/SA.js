@@ -118,28 +118,28 @@ function fetchAllUsers(req, res) {
     }
   }
 
-  function deleteDevice(req, res) {
-    try {
-      const deviceUID = req.params.deviceUID;
-      const deleteDeviceQuery = 'DELETE FROM tms_devices WHERE DeviceUID = ?';
+  // function deleteDevice(req, res) {
+  //   try {
+  //     const deviceUID = req.params.deviceUID;
+  //     const deleteDeviceQuery = 'DELETE FROM tms_devices WHERE DeviceUID = ?';
   
-      db.query(deleteDeviceQuery, [deviceUID], (error, result) => {
-        if (error) {
-          console.error('Error deleting device:', error);
-          return res.status(500).json({ message: 'Internal server error' });
-        }
+  //     db.query(deleteDeviceQuery, [deviceUID], (error, result) => {
+  //       if (error) {
+  //         console.error('Error deleting device:', error);
+  //         return res.status(500).json({ message: 'Internal server error' });
+  //       }
   
-        if (result.affectedRows === 0) {
-          return res.status(404).json({ message: 'Device not found' });
-        }
+  //       if (result.affectedRows === 0) {
+  //         return res.status(404).json({ message: 'Device not found' });
+  //       }
   
-        res.json({ message: 'Device deleted successfully' });
-      });
-    } catch (error) {
-      console.error('Error deleting device:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  }
+  //       res.json({ message: 'Device deleted successfully' });
+  //     });
+  //   } catch (error) {
+  //     console.error('Error deleting device:', error);
+  //     res.status(500).json({ message: 'Internal server error' });
+  //   }
+  // }
 
 
  
@@ -239,7 +239,338 @@ function fetchAllUsers(req, res) {
     });
   }
 
+  function logExecution(functionName, tenantId, status, message) {
+    const createdTime = new Date().toISOString(); 
+    const entity_type = 'SenseLive';
+    const entity_id = tenantId; 
+    const transport = 'ENABLED'; 
+    const db_storage = 'ENABLED'; 
+    const re_exec = 'ENABLED'; 
+    const js_exec = 'ENABLED';
+    const email_exec = 'ENABLED';
+    const sms_exec = 'ENABLED'; 
+    const alarm_exec = 'ENABLED';
   
+    const query = `
+      INSERT INTO tmp_api_usage (created_time, tenant_id, entity_type, entity_id, transport, db_storage, re_exec, js_exec, email_exec, sms_exec, alarm_exec, status, message)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    `;
+  
+    db.query(query, [
+      createdTime,
+      tenantId,
+      entity_type,
+      entity_id,
+      transport,
+      db_storage,
+      re_exec,
+      js_exec,
+      email_exec,
+      sms_exec,
+      alarm_exec,
+      status,
+      message,
+    ], (error, results) => {
+      if (error) {
+        console.error(`Error logging execution of function '${functionName}':`, error);
+      } else {
+        console.log(`Function '${functionName}' executed and logged successfully.`);
+      }
+    });
+  }
+  function apilogs(req, res) {
+      try {
+        const query = 'SELECT * FROM tmp_api_usage';
+        db.query(query, (error, rows) => {
+          if (error) {
+            throw new Error('Error fetching logs');
+          }
+          res.json({ logs: rows });
+        });
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+  
+    function devicelogs(req, res) {
+      try {
+        const query = 'SELECT * FROM device_info';
+        db.query(query, (error, rows) => {
+          if (error) {
+            throw new Error('Error fetching logs');
+          }
+          res.json({ logs: rows });
+        });
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+  
+    function userInfo(req, res) {
+      try {
+        const query = 'SELECT * FROM user_info';
+        db.query(query, (error, rows) => {
+          if (error) {
+            throw new Error('Error fetching logs');
+          }
+          res.json({ logs: rows });
+        });
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+    function companyinfo(req, res) {
+      try {
+        const query = 'SELECT * FROM company_info';
+        db.query(query, (error, rows) => {
+          if (error) {
+            throw new Error('Error fetching logs');
+          }
+          res.json({ logs: rows });
+        });
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+  
+    function alarms(req, res) {
+      try {
+        const query = 'SELECT * FROM alarms';
+        db.query(query, (error, rows) => {
+          if (error) {
+            throw new Error('Error fetching logs');
+          }
+          res.json({ logs: rows });
+        });
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+  
+    function notification(req, res) {
+      try {
+        const query = 'SELECT * FROM messages';
+        db.query(query, (error, rows) => {
+          if (error) {
+            throw new Error('Error fetching logs');
+          }
+          res.json({ logs: rows });
+        });
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+  
+    function extractIPv4(ipv6MappedAddress) {
+      const parts = ipv6MappedAddress.split(':');
+      return parts[parts.length - 1];
+    }
+    
+    function log(req, res, next) {
+      const { method, url, body, ip } = req;
+      const timestamp = new Date().toISOString();
+      const entity = body.userType || 'User';
+      const entityName = body.companyName || 'SenseLive';
+      const user = req.body.Username || req.body.companyEmail || 'N/A';
+      const userType = req.body.designation || 'std';
+      const type = method; 
+      const status = res.statusCode >= 200 && res.statusCode < 400 ? 'successful' : 'failure';
+      const details = `URL: ${url}`;
+      
+      const ipv4Address = extractIPv4(ip);
+    
+      const logMessage = `${timestamp} | IP: ${ipv4Address} | Entity Type: ${entity} | Entity Name: ${entityName} | User: ${user} (${userType}) | Type: ${type} | Status: ${status} | Details: ${details}`;
+    
+      db.query('INSERT INTO tmp.logs (timestamp, ip, entity_type, entity_name, username, user_type, request_type, status, details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [timestamp, ipv4Address, entity, entityName, user, userType, type, status, details],
+        function (error, results) {
+          if (error) {
+            console.error('Error writing to database:', error);
+          } else {
+            //console.log('Log data inserted into the database');
+          }
+          next();
+        });
+    }
+    
+    function fetchLogs(req, res) {
+      try {
+        const query = 'SELECT * FROM logs';
+        db.query(query, (error, rows) => {
+          if (error) {
+            throw new Error('Error fetching logs');
+          }
+          res.json({ logs: rows });
+        });
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+
+//device_info table
+
+const maxEntriesToKeep = 10; 
+    function DeviceIP(limit, callback) {
+      const selectQuery = `
+        SELECT
+          deviceuid,
+          ip_address,
+          status,
+          timestamp
+        FROM
+          actual_data
+        ORDER BY
+          timestamp DESC
+        LIMIT ?
+      `;
+    
+      db.query(selectQuery, [limit], (error, results) => {
+        if (error) {
+          console.error('Error fetching device data:', error);
+          callback(error, null);
+        } else {
+          const devices = results;
+          callback(null, devices);
+        }
+      });
+    }
+    
+    function DeviceInfo(device) {
+      const insertQuery = `
+        INSERT INTO device_info (deviceuid, ip_address, status, timestamp, company_name, company_location)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `;
+    
+      const { deviceuid, ip_address, status, timestamp } = device;
+      const statusToInsert = status || 'offline';
+      const company_name = "Senselive";
+      const company_location = "Nagpur";
+    
+      db.query(insertQuery, [deviceuid, ip_address, statusToInsert, timestamp, company_name, company_location], (error, result) => {
+        if (error) {
+          console.error('Error inserting device data:', error);
+        } else {
+          deleteOldDeviceInfo(maxEntriesToKeep);
+        }
+      });
+    }
+    
+    function deleteOldDeviceInfo(maxEntries) {
+      const selectIdsQuery = `
+        SELECT id
+        FROM device_info
+        ORDER BY timestamp DESC
+        LIMIT ?
+      `;
+    
+      db.query(selectIdsQuery, [maxEntries], (error, results) => {
+        if (error) {
+          console.error('Error selecting IDs to keep:', error);
+        } else {
+          const idsToKeep = results.map((result) => result.id);
+    
+          if (idsToKeep.length > 0) {
+            const deleteQuery = `
+              DELETE FROM device_info
+              WHERE id NOT IN (${idsToKeep.join(',')})
+            `;
+    
+            db.query(deleteQuery, (deleteError, deleteResult) => {
+              if (deleteError) {
+                console.error('Error deleting old device data:', deleteError);
+              } else {
+                //console.log('Deleted old device data from device_info table');
+              }
+            });
+          }
+        }
+      });
+    }
+    
+    const limit = 9;
+    
+    function runCode() {
+      DeviceIP(limit, (error, devices) => {
+        if (error) {
+          console.error('Error:', error);
+        } else {
+          devices.forEach((device) => {
+            DeviceInfo(device);
+          });
+        }
+        setTimeout(runCode, 5000);
+      });
+    }
+    
+    runCode();
+    
+    
+    function deleteDevice(req, res) {
+      try {
+        const deviceUID = req.params.deviceUID;
+        const deleteDeviceQuery = 'DELETE FROM tms_devices WHERE deviceuid = ?';
+    
+        db.query(deleteDeviceQuery, [deviceUID], (error, result) => {
+          if (error) {
+            console.error('Error deleting device:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+          }
+    
+          if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Device not found' });
+          }
+    
+          res.json({ message: 'Device deleted successfully' });
+        });
+      } catch (error) {
+        console.error('Error deleting device:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+
+    function removeUser(req, res) {
+      const userId = req.params.userId; 
+      const getUserQuery = 'SELECT * FROM tms_users WHERE UserId = ?';
+      db.query(getUserQuery, [userId], (error, userResult) => {
+        if (error) {
+          console.error('Error during user retrieval:', error);
+          return res.status(500).json({ message: 'Internal server error' });
+        }
+    
+        try {
+          if (userResult.length === 0) {
+            console.log('User not found');
+            return res.status(404).json({ message: 'User not found' });
+          }
+          const deleteUserQuery = 'DELETE FROM tms_users WHERE UserId = ?';
+          db.query(deleteUserQuery, [userId], (error, deleteResult) => {
+            if (error) {
+              console.error('Error during user deletion:', error);
+              return res.status(500).json({ message: 'Internal server error' });
+            }
+    
+            try {
+              console.log('User deleted successfully');
+              res.json({ message: 'User deleted successfully' });
+            } catch (error) {
+              console.error('Error responding to user deletion:', error);
+              res.status(500).json({ message: 'Internal server error' });
+            }
+          });
+        } catch (error) {
+          console.error('Error during user removal:', error);
+          res.status(500).json({ message: 'Internal server error' });
+        }
+      });
+    }
+
 module.exports = {
   fetchAllUsers,
   fetchAllDevices,
@@ -247,8 +578,17 @@ module.exports = {
   addDevice,
   getDeviceByUID,
   updateDevice,
-  deleteDevice,
   fetchCounts,
-  //deleteDevice,
-  usermanagement 
+  usermanagement,
+  logExecution,
+  apilogs,
+  devicelogs,
+  userInfo,
+  companyinfo,
+  alarms,
+  notification,
+  log, 
+  fetchLogs,
+  deleteDevice,
+  removeUser
 };
