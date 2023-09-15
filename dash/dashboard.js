@@ -746,13 +746,13 @@ function addDevice(req, res) {
   }
 }
 
-function Manish_energy(res ,req){
+function Manish_energy(req ,res){
   
   const jsonString = req.body; // Access the JSON data sent in the request
   // Process jsonData here as needed
 
   // Send a response with the processed data
-  res.json({ message: 'Data received and processed successfully', data: jsonString });
+  res.status(200).json({ message: 'Data received and processed successfully', data: jsonString });
 
 }
 
