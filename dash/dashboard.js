@@ -750,10 +750,15 @@ function Manish_energy(req ,res){
   
   const jsonString = req.body; // Access the JSON data sent in the request
   // Process jsonData here as needed
-
+  if(jsonString){
   // Send a response with the processed data
-  res.status(200).json({ message: 'Data received and processed successfully', data: jsonString });
-
+    res.status(200).json({ message: 'Data received and processed successfully', data: jsonString });
+    console.log(jsonString);
+  }else{
+    res.status(404).json({
+      message : "Data not found"
+    });
+  }
 }
 
 
