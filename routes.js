@@ -78,6 +78,7 @@ router.get('/notification', SA.notification);
 
 ///router.put('/editDevice/:deviceId', dashboard.editDevice);
 router.get('/deviceCount', SA.deviceCount);
+router.get('/transport', SA.graph1);
 
 
 
