@@ -221,7 +221,7 @@ function fetchAllUsers(req, res) {
   
   
   function usermanagement(req, res) {
-    const userQuery = 'SELECT UserId,Username,CompanyName,Location,ContactNo,Designation,PersonalEmail FROM tms_users';
+    const userQuery = 'SELECT UserId,Username,CompanyName,Location,ContactNo Designation,PersonalEmail FROM tms_users';
   
     db.query(userQuery, (error, userResult) => {
       if (error) {
