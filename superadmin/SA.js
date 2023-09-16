@@ -219,7 +219,7 @@ function fetchAllUsers(req, res) {
     }
   }
   
-
+  
   function usermanagement(req, res) {
     const userQuery = 'SELECT UserId,Username,CompanyName, Designation,PersonalEmail FROM tms_users';
   
@@ -620,6 +620,52 @@ runCode();
       });
     }
 
+    function deviceCount(req, res) {
+      const deviceQuery = 'SELECT COUNT(*) AS deviceCount FROM tms_devices';
+      const activeQuery = 'SELECT COUNT(*) AS activeCount FROM tms_devices WHERE  is_active = "1"';
+      const inactiveQuery = 'SELECT COUNT(*) AS inactiveCount FROM tms_devices WHERE is_active = "0"';
+      
+      try {
+        db.query(deviceQuery, (error, deviceQuery) => {
+          if (error) {
+            console.error('Error fetching standard user count:', error);
+            throw new Error('Internal server error');
+          }
+    
+          const deviceCount = deviceQuery[0].deviceCount;
+    
+          db.query(activeQuery, (error, activeResult) => {
+            if (error) {
+              console.error('Error fetching admin count:', error);
+              throw new Error('Internal server error');
+            }
+    
+            const activeCount = activeResult[0].activeCount;
+    
+            db.query(inactiveQuery,(error, inactiveResult) => {
+              if (error) {
+                console.error('Error fetching device count:', error);
+                throw new Error('Internal server error');
+              }
+    
+              const inactiveCount = inactiveResult[0].inactiveCount;
+                res.json({
+                  deviceCount: deviceCount,
+                  activeCount:activeCount,
+                  inactiveCount:inactiveCount
+                  
+                });
+              });
+            });
+          });
+      
+      } catch (error) {
+        console.error('Error occurred:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+    
+
 module.exports = {
   fetchAllUsers,
   fetchAllDevices,
@@ -639,5 +685,6 @@ module.exports = {
   log, 
   fetchLogs,
   deleteDevice,
-  removeUser
+  removeUser,
+  deviceCount
 };
