@@ -413,6 +413,21 @@ function fetchAllUsers(req, res) {
         res.status(500).json({ message: 'Internal server error' });
       }
     }
+    function graph1(req, res) {
+      try {
+        const query = 'SELECT * FROM transport';
+        db.query(query, (error, rows) => {
+          if (error) {
+            throw new Error('Error fetching logs');
+          }
+          res.json({ logs: rows });
+        });
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+
 
 //device_info table
 
@@ -686,5 +701,6 @@ module.exports = {
   fetchLogs,
   deleteDevice,
   removeUser,
-  deviceCount
+  deviceCount,
+  graph1
 };
