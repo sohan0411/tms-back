@@ -79,6 +79,10 @@ router.get('/notification', SA.notification);
 ///router.put('/editDevice/:deviceId', dashboard.editDevice);
 router.get('/deviceCount', SA.deviceCount);
 router.get('/transport', SA.graph1);
+router.get('/Jsfunction', SA.graph2);
+router.get('/alarmsActivity', SA.graph3);
+router.get('/ruleEngine', SA.graph4);
+
 
 
 

@@ -81,7 +81,7 @@ function editDevice(req, res) {
 
 function companyDetails(req, res) {
   const UserId = req.params.UserId;
-  const { Designation, ContactNo, Location}  = req.body; 
+  const { Designation, ContactNo,CompanyName, Location}  = req.body; 
   const userCheckQuery = 'SELECT * FROM tms_users WHERE UserId = ?';
 
   db.query(userCheckQuery, [UserId], (error, useridCheckResult) => {
@@ -96,9 +96,9 @@ function companyDetails(req, res) {
         return res.status(400).json({ message: 'User not found!' });
       }
 
-      const userQuery = 'Update tms_users SET Designation=?, ContactNo=?, Location=? WHERE UserId=?';
+      const userQuery = 'Update tms_users SET Designation=?, ContactNo=?,CompanyName=?, Location=? WHERE UserId=?';
 
-      db.query(userQuery, [Designation, ContactNo, Location, UserId],(error, details) => {
+      db.query(userQuery, [Designation, ContactNo, CompanyName,Location, UserId],(error, details) => {
         if (error) {
           console.error('Error fetching company details:', error);
           return res.status(500).json({ message: 'Internal server error' });
