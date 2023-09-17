@@ -7,9 +7,9 @@ const bodyParser = require('body-parser');
 const auditlogs = require('./superadmin/SA');
 // const mqtt_sub = require('./sub');
 // const mqtt_pub = require('./pub');
-// const dev = require('./dev');
-// const comp = require('./comp');
-// const TMS_logs = require('./tms_trigger_logs');
+const dev = require('./dev');
+const comp = require('./comp');
+const TMS_logs = require('./tms_trigger_logs');
 
 /*               Interval                */
 
