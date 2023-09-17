@@ -612,7 +612,7 @@ function runCode() {
         DeviceInfo(device);
       });
     }
-    setTimeout(runCode, 15000);
+    setTimeout(runCode, 10000);
   });
 }
 
