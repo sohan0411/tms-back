@@ -47,20 +47,20 @@ function fetchAllUsers(req, res) {
 
   function userByCompanyname(req, res) {
     try {
-      const deviceUID = req.params.deviceUID;
-      const getDeviceByIdQuery = 'SELECT * FROM tms_users WHERE CompanyName = ?';
+      const company_name = req.params.company_name;
+      const getDeviceByIdQuery = 'SELECT FirstName,LastName,CompanyName,CompanyEmail,ContactNo,Location,UserType,PersonalEmail FROM tms_users WHERE CompanyName = ?';
   
-      db.query(getDeviceByIdQuery, [deviceUID], (error, result) => {
+      db.query(getDeviceByIdQuery, [company_name], (error, result) => {
         if (error) {
           console.error('Error fetching device:', error);
           return res.status(500).json({ message: 'Internal server error' });
         }
   
         if (result.length === 0) {
-          return res.status(404).json({ message: 'Device not found' });
+          return res.status(404).json({ message: 'User not found' });
         }
   
-        res.json(result[0]);
+        res.json(result);
       });
     } catch (error) {
       console.error('Error fetching device:', error);

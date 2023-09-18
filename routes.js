@@ -62,7 +62,7 @@ router.get('/fetchAllDevices', SA.fetchAllDevices);
 router.get('/fetchAllUsers', SA.fetchAllUsers);
 router.post('/addDevice', SA.addDevice);
 router.get('/getDeviceByUID/:deviceUID', SA.getDeviceByUID);
-router.get('/userByCompanyname/:deviceUID', SA.userByCompanyname);
+router.get('/userByCompanyname/:company_name', SA.userByCompanyname);
 router.put('/updateDevice/:deviceUID', SA.updateDevice);
 router.delete('/deleteDevice/:deviceUID', SA.deleteDevice);
 router.get('/fetchCompanyDetails/:CompanyEmail', SA.fetchCompanyDetails);
