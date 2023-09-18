@@ -455,21 +455,31 @@ function fetchAllUsers(req, res) {
         res.status(500).json({ message: 'Internal server error' });
       }
     }
+    
     function graph4(req, res) {
       try {
-        const query = 'SELECT * FROM transport';
+        const query = 'SELECT Date, TransportValues FROM transport';
         db.query(query, (error, rows) => {
           if (error) {
             throw new Error('Error fetching logs');
           }
-          res.json({ logs: rows });
+    
+          // Transform rows into the desired format
+          const formattedData = rows.map(row => ({
+            x: (row.Date), // Convert the Date to a timestamp
+            y: parseInt(row.TransportValues, 10) // Parse the TransportValues as an integer
+          }));
+    
+          // Send the formatted data as the response
+          res.json({ data: formattedData });
         });
       } catch (error) {
         console.error('Error fetching logs:', error);
         res.status(500).json({ message: 'Internal server error' });
       }
     }
-
+    
+    
 
 //device_info table
 
