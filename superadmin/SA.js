@@ -45,6 +45,28 @@ function fetchAllUsers(req, res) {
     }
   }
 
+  function userByCompanyname(req, res) {
+    try {
+      const deviceUID = req.params.deviceUID;
+      const getDeviceByIdQuery = 'SELECT * FROM tms_users WHERE CompanyName = ?';
+  
+      db.query(getDeviceByIdQuery, [deviceUID], (error, result) => {
+        if (error) {
+          console.error('Error fetching device:', error);
+          return res.status(500).json({ message: 'Internal server error' });
+        }
+  
+        if (result.length === 0) {
+          return res.status(404).json({ message: 'Device not found' });
+        }
+  
+        res.json(result[0]);
+      });
+    } catch (error) {
+      console.error('Error fetching device:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
 
   //DEVICES
   function addDevice(req, res) {
@@ -221,7 +243,7 @@ function fetchAllUsers(req, res) {
   
   
   function usermanagement(req, res) {
-    const userQuery = 'SELECT UserId,Username,CompanyName, Designation,PersonalEmail FROM tms_users';
+    const userQuery = 'SELECT UserId,Username,CompanyName, Designation,PersonalEmail,Location,ContactNo FROM tms_users';
   
     db.query(userQuery, (error, userResult) => {
       if (error) {
@@ -622,7 +644,7 @@ function runCode() {
         DeviceInfo(device);
       });
     }
-    setTimeout(runCode, 5000);
+    setTimeout(runCode, 10000);
   });
 }
 
@@ -757,8 +779,8 @@ module.exports = {
   graph1,
   graph2,
   graph3,
-  graph4
-  
+  graph4,
+  userByCompanyname
 
   
 };
