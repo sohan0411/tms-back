@@ -45,7 +45,7 @@ function fetchAllUsers(req, res) {
     }
   }
 
-  function userByCompanyname(req, res) {
+function userByCompanyname(req, res) {
     try {
       const deviceUID = req.params.deviceUID;
       const getDeviceByIdQuery = 'SELECT * FROM tms_users WHERE CompanyName = ?';
@@ -67,6 +67,7 @@ function fetchAllUsers(req, res) {
       res.status(500).json({ message: 'Internal server error' });
     }
   }
+
 
   //DEVICES
   function addDevice(req, res) {

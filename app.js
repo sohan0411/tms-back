@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const router = require('./routes');
-const limitter = require('express-rate-limit');
 const fs = require('fs');
 const bodyParser = require('body-parser');
 const auditlogs = require('./superadmin/SA');
