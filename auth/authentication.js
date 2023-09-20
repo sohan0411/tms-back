@@ -817,29 +817,54 @@ function generateUserId() {
 }
 
 function Block(req, res) {
-  const { UserId } = req.params; 
+  const { UserId } = req.params;
   const { action } = req.body;
+  
   if (action !== 'block' && action !== 'unblock') {
     return res.status(400).json({ message: 'Invalid action. Use "block" or "unblock".' });
   }
 
   const blockValue = action === 'block' ? 1 : 0;
 
-  const query = 'UPDATE tms_users SET block = ? WHERE UserId = ?';
-  db.query(query, [blockValue, UserId], (error, result) => {
-    if (error) {
-      console.error(`Error during user ${action}ing:`, error);
-      return res.status(500).json({ message: `Error ${action}ing user` });
+  // Check if the user is already blocked or unblocked
+  const checkQuery = 'SELECT block FROM tms_users WHERE UserId = ?';
+
+  db.query(checkQuery, [UserId], (checkError, checkResult) => {
+    if (checkError) {
+      console.error(`Error checking user block status:`, checkError);
+      return res.status(500).json({ message: 'Error checking user block status' });
     }
 
-    if (result.affectedRows === 0) {
+    if (checkResult.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const successMessage = `User ${action}ed successfully`;
-    res.status(200).json({ message: successMessage });
+    const currentBlockStatus = checkResult[0].block;
+
+    if (currentBlockStatus === blockValue) {
+      const statusMessage = blockValue === 1 ? 'already blocked' : 'already unblocked';
+      return res.status(200).json({ message: `User is ${statusMessage}` });
+    }
+
+    // User is not in the desired block state; update the block status
+    const updateQuery = 'UPDATE tms_users SET block = ? WHERE UserId = ?';
+
+    db.query(updateQuery, [blockValue, UserId], (updateError, updateResult) => {
+      if (updateError) {
+        console.error(`Error during user ${action}ing:`, updateError);
+        return res.status(500).json({ message: `Error ${action}ing user` });
+      }
+
+      if (updateResult.affectedRows === 0) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      const successMessage = `User ${action}ed successfully`;
+      res.status(200).json({ message: successMessage });
+    });
   });
 }
+
 
 
 module.exports = {
