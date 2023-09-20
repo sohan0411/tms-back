@@ -516,6 +516,12 @@ function login(req, res) {
         return res.status(401).json({ message: 'User is not verified. Please verify your account.' });
       }
 
+      if (user.block === 1) {
+        // Log the end of the function execution with an error message
+        logExecution('login', tenantId, 'ERROR', 'User is blocked');
+        return res.status(401).json({ message: 'User is blocked. Please contact support.' });
+      }
+
       // Compare the provided password with the hashed password in the database
       bcrypt.compare(Password, user.Password, (error, isPasswordValid) => {
         try {
@@ -549,6 +555,7 @@ function login(req, res) {
     }
   });
 }
+
 
 
 // User details endpoint
@@ -809,6 +816,31 @@ function generateUserId() {
   return userId;
 }
 
+function Block(req, res) {
+  const { UserId } = req.params; 
+  const { action } = req.body;
+  if (action !== 'block' && action !== 'unblock') {
+    return res.status(400).json({ message: 'Invalid action. Use "block" or "unblock".' });
+  }
+
+  const blockValue = action === 'block' ? 1 : 0;
+
+  const query = 'UPDATE tms_users SET block = ? WHERE UserId = ?';
+  db.query(query, [blockValue, UserId], (error, result) => {
+    if (error) {
+      console.error(`Error during user ${action}ing:`, error);
+      return res.status(500).json({ message: `Error ${action}ing user` });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const successMessage = `User ${action}ed successfully`;
+    res.status(200).json({ message: successMessage });
+  });
+}
+
 
 module.exports = {
   register,
@@ -824,5 +856,6 @@ module.exports = {
   resendResetToken,
   resetPassword,
   setUserOnline,
-  setUserOffline
+  setUserOffline,
+  Block
 };
