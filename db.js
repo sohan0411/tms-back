@@ -18,12 +18,12 @@ connection.getConnection((err, connection) => {
   }
   console.log('Connected to database with ID:', connection.threadId);
 
-  /*connection.query('SET time_zone = "Asia/Kolkata";', (err) => {
+  connection.query('SET time_zone = "Asia/Kolkata";', (err) => {
     if (err) {
       console.error('Error setting time zone:', err);
       return;
     }
-    console.log('Time zone set to Asia/Kolkata');
+    //console.log('Time zone set to Asia/Kolkata');
 
     connection.query('SELECT @@session.time_zone;', (err, results) => {
       if (err) {
@@ -32,7 +32,7 @@ connection.getConnection((err, connection) => {
       }
       console.log('Time zone of current database:', results[0]['@@session.time_zone']);
     });
-  });*/
+  });
 });
 
 module.exports = connection;
