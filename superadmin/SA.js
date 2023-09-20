@@ -712,8 +712,8 @@ runCode();
 
     function deviceCount(req, res) {
       const deviceQuery = 'SELECT COUNT(*) AS deviceCount FROM tms_devices';
-      const activeQuery = 'SELECT COUNT(*) AS activeCount FROM tms_devices WHERE  is_active = "1"';
-      const inactiveQuery = 'SELECT COUNT(*) AS inactiveCount FROM tms_devices WHERE is_active = "0"';
+      const activeQuery = 'SELECT COUNT(*) AS activeCount FROM tms_devices WHERE  status = "1"';
+      const inactiveQuery = 'SELECT COUNT(*) AS inactiveCount FROM tms_devices WHERE status = "0"';
       
       try {
         db.query(deviceQuery, (error, deviceQuery) => {
