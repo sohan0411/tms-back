@@ -244,7 +244,7 @@ function userByCompanyname(req, res) {
   
   
   function usermanagement(req, res) {
-    const userQuery = 'SELECT UserId,Username,CompanyName, Designation,PersonalEmail,Location,ContactNo FROM tms_users';
+    const userQuery = 'SELECT UserId,Username,CompanyName, Designation,PersonalEmail,Location,ContactNo,Block FROM tms_users';
   
     db.query(userQuery, (error, userResult) => {
       if (error) {
