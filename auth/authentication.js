@@ -153,6 +153,9 @@ function register(req, res) {
     password,
   } = req.body;
 
+// Combine firstName and lastName to create the full name
+//const name = `${firstName} ${lastName}`;
+
   // Check if the company email is already registered
   const emailCheckQuery = 'SELECT * FROM tms_users WHERE CompanyEmail = ?';
   db.query(emailCheckQuery, [companyEmail], (error, emailCheckResult) => {
@@ -225,6 +228,7 @@ function register(req, res) {
                   try {
                     // Send the verification token to the user's email
                     sendTokenEmail(personalEmail, verificationToken);
+                    //res.render('../mail-body/email-template.ejs', { name, token: verificationToken });
 
                     console.log('User registered successfully');
                     res.json({ message: 'Registration successful. Check your email for the verification token.' });
@@ -343,6 +347,7 @@ function register_dashboard(req, res) {
     }
   });
 }
+
 
 
 // Function to handle token verification

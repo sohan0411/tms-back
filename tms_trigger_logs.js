@@ -46,37 +46,36 @@ function monitorDevice() {
           const timeDifference = new Date() - latestDateTime;
           
           const isDeviceOnline = timeDifference <= 5 * 60 * 1000;
+          let status = ''; // Define the status variable within the loop
 
           if (isDeviceOnline) {
             if (Temperature > device.TriggerValue) {
               insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimestamp, 'heating']);
-              // Update status in 'actual_data' table
-              const updateStatusQuery = 'UPDATE actual_data SET status = ? WHERE DeviceUID = ?';
-              db.query(updateStatusQuery, ['heating', DeviceUID], (error) => {
-                if (error) {
-                  console.error('Error updating status in actual_data table: ', error);
-                }
-              });
+              status = 'heating';
             } else {
               insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimestamp, 'online']);
-              // Update status in 'actual_data' table
-              const updateStatusQuery = 'UPDATE actual_data SET status = ? WHERE DeviceUID = ?';
-              db.query(updateStatusQuery, ['online', DeviceUID], (error) => {
-                if (error) {
-                  console.error('Error updating status in actual_data table: ', error);
-                }
-              });
+              status = 'online';
             }
           } else {
             insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimestamp, 'offline']);
-            // Update status in 'actual_data' table
-            const updateStatusQuery = 'UPDATE actual_data SET status = ? WHERE DeviceUID = ?';
-            db.query(updateStatusQuery, ['offline', DeviceUID], (error) => {
-              if (error) {
-                console.error('Error updating status in actual_data table: ', error);
-              }
-            });
+            status = 'offline';
           }
+
+          // Update status in 'actual_data' table
+          const updateStatusQuery = 'UPDATE actual_data SET status = ? WHERE DeviceUID = ?';
+          db.query(updateStatusQuery, [status, DeviceUID], (error) => {
+            if (error) {
+              console.error('Error updating status in actual_data table: ', error);
+            }
+          });
+
+          // Update status in 'tms_devices' table
+          const updateStatusQueryTMS = 'UPDATE tms_devices SET Status = ? WHERE DeviceUID = ?';
+          db.query(updateStatusQueryTMS, [status, DeviceUID], (error) => {
+            if (error) {
+              console.error('Error updating status in tms_devices table: ', error);
+            }
+          });
         }
       });
 
@@ -93,4 +92,3 @@ function monitorDevice() {
 }
 
 setInterval(monitorDevice, 20000);
-

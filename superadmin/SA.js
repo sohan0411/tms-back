@@ -437,7 +437,7 @@ function fetchAllUsers(req, res) {
     }
     function graph1(req, res) {
       try {
-        const query = 'SELECT * FROM transport';
+        const query = 'SELECT * FROM tmp';
         db.query(query, (error, rows) => {
           if (error) {
             throw new Error('Error fetching logs');
@@ -488,7 +488,7 @@ function fetchAllUsers(req, res) {
     
           // Transform rows into the desired format
           const formattedData = rows.map(row => ({
-            x: (row.Date), // Convert the Date to a timestamp
+            x: new Date(row.Date).toISOString(), // Convert the Date to an ISO 8601 timestamp
             y: parseInt(row.TransportValues, 10) // Parse the TransportValues as an integer
           }));
     
@@ -500,6 +500,7 @@ function fetchAllUsers(req, res) {
         res.status(500).json({ message: 'Internal server error' });
       }
     }
+    
     
     
 
