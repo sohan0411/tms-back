@@ -521,6 +521,12 @@ function login(req, res) {
         return res.status(401).json({ message: 'User is not verified. Please verify your account.' });
       }
 
+      if (user.block === 1) {
+        // Log the end of the function execution with an error message
+        logExecution('login', tenantId, 'ERROR', 'User is blocked');
+        return res.status(401).json({ message: 'User is blocked. Please contact support.' });
+      }
+
       // Compare the provided password with the hashed password in the database
       bcrypt.compare(Password, user.Password, (error, isPasswordValid) => {
         try {
@@ -554,6 +560,7 @@ function login(req, res) {
     }
   });
 }
+
 
 
 // User details endpoint
@@ -814,6 +821,56 @@ function generateUserId() {
   return userId;
 }
 
+function Block(req, res) {
+  const { UserId } = req.params;
+  const { action } = req.body;
+  
+  if (action !== 'block' && action !== 'unblock') {
+    return res.status(400).json({ message: 'Invalid action. Use "block" or "unblock".' });
+  }
+
+  const blockValue = action === 'block' ? 1 : 0;
+
+  // Check if the user is already blocked or unblocked
+  const checkQuery = 'SELECT block FROM tms_users WHERE UserId = ?';
+
+  db.query(checkQuery, [UserId], (checkError, checkResult) => {
+    if (checkError) {
+      console.error(`Error checking user block status:`, checkError);
+      return res.status(500).json({ message: 'Error checking user block status' });
+    }
+
+    if (checkResult.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const currentBlockStatus = checkResult[0].block;
+
+    if (currentBlockStatus === blockValue) {
+      const statusMessage = blockValue === 1 ? 'already blocked' : 'already unblocked';
+      return res.status(200).json({ message: `User is ${statusMessage}` });
+    }
+
+    // User is not in the desired block state; update the block status
+    const updateQuery = 'UPDATE tms_users SET block = ? WHERE UserId = ?';
+
+    db.query(updateQuery, [blockValue, UserId], (updateError, updateResult) => {
+      if (updateError) {
+        console.error(`Error during user ${action}ing:`, updateError);
+        return res.status(500).json({ message: `Error ${action}ing user` });
+      }
+
+      if (updateResult.affectedRows === 0) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      const successMessage = `User ${action}ed successfully`;
+      res.status(200).json({ message: successMessage });
+    });
+  });
+}
+
+
 
 module.exports = {
   register,
@@ -829,5 +886,6 @@ module.exports = {
   resendResetToken,
   resetPassword,
   setUserOnline,
-  setUserOffline
+  setUserOffline,
+  Block
 };

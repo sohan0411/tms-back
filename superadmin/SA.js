@@ -45,7 +45,7 @@ function fetchAllUsers(req, res) {
     }
   }
 
-  function userByCompanyname(req, res) {
+function userByCompanyname(req, res) {
     try {
       const company_name = req.params.company_name;
       const getDeviceByIdQuery = 'SELECT FirstName,LastName,CompanyName,CompanyEmail,ContactNo,Location,UserType,PersonalEmail FROM tms_users WHERE CompanyName = ?';
@@ -67,6 +67,7 @@ function fetchAllUsers(req, res) {
       res.status(500).json({ message: 'Internal server error' });
     }
   }
+
 
   //DEVICES
   function addDevice(req, res) {
@@ -243,7 +244,7 @@ function fetchAllUsers(req, res) {
   
   
   function usermanagement(req, res) {
-    const userQuery = 'SELECT UserId,Username,CompanyName, Designation,PersonalEmail,Location,ContactNo FROM tms_users';
+    const userQuery = 'SELECT UserId,Username,CompanyName, Designation,PersonalEmail,Location,ContactNo,Block FROM tms_users';
   
     db.query(userQuery, (error, userResult) => {
       if (error) {
@@ -712,8 +713,8 @@ runCode();
 
     function deviceCount(req, res) {
       const deviceQuery = 'SELECT COUNT(*) AS deviceCount FROM tms_devices';
-      const activeQuery = 'SELECT COUNT(*) AS activeCount FROM tms_devices WHERE  is_active = "1"';
-      const inactiveQuery = 'SELECT COUNT(*) AS inactiveCount FROM tms_devices WHERE is_active = "0"';
+      const activeQuery = 'SELECT COUNT(*) AS activeCount FROM tms_devices WHERE  status = "1"';
+      const inactiveQuery = 'SELECT COUNT(*) AS inactiveCount FROM tms_devices WHERE status = "0"';
       
       try {
         db.query(deviceQuery, (error, deviceQuery) => {
