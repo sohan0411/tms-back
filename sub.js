@@ -1,93 +1,85 @@
-const mqtt = require('mqtt');
 const mysql = require('mysql2');
-const os = require('os');
 
-// MQTT broker URL
-const broker = 'ws://broker.emqx.io:8083/mqtt';
-
-// MySQL configuration
-const mysqlConfig = {
-    host: 'senselivedb.cn5vfllmzwrp.ap-south-1.rds.amazonaws.com',
-        user: 'admin',
-        password: 'sense!123',
-        database: 'tmp',
-  port: 3306, // MySQL default port is 3306
+const dbConfig = {
+  host: 'senselivedb.cn5vfllmzwrp.ap-south-1.rds.amazonaws.com',
+  user: 'admin',
+  password: 'sense!123',
+  database: 'tmp',
 };
 
-// Create a MySQL connection pool
-const mysqlPool = mysql.createPool(mysqlConfig);
+// Create a single connection pool
+const pool = mysql.createPool(dbConfig);
 
-// Fetch the local IP address
-const localIpAddress = getLocalIpAddress();
+function updateCompanyInfo() {
+  const getCompanyNamesQuery = 'SELECT DISTINCT CompanyName FROM tms_users';
 
-function getLocalIpAddress() {
-  const interfaces = os.networkInterfaces();
-  for (const key in interfaces) {
-    const iface = interfaces[key];
-    for (const item of iface) {
-      if (item.family === 'IPv4' && !item.internal) {
-        return item.address;
-      }
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error getting a database connection:', err);
+      return;
     }
-  }
-  return 'Unknown'; // Return 'Unknown' if no IP address is found
+
+    connection.query(getCompanyNamesQuery, (err, results) => {
+      if (err) {
+        console.error('Error fetching company names:', err);
+        connection.release();
+        return;
+      }
+      const companyNames = results.map((row) => row.CompanyName);
+
+      // Release the connection here, as it's not needed for the subsequent queries
+      connection.release();
+
+      for (const companyName of companyNames) {
+        calculateCompanyStatistics(companyName);
+      }
+    });
+  });
 }
 
-console.log('Local IP Address:', localIpAddress);
-
-// Connect to the MQTT broker
-const mqttClient = mqtt.connect(broker);
-
-// Handle MQTT connection event
-mqttClient.on('connect', () => {
-  //console.log('Connected to MQTT broker');
-
-  for (let i = 1; i <= 9; i++) {
-    const deviceId = `SL0120230${i}`;
-    const topic = `sense/live/${deviceId}`;
-    mqttClient.subscribe(topic, (error) => {
-      if (error) {
-        console.error(`Error subscribing to ${topic}:`, error);
-      } else {
-       // console.log(`Subscribed to ${topic}`);
+function calculateCompanyStatistics(companyName) {
+    const userCountQuery = 'SELECT COUNT(*) AS total_users FROM tms_users WHERE CompanyName = ?';
+    const activeUserCountQuery = 'SELECT COUNT(*) AS active_users FROM tms_users WHERE CompanyName = ? AND is_online = 1';
+    const inactiveUserCountQuery = 'SELECT COUNT(*) AS inactive_users FROM tms_users WHERE CompanyName = ? AND is_online = 0';
+  
+    connection.query(userCountQuery, [companyName], (err, [userCountResult]) => {
+      if (err) {
+        console.error(`Error calculating total users for ${companyName}:`, err);
+        return;
       }
+  
+      connection.query(activeUserCountQuery, [companyName], (err, [activeUserCountResult]) => {
+        if (err) {
+          console.error(`Error calculating active users for ${companyName}:`, err);
+          return;
+        }
+  
+        connection.query(inactiveUserCountQuery, [companyName], (err, [inactiveUserCountResult]) => {
+          if (err) {
+            console.error(`Error calculating inactive users for ${companyName}:`, err);
+            return;
+          }
+  
+          const totalUsers = userCountResult.total_users;
+          const activeUsers = activeUserCountResult.active_users;
+          const inactiveUsers = inactiveUserCountResult.inactive_users;
+          const insertCompanyDataQuery = 'INSERT INTO company_info (company_name, total_users, active_users, inactive_users) VALUES (?, ?, ?, ?)';
+          const deleteCompanyDataQuery = 'DELETE FROM company_info WHERE company_name = ?';
+          connection.query(deleteCompanyDataQuery, [companyName], (err) => {
+            if (err) {
+              console.error(`Error deleting old company data for ${companyName}:`, err);
+              return;
+            }
+            connection.query(insertCompanyDataQuery, [companyName, totalUsers, activeUsers, inactiveUsers], (err) => {
+              if (err) {
+                console.error(`Error inserting company data for ${companyName}:`, err);
+              }
+            });
+          });
+        });
+      });
     });
   }
-});
-
-mqttClient.on('message', (topic, message) => {
-  try {
-    const data = JSON.parse(message);
-
-    const insertQuery = `
-    INSERT INTO actual_data (DeviceUID, Temperature, Humidity, Timestamp,ip_address)
-    VALUES (?, ?, ?, ?,?)
-    `;
-
-    const insertValues = [
-      data.DeviceUID,
-      data.Temperature,
-      data.Humidity,
-      data.Timestamp,
-      localIpAddress,
-    ];
-
-    mysqlPool.query(insertQuery, insertValues, (error) => {
-      if (error) {
-        console.error('Error inserting data into MySQL:', error);
-      } else {
-       // console.log('Data inserted into MySQL');
-      }
-    });
-  } catch (error) {
-    console.error('Error processing message:', error);
-  }
-});
-
-mqttClient.on('error', (error) => {
-  console.error('MQTT error:', error);
-});
-
-process.on('exit', () => {
-  mysqlPool.end();
-});
+  
+updateCompanyInfo();
+setInterval(updateCompanyInfo, 10000);
