@@ -13,16 +13,16 @@ const { v4: uuidv4 } = require('uuid');
 encryptKey = "SenseLive-Tms-Dashboard";
 
 // Function to send an email with the token
-function sendTokenEmail(email, token, firstName, lastName) {
+function sendTokenEmail(email, token) {
   const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-      user: 'kpohekar19@gmail.com',
-      pass: 'woptjevenzhqmrpp',
-    },
-  });
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: 'kpohekar19@gmail.com',
+    pass: 'woptjevenzhqmrpp',
+  },
+});
 
   // Read the email template file
   const templatePath = path.join(__dirname, '../mail-body/email-template.ejs');
@@ -35,11 +35,11 @@ function sendTokenEmail(email, token, firstName, lastName) {
     // Compile the email template with EJS
     const compiledTemplate = ejs.compile(templateData);
 
-    // Render the template with the token and recipient's name
-    const html = compiledTemplate({token, firstName, lastName});
+    // Render the template with the token
+    const html = compiledTemplate({ token });
 
     const mailOptions = {
-      from: 'your-email@example.com', // Replace with the sender's email address
+      from: 'your-email@example.com',
       to: email,
       subject: 'Registration Token',
       html: html,
@@ -54,7 +54,6 @@ function sendTokenEmail(email, token, firstName, lastName) {
     });
   });
 }
-
 
 function sendTokenDashboardEmail(email, token) {
   const transporter = nodemailer.createTransport({
@@ -154,8 +153,8 @@ function register(req, res) {
     password,
   } = req.body;
 
-  // Combine firstName and lastName to create the user's name
-  const name = `${firstName} ${lastName}`;
+// Combine firstName and lastName to create the full name
+//const name = `${firstName} ${lastName}`;
 
   // Check if the company email is already registered
   const emailCheckQuery = 'SELECT * FROM tms_users WHERE CompanyEmail = ?';
@@ -228,7 +227,8 @@ function register(req, res) {
 
                   try {
                     // Send the verification token to the user's email
-                    sendTokenEmail(personalEmail, verificationToken, firstName, lastName);
+                    sendTokenEmail(personalEmail, verificationToken);
+                    //res.render('../mail-body/email-template.ejs', { name, token: verificationToken });
 
                     console.log('User registered successfully');
                     res.json({ message: 'Registration successful. Check your email for the verification token.' });
@@ -254,8 +254,6 @@ function register(req, res) {
     }
   });
 }
-
-
 
 function register_dashboard(req, res) {
   const {
@@ -349,6 +347,7 @@ function register_dashboard(req, res) {
     }
   });
 }
+
 
 
 // Function to handle token verification
