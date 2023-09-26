@@ -28,4 +28,4 @@ app.listen(port, () => {
 });
 
 // Periodically check the state every 1
-setInterval(checkState, 1 * 60 * 1000);
+setInterval(checkState,1000);

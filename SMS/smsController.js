@@ -57,6 +57,10 @@ function checkState() {
 
         sendSMS(device.phone_number, message);
         sendEmail(device.email, renderEmailTemplate(devices)); // Use the rendered email template
+
+        // Log information to the database
+        logInfoToDatabase('SMS', 'Device Status Update', message, device.phone_number, null, 0);
+        logInfoToDatabase('Email', 'Device Status Update', body, device.email, null, 0);
       }
     });
 
@@ -109,6 +113,24 @@ function renderEmailTemplate(devices) {
   const template = fs.readFileSync(templateFilePath, 'utf-8');
 
   return ejs.render(template, { devices });
+}
+
+// Function to log information into the database
+function logInfoToDatabase(type, subject, message, recipient, messageId, isRead) {
+  const connection = mysql.createConnection(dbConfig);
+
+  connection.query(
+    'INSERT INTO info_twi (created_time, type, subject, message, recipient, message_id, isRead) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [new Date(), type, subject, message, recipient, messageId, isRead],
+    (err, result) => {
+      if (err) {
+        console.error('Error inserting data into the database:', err);
+      } else {
+        console.log('Data inserted successfully:', result);
+      }
+      connection.end();
+    }
+  );
 }
 
 module.exports = { checkState, renderEmailTemplate };
