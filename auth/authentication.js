@@ -255,6 +255,8 @@ function register(req, res) {
   });
 }
 
+
+
 function register_dashboard(req, res) {
   const {
     companyName,
@@ -266,97 +268,76 @@ function register_dashboard(req, res) {
     personalEmail,
     designation,
     password,
+    userType
   } = req.body;
-
-  // Combine firstName and lastName to create the user's name
   const name = `${firstName} ${lastName}`;
-
-  // Check if the company email is already registered
-  const emailCheckQuery = 'SELECT * FROM tms_users WHERE CompanyEmail = ?';
-  db.query(emailCheckQuery, [companyEmail], (error, emailCheckResult) => {
+  // Check if the username (company email) is already registered
+  const personalEmailCheckQuery = 'SELECT * FROM tms_users WHERE PersonalEmail = ?';
+  db.query(personalEmailCheckQuery, [personalEmail], (error, personalEmailCheckResult) => {
     if (error) {
-      console.error('Error during email check:', error);
+      console.error('Error during username check:', error);
       return res.status(500).json({ message: 'Internal server error' });
     }
 
     try {
-      if (emailCheckResult.length > 0) {
-        console.log('Company email already exists');
-        return res.status(400).json({ message: 'Company email already exists' });
+      if (personalEmailCheckResult.length > 0) {
+        console.log('Username already exists');
+        return res.status(400).json({ message: 'User already exists' });
       }
 
-      // Check if the username (company email) is already registered
-      const personalEmailCheckQuery = 'SELECT * FROM tms_users WHERE PersonalEmail = ?';
-      db.query(personalEmailCheckQuery, [personalEmail], (error, personalEmailCheckResult) => {
+      // Generate a unique 10-digit user ID
+      const userId = generateUserId();
+
+      // Hash the password
+      bcrypt.hash(password, 10, (error, hashedPassword) => {
         if (error) {
-          console.error('Error during username check:', error);
+          console.error('Error during password hashing:', error);
           return res.status(500).json({ message: 'Internal server error' });
         }
 
         try {
-          if (personalEmailCheckResult.length > 0) {
-            console.log('Username already exists');
-            return res.status(400).json({ message: 'User already exists' });
-          }
+          // Generate a verification token
+          const verificationToken = jwtUtils.generateToken({ personalEmail: personalEmail });
 
-          // Generate a unique 10-digit user ID
-          const userId = generateUserId();
+          // Insert the user into the database
+          const insertQuery =
+            'INSERT INTO tms_users (UserId, Username, FirstName, LastName, CompanyName, CompanyEmail, ContactNo, Location, UserType, PersonalEmail, Password, Designation, VerificationToken, Verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+          db.query(
+            insertQuery,
+            [
+              userId,
+              personalEmail,
+              firstName,
+              lastName,
+              companyName,
+              companyEmail,
+              contact,
+              location,
+              userType,
+              personalEmail,
+              hashedPassword,
+              designation,
+              verificationToken,
+              '0'
+            ],
+            (error, insertResult) => {
+              if (error) {
+                console.error('Error during user insertion:', error);
+                return res.status(500).json({ message: 'Internal server error' });
+              }
 
-          // Hash the password
-          bcrypt.hash(password, 10, (error, hashedPassword) => {
-            if (error) {
-              console.error('Error during password hashing:', error);
-              return res.status(500).json({ message: 'Internal server error' });
+              try {
+                // Send the verification token to the user's email
+                sendTokenDashboardEmail(personalEmail, verificationToken, firstName, lastName);
+
+                console.log('User registered successfully');
+                res.json({ message: 'Registration successful. Check your email for the verification token.' });
+              } catch (error) {
+                console.error('Error sending verification token:', error);
+                res.status(500).json({ message: 'Internal server error' });
+              }
             }
-
-            try {
-              // Generate a verification token
-              const verificationToken = jwtUtils.generateToken({ personalEmail: personalEmail });
-
-              // Insert the user into the database
-              const insertQuery =
-                'INSERT INTO tms_users (UserId, Username, FirstName, LastName, CompanyName, CompanyEmail, ContactNo, Location, UserType, PersonalEmail, Password, Designation, VerificationToken, Verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-              db.query(
-                insertQuery,
-                [
-                  userId,
-                  personalEmail,
-                  firstName,
-                  lastName,
-                  companyName,
-                  companyEmail,
-                  contact,
-                  location,
-                  'Admin',
-                  personalEmail,
-                  hashedPassword,
-                  designation,
-                  verificationToken,
-                  '0'
-                ],
-                (error, insertResult) => {
-                  if (error) {
-                    console.error('Error during user insertion:', error);
-                    return res.status(500).json({ message: 'Internal server error' });
-                  }
-
-                  try {
-                    // Send the verification token to the user's email
-                    sendTokenEmail(personalEmail, verificationToken, firstName, lastName);
-
-                    console.log('User registered successfully');
-                    res.json({ message: 'Registration successful. Check your email for the verification token.' });
-                  } catch (error) {
-                    console.error('Error sending verification token:', error);
-                    res.status(500).json({ message: 'Internal server error' });
-                  }
-                }
-              );
-            } catch (error) {
-              console.error('Error during registration:', error);
-              res.status(500).json({ message: 'Internal server error' });
-            }
-          });
+          );
         } catch (error) {
           console.error('Error during registration:', error);
           res.status(500).json({ message: 'Internal server error' });
