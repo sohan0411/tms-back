@@ -6,9 +6,9 @@ const fs = require('fs');
 const path = require('path');
 const uuid = require('uuid');
 
-const accountSid = 'ACc722b9cf2d2f02f5ac7c20398ef5d61a';
-const authToken = '65e7a654af53cbc60299edb5b9a3bebe';
-const twilioPhoneNumber = '+18507895484';
+const accountSid = 'AC0d478e22325d6f2a719c3cdb78060b63';
+const authToken = '30573a2b8cb6918f0d530c8120417b99';
+const twilioPhoneNumber = '+12187182899';
 const twilioClient = twilio(accountSid, authToken);
 
 const dbConfig = {
