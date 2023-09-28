@@ -7,7 +7,7 @@ const auditlogs = require('./superadmin/SA');
 const dev = require('./dev');
 const comp = require('./comp');
 const TMS_logs = require('./tms_trigger_logs');
-const { checkState } = require('./SMS/smsController');
+//const { checkState } = require('./SMS/smsController');
 
 /*               Interval                */
 
@@ -56,4 +56,4 @@ app.listen(port, () => {
 });
 
 // Periodically check the state every 1
-setInterval(checkState,  1000);
+//setInterval(checkState,  1000);
