@@ -3,7 +3,8 @@ const cors = require('cors');
 const router = require('./routes');
 const fs = require('fs');
 const bodyParser = require('body-parser');
-const auditlogs = require('./superadmin/SA');
+const SA = require('./superadmin/SA');
+const Logs = require('./graph log');
 const dev = require('./dev');
 const comp = require('./comp');
 const TMS_logs = require('./tms_trigger_logs');
@@ -45,7 +46,7 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(auditlogs.log);
+app.use(Logs.log);
 
 // Use the router for handling routes
 app.use(router);
