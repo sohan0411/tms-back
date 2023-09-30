@@ -395,7 +395,7 @@ function userByCompanyname(req, res) {
     }
     function graph3(req, res) {
       try {
-        const query = 'SELECT * FROM transport';
+        const query = 'SELECT * FROM info_twi_log';
         db.query(query, (error, rows) => {
           if (error) {
             throw new Error('Error fetching logs');
