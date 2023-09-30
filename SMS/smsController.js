@@ -30,15 +30,17 @@ function insertInfo(createdTime, type, subject, message, recipient, messageId) {
     }
 
     const isRead = Math.random() < 0.5 ? 0 : 1;
+    const timestamp = new Date().toISOString();
 
     const sql = 'INSERT INTO info_twi (created_time, type, subject, message, recipient, message_id, isRead) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    const values = [createdTime, type, subject, message, recipient, messageId, isRead];
+    
+    const values = [timestamp, type, subject, message, recipient, messageId, isRead];
 
     connection.query(sql, values, (err, result) => {
       if (err) {
         console.error('Error inserting data into the database:', err);
       } else {
-        //console.log('Data inserted into the database successfully.');
+        console.log('Data inserted into the database successfully.');
       }
 
       connection.end();
