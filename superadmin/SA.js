@@ -469,29 +469,44 @@ function userByCompanyname(req, res) {
         res.status(500).json({ message: 'Internal server error' });
       }
     }
-    
+
     function graph4(req, res) {
       try {
-        const query = 'SELECT Date, TransportValues FROM transport';
+        const query = 'SELECT * FROM log_table';
         db.query(query, (error, rows) => {
           if (error) {
             throw new Error('Error fetching logs');
           }
-    
-          // Transform rows into the desired format
-          const formattedData = rows.map(row => ({
-            x: new Date(row.Date).toISOString(), // Convert the Date to an ISO 8601 timestamp
-            y: parseInt(row.TransportValues, 10) // Parse the TransportValues as an integer
-          }));
-    
-          // Send the formatted data as the response
-          res.json({ data: formattedData });
+          res.json({ logs: rows });
         });
       } catch (error) {
         console.error('Error fetching logs:', error);
         res.status(500).json({ message: 'Internal server error' });
       }
     }
+    
+    // function graph4(req, res) {
+    //   try {
+    //     const query = 'SELECT Date, TransportValues FROM transport';
+    //     db.query(query, (error, rows) => {
+    //       if (error) {
+    //         throw new Error('Error fetching logs');
+    //       }
+    
+    //       // Transform rows into the desired format
+    //       const formattedData = rows.map(row => ({
+    //         x: new Date(row.Date).toISOString(), // Convert the Date to an ISO 8601 timestamp
+    //         y: parseInt(row.TransportValues, 10) // Parse the TransportValues as an integer
+    //       }));
+    
+    //       // Send the formatted data as the response
+    //       res.json({ data: formattedData });
+    //     });
+    //   } catch (error) {
+    //     console.error('Error fetching logs:', error);
+    //     res.status(500).json({ message: 'Internal server error' });
+    //   }
+    // }
     
     
     
