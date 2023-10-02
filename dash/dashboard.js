@@ -211,7 +211,7 @@ function updatePassword(req, res) {
 
 function fetchAllDeviceTrigger(req, res){
   const CompanyEmail = req.params.CompanyEmail;
-  const deviceTriggerQuery = 'select * from tms_trigger where CompanyEmail = ?';
+  const deviceTriggerQuery = 'select * from tms_trigger where assignee = ?';
 
     try {
       db.query(deviceTriggerQuery, [CompanyEmail], (error, triggers) => {
@@ -241,7 +241,7 @@ function editDeviceTrigger(req, res) {
 
     try {
       if (deviceCheckResult.length === 0) {
-        const insertTriggerQuery = 'INSERT INTO tms_trigger (DeviceUID, TriggerValue, CompanyEmail) VALUES (?,?,?)';
+        const insertTriggerQuery = 'INSERT INTO tms_trigger (DeviceUID, TriggerValue, assignee) VALUES (?,?,?)';
 
         db.query(insertTriggerQuery, [deviceId, TriggerValue, CompanyEmail], (error, insertResult) => {
           if (error) {
@@ -252,7 +252,7 @@ function editDeviceTrigger(req, res) {
           return res.json({ message: 'Device added successfully!' });
         });
       } else {
-        const updateDeviceTriggerQuery = 'UPDATE tms_trigger SET TriggerValue = ?, CompanyEmail = ? WHERE DeviceUID = ?';
+        const updateDeviceTriggerQuery = 'UPDATE tms_trigger SET TriggerValue = ?, assignee = ? WHERE DeviceUID = ?';
 
         db.query(updateDeviceTriggerQuery, [TriggerValue, CompanyEmail, deviceId], (error, updateResult) => {
           if (error) {
@@ -698,7 +698,7 @@ function fetchCompanyUser(req, res) {
 function addDeviceTrigger(req, res) {
   const { DeviceUID, TriggerValue, CompanyEmail } = req.body;
     try {
-        const insertTriggerQuery = 'INSERT INTO tms_trigger (DeviceUID, TriggerValue, CompanyEmail) VALUES (?,?,?)';
+        const insertTriggerQuery = 'INSERT INTO tms_trigger (DeviceUID, TriggerValue, assignee) VALUES (?,?,?)';
 
         db.query(insertTriggerQuery, [DeviceUID, TriggerValue, CompanyEmail], (error, insertResult) => {
           if (error) {
