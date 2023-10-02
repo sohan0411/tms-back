@@ -48,8 +48,6 @@ function insertInfo(createdTime, type, subject, message, recipient, messageId) {
   });
 }
 
-
-
 function checkState() {
   const connection = mysql.createConnection(dbConfig);
 
@@ -89,8 +87,9 @@ function checkState() {
             message = `${device.DeviceName} has an unknown status: ${currentState.status}`;
           }
 
+          const emailContent = renderEmailTemplate([device]); // Pass the device as an array
           sendSMS(device.phone_number, message);
-          sendEmail(device.email, renderEmailTemplate(devices), 'Device Status Update', message);
+          sendEmail(device.email, emailContent, 'Device Status Update', message);
         }
       });
 
@@ -99,9 +98,7 @@ function checkState() {
   });
 }
 
-function sendSMS(to, body, time, message) {
-  const subject = 'Device Status Update';
-
+function sendSMS(to, body) {
   const messageId = uuid.v4();
   twilioClient.messages
     .create({
@@ -111,16 +108,14 @@ function sendSMS(to, body, time, message) {
     })
     .then(() => {
       console.log('SMS sent successfully:', body);
-      insertInfo(new Date(), 'SMS', subject, message, to, messageId);
+      insertInfo(new Date(), 'SMS', 'Device Status Update', body, to, messageId);
     })
     .catch((err) => {
       console.error('Error sending SMS:', err);
     });
 }
 
-function sendEmail(to, body, time, message) {
-  const subject = 'Device Status Update';
-
+function sendEmail(to, body, subject, message) {
   const messageId = uuid.v4();
   const emailTransporter = nodemailer.createTransport({
     service: 'gmail',
