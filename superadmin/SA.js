@@ -429,7 +429,7 @@ function userByCompanyname(req, res) {
     }
     function graph1(req, res) {
       try {
-        const query = 'SELECT * FROM log_table';
+        const query = 'SELECT * FROM tmp';
         db.query(query, (error, rows) => {
           if (error) {
             throw new Error('Error fetching logs');
