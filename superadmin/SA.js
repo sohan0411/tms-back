@@ -355,7 +355,7 @@ function userByCompanyname(req, res) {
   
     function alarms(req, res) {
       try {
-        const query = 'SELECT * FROM alarms';
+        const query = 'SELECT * FROM tms_trigger';
         db.query(query, (error, rows) => {
           if (error) {
             throw new Error('Error fetching logs');
@@ -540,7 +540,7 @@ function monitorAndSyncDevices() {
           if (updateErr) {
             console.error('Error updating alarm:', updateErr);
           } else {
-            console.log(`Updated alarm for DeviceUID: ${DeviceUID}`);
+            //console.log(`Updated alarm for DeviceUID: ${DeviceUID}`);
           }
         }
       );
