@@ -48,7 +48,7 @@ router.post('/manishenergy',dashboard.Manish_energy);
 //SA
 router.get('/fetchAllDevices', SA.fetchAllDevices);
 router.get('/fetchAllUsers', SA.fetchAllUsers);
-router.post('/addDevice', SA.addDevice);
+//router.post('/SAaddDevice', SA.SAaddDevice);
 router.get('/getDeviceByUID/:deviceUID', SA.getDeviceByUID);
 router.get('/userByCompanyname/:company_name', SA.userByCompanyname);
 router.put('/updateDevice/:deviceUID', SA.updateDevice);

@@ -70,24 +70,7 @@ function userByCompanyname(req, res) {
 
 
   //DEVICES
-  function addDevice(req, res) {
-    try {
-      const { EntryId, DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName } = req.body;
-      const createDeviceQuery = 'INSERT INTO tms_devices (EntryId, DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName) VALUES (?, ?, ?, ?, ?, ?)';
   
-      db.query(createDeviceQuery, [EntryId, DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName], (error, result) => {
-        if (error) {
-          console.error('Error adding device:', error);
-          return res.status(500).json({ message: 'Internal server error' });
-        }
-  
-        res.json({ message: 'Device added successfully' });
-      });
-    } catch (error) {
-      console.error('Error adding device:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  }
 
   function getDeviceByUID(req, res) {
     try {
@@ -742,7 +725,6 @@ module.exports = {
   fetchAllUsers,
   fetchAllDevices,
   fetchCompanyDetails,
-  addDevice,
   getDeviceByUID,
   updateDevice,
   fetchCounts,
