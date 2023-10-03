@@ -452,7 +452,7 @@ function userByCompanyname(req, res) {
             return res.status(400).json({ message: 'Invalid time interval' });
         }
     
-        const sql = `SELECT * FROM log_table WHERE IssueDate >= DATE_SUB(NOW(), ${duration})`;
+        const sql = `SELECT * FROM log_table WHERE timestamp >= DATE_SUB(NOW(), ${duration})`;
         
         db.query(sql, (error, results) => {
           if (error) {
@@ -491,7 +491,7 @@ function userByCompanyname(req, res) {
             return res.status(400).json({ message: 'Invalid time interval' });
         }
     
-        const sql = `SELECT * FROM transport WHERE Date >= DATE_SUB(NOW(), ${duration})`;
+        const sql = `SELECT * FROM log_count_table WHERE timestamp >= DATE_SUB(NOW(), ${duration})`;
     
         db.query(sql, (error, results) => {
           if (error) {
@@ -499,15 +499,10 @@ function userByCompanyname(req, res) {
             return res.status(500).json({ message: 'Internal server error' });
           }
     
-          const query = 'SELECT * FROM log_count_table';
-          db.query(query, (error, rows) => {
-            if (error) {
-              console.error('Error fetching logs:', error);
-              return res.status(500).json({ message: 'Internal server error' });
-            }
-            res.json({ data: results, logs: rows });
+          
+            res.json({ data: results });
           });
-        });
+        
       } catch (error) {
         console.error('An error occurred:', error);
         res.status(500).json({ message: 'Internal server error' });
@@ -539,23 +534,17 @@ function userByCompanyname(req, res) {
             return res.status(400).json({ message: 'Invalid time interval' });
         }
     
-        const sql = `SELECT * FROM transport WHERE Date >= DATE_SUB(NOW(), ${duration})`;
+        const sql = `SELECT * FROM info_twi_log WHERE timestamp >= DATE_SUB(NOW(), ${duration})`;
     
         db.query(sql, (error, results) => {
           if (error) {
             console.error('Error fetching data:', error);
             return res.status(500).json({ message: 'Internal server error' });
           }
-    
-          const query = 'SELECT * FROM info_twi_log';
-          db.query(query, (error, rows) => {
-            if (error) {
-              console.error('Error fetching logs:', error);
-              throw new Error('Error fetching logs');
-            }
-            res.json({ data: results, logs: rows });
+          
+            res.json({ data: results});
           });
-        });
+        
       } catch (error) {
         console.error('An error occurred:', error);
         res.status(500).json({ message: 'Internal server error' });
