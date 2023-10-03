@@ -429,61 +429,179 @@ function userByCompanyname(req, res) {
     }
     function graph1(req, res) {
       try {
-        const query = 'SELECT * FROM tmp';
-        db.query(query, (error, rows) => {
+        const timeInterval = req.params.interval; 
+        if (!timeInterval) {
+          return res.status(400).json({ message: 'Invalid time interval' });
+        }
+    
+        let duration;
+        switch (timeInterval) {
+          case '1day':
+            duration = 'INTERVAL 1 DAY';
+            break;
+          case '7day':
+            duration = 'INTERVAL 7 DAY';
+            break;
+          case '30day':
+            duration = 'INTERVAL 30 DAY';
+            break;
+            case '1year':
+              duration = 'INTERVAL 365 DAY';
+              break;
+          default:
+            return res.status(400).json({ message: 'Invalid time interval' });
+        }
+    
+        const sql = `SELECT * FROM log_table WHERE IssueDate >= DATE_SUB(NOW(), ${duration})`;
+        
+        db.query(sql, (error, results) => {
           if (error) {
-            throw new Error('Error fetching logs');
+            console.error('Error fetching data:', error);
+            return res.status(500).json({ message: 'Internal server error' });
           }
-          res.json({ logs: rows });
+          res.json({ data: results });
         });
       } catch (error) {
-        console.error('Error fetching logs:', error);
+        console.error('An error occurred:', error);
         res.status(500).json({ message: 'Internal server error' });
       }
     }
     function graph2(req, res) {
       try {
-        const query = 'SELECT * FROM log_count_table';
-        db.query(query, (error, rows) => {
+        const timeInterval = req.params.interval;
+        if (!timeInterval) {
+          return res.status(400).json({ message: 'Invalid time interval' });
+        }
+    
+        let duration;
+        switch (timeInterval) {
+          case '1day':
+            duration = 'INTERVAL 1 DAY';
+            break;
+          case '7day':
+            duration = 'INTERVAL 7 DAY';
+            break;
+          case '30day':
+            duration = 'INTERVAL 30 DAY';
+            break;
+          case '1year':
+            duration = 'INTERVAL 365 DAY';
+            break;
+          default:
+            return res.status(400).json({ message: 'Invalid time interval' });
+        }
+    
+        const sql = `SELECT * FROM transport WHERE Date >= DATE_SUB(NOW(), ${duration})`;
+    
+        db.query(sql, (error, results) => {
           if (error) {
-            throw new Error('Error fetching logs');
+            console.error('Error fetching data:', error);
+            return res.status(500).json({ message: 'Internal server error' });
           }
-          res.json({ logs: rows });
+    
+          const query = 'SELECT * FROM log_count_table';
+          db.query(query, (error, rows) => {
+            if (error) {
+              console.error('Error fetching logs:', error);
+              return res.status(500).json({ message: 'Internal server error' });
+            }
+            res.json({ data: results, logs: rows });
+          });
         });
       } catch (error) {
-        console.error('Error fetching logs:', error);
+        console.error('An error occurred:', error);
         res.status(500).json({ message: 'Internal server error' });
       }
     }
+    
     function graph3(req, res) {
       try {
-        const query = 'SELECT * FROM info_twi_log';
-        db.query(query, (error, rows) => {
+        const timeInterval = req.params.interval;
+        if (!timeInterval) {
+          return res.status(400).json({ message: 'Invalid time interval' });
+        }
+    
+        let duration;
+        switch (timeInterval) {
+          case '1day':
+            duration = 'INTERVAL 1 DAY';
+            break;
+          case '7day':
+            duration = 'INTERVAL 7 DAY';
+            break;
+          case '30day':
+            duration = 'INTERVAL 30 DAY';
+            break;
+          case '1year':
+            duration = 'INTERVAL 365 DAY';
+            break;
+          default:
+            return res.status(400).json({ message: 'Invalid time interval' });
+        }
+    
+        const sql = `SELECT * FROM transport WHERE Date >= DATE_SUB(NOW(), ${duration})`;
+    
+        db.query(sql, (error, results) => {
           if (error) {
-            throw new Error('Error fetching logs');
+            console.error('Error fetching data:', error);
+            return res.status(500).json({ message: 'Internal server error' });
           }
-          res.json({ logs: rows });
+    
+          const query = 'SELECT * FROM info_twi_log';
+          db.query(query, (error, rows) => {
+            if (error) {
+              console.error('Error fetching logs:', error);
+              throw new Error('Error fetching logs');
+            }
+            res.json({ data: results, logs: rows });
+          });
         });
       } catch (error) {
-        console.error('Error fetching logs:', error);
+        console.error('An error occurred:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+    
+    function graph4(req, res) {
+      try {
+        const timeInterval = req.params.interval;
+        if (!timeInterval) {
+          return res.status(400).json({ message: 'Invalid time interval' });
+        }
+    
+        let duration;
+        switch (timeInterval) {
+          case '1day':
+            duration = 'INTERVAL 1 DAY';
+            break;
+          case '7day':
+            duration = 'INTERVAL 7 DAY';
+            break;
+          case '30day':
+            duration = 'INTERVAL 30 DAY';
+            break;
+          case '1year':
+            duration = 'INTERVAL 365 DAY';
+            break;
+          default:
+            return res.status(400).json({ message: 'Invalid time interval' });
+        }
+    
+        const sql = `SELECT * FROM transport WHERE Date >= DATE_SUB(NOW(), ${duration})`;
+    
+        db.query(sql, (error, results) => {
+          if (error) {
+            console.error('Error fetching data:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+          }
+          res.json({ data: results });
+        });
+      } catch (error) {
+        console.error('An error occurred:', error);
         res.status(500).json({ message: 'Internal server error' });
       }
     }
 
-    function graph4(req, res) {
-      try {
-        const query = 'SELECT * FROM log_table';
-        db.query(query, (error, rows) => {
-          if (error) {
-            throw new Error('Error fetching logs');
-          }
-          res.json({ logs: rows });
-        });
-      } catch (error) {
-        console.error('Error fetching logs:', error);
-        res.status(500).json({ message: 'Internal server error' });
-      }
-    }
 function monitorAndSyncDevices() {
   const selectQuery = 'SELECT DeviceUID, DeviceName, CompanyName, CompanyEmail, status, type FROM tms_devices';
 
