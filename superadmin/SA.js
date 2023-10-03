@@ -607,7 +607,7 @@ function monitorAndSyncDevices() {
       // Update the existing record in alarms
       const updateAlarmQuery = `
         UPDATE tms_trigger
-        SET DeviceName=?, company_name=?, assignee=?, status=?, type=?
+        SET DeviceName=?, company_name=?, CompanyEmail=?, status=?, type=?
         WHERE DeviceUID=?
       `;
 
