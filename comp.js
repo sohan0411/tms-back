@@ -25,12 +25,38 @@ function updateCompanyInfo() {
           connection.release();
           return;
         }
-        const companyNames = results.map((row) => row.CompanyName);
-        for (const companyName of companyNames) {
-          calculateCompanyStatistics(connection, companyName);
-        }
 
-        connection.release();
+        const companyNames = results.map((row) => row.CompanyName);
+
+        // Retrieve existing company names from the company_info table
+        const existingCompanyNamesQuery = 'SELECT company_name FROM company_info';
+        connection.query(existingCompanyNamesQuery, (err, existingCompanyNames) => {
+          if (err) {
+            console.error('Error fetching existing company names:', err);
+            connection.release();
+            return;
+          }
+
+          // Check if each existing company name exists in the retrieved list
+          existingCompanyNames.forEach((existingCompanyName) => {
+            if (!companyNames.includes(existingCompanyName.company_name)) {
+              // Delete company data if the company name is not in the list
+              const deleteCompanyDataQuery = 'DELETE FROM company_info WHERE company_name = ?';
+              connection.query(deleteCompanyDataQuery, [existingCompanyName.company_name], (err) => {
+                if (err) {
+                  console.error(`Error deleting old company data for ${existingCompanyName.company_name}:`, err);
+                }
+              });
+            }
+          });
+
+          // Calculate statistics for each company
+          for (const companyName of companyNames) {
+            calculateCompanyStatistics(connection, companyName);
+          }
+
+          connection.release();
+        });
       });
     });
   } catch (err) {
