@@ -374,6 +374,9 @@ function userByCompanyname(req, res) {
     
         let duration;
         switch (timeInterval) {
+          case '30min':
+        duration = 'INTERVAL 30 MINUTE';
+        break;
           case '10hour':
             duration = 'INTERVAL 10 HOUR';
             break;
@@ -559,7 +562,7 @@ function userByCompanyname(req, res) {
             return res.status(400).json({ message: 'Invalid time interval' });
         }
     
-        const sql = `SELECT * FROM transport WHERE Date >= DATE_SUB(NOW(), ${duration})`;
+        const sql = `SELECT * FROM tmp WHERE Date >= DATE_SUB(NOW(), ${duration})`;
     
         db.query(sql, (error, results) => {
           if (error) {
