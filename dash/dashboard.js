@@ -746,38 +746,53 @@ function addDeviceTrigger(req, res) {
 //   }
 // }
 
-function addDevice(req, res) {
-  try {
-    const {
-      EntryId,
-      DeviceUID,
-      DeviceLocation,
-      DeviceName,
-      CompanyEmail,
-      CompanyName,
-      SMS, 
-      Email,
-    } = req.body;
+    function addDevice(req, res) {
+      try {
+        const {
+          EntryId,
+          DeviceUID,
+          DeviceLocation,
+          DeviceName,
+          CompanyEmail,
+          CompanyName,
+          SMS,
+          email,
+          type,
+        } = req.body;
     
-    const createDeviceQuery = 'INSERT INTO tms_devices (EntryId, DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName, SMS, Email) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-
-    db.query(
-      createDeviceQuery,
-      [EntryId, DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName, SMS, Email],
-      (error, result) => {
-        if (error) {
-          console.error('Error adding device:', error);
-          return res.status(500).json({ message: 'Internal server error' });
-        }
-
-        res.json({ message: 'Device added successfully' });
+        const createDeviceQuery = `
+          INSERT INTO tms_devices (
+            EntryId, DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName, IssueDate, SMS, email, type, endDate
+          ) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 365 DAY))
+        `;
+    
+        const values = [
+          EntryId,
+          DeviceUID,
+          DeviceLocation,
+          DeviceName,
+          CompanyEmail,
+          CompanyName,
+          SMS,
+          email,
+          type,
+        ];
+    
+        db.query(createDeviceQuery, values, (error, result) => {
+          if (error) {
+            console.error('Error adding device:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+          }
+    
+          res.json({ message: 'Device added successfully' });
+        });
+      } catch (error) {
+        console.error('Error adding device:', error);
+        res.status(500).json({ message: 'Internal server error' });
       }
-    );
-  } catch (error) {
-    console.error('Error adding device:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-}
+    }
+    
+  
 
 function Manish_energy(req ,res){
   
