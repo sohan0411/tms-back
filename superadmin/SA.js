@@ -311,7 +311,7 @@ function userByCompanyname(req, res) {
   
     function devicelogs(req, res) {
       try {
-        const query = 'SELECT * FROM tms_trigger';
+        const query = 'SELECT * FROM tms_devices';
         db.query(query, (error, rows) => {
           if (error) {
             throw new Error('Error fetching logs');
