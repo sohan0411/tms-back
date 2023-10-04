@@ -367,7 +367,7 @@ function userByCompanyname(req, res) {
   
     function notification(req, res) {
       try {
-        const query = 'SELECT * FROM messages';
+        const query = 'SELECT * FROM info_twi';
         db.query(query, (error, rows) => {
           if (error) {
             throw new Error('Error fetching logs');
