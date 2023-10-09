@@ -737,7 +737,73 @@ monitorAndSyncDevices();
       }
     }
     
-    
+    function transportdata(req, res) {
+      try {
+        const query = 'SELECT AttributeValue, TotalValue FROM ComponentData WHERE functionName = "Transport"';
+        db.query(query, (error, rows) => {
+          if (error) {
+            throw new Error('Error fetching data');
+          }
+          res.json({ data: rows });
+          console.log(rows);
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+  
+    function ruleEnginedata(req, res) {
+      try {
+        const query = 'SELECT AttributeValue, TotalValue FROM ComponentData WHERE functionName = "Rule Engine"';
+        db.query(query, (error, rows) => {
+          if (error) {
+            throw new Error('Error fetching data');
+          }
+          res.json({ data: rows });
+          console.log(rows);
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+  
+    function JSdata(req, res) {
+      try {
+        const query = 'SELECT AttributeValue, TotalValue FROM ComponentData WHERE functionName = "Java Script"';
+        db.query(query, (error, rows) => {
+          if (error) {
+            throw new Error('Error fetching data');
+          }
+          res.json({ data: rows });
+          console.log(rows);
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+  
+    function telementrydata(req, res) {
+      try {
+        const query = 'SELECT AttributeValue, TotalValue FROM ComponentData WHERE functionName = " Telementry"';
+        db.query(query, (error, rows) => {
+          if (error) {
+            throw new Error('Error fetching data');
+          }
+          res.json({ data: rows });
+          console.log(rows);
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+  
+  
+  
+  
 module.exports = {
   fetchAllUsers,
   fetchAllDevices,
@@ -761,7 +827,12 @@ module.exports = {
   graph2,
   graph3,
   graph4,
-  userByCompanyname
+  userByCompanyname,
+  transportdata,
+  ruleEnginedata,
+  JSdata,
+  telementrydata
+
 
   
 };

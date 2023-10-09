@@ -72,5 +72,8 @@ router.get('/Jsfunction/:interval', SA.graph2);
 router.get('/alarmsActivity/:interval', SA.graph3);
 router.get('/ruleEngine/:interval', SA.graph4);
 
-
+router.get('/transportdata', SA.transportdata);
+router.get('/JSdata', SA.JSdata);
+router.get('/ruleEnginedata', SA.ruleEnginedata);
+router.get('/telementrydata', SA.telementrydata);
 module.exports = router;
