@@ -737,6 +737,7 @@ monitorAndSyncDevices();
       }
     }
     
+    
 
 module.exports = {
   fetchAllUsers,
