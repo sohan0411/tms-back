@@ -745,7 +745,7 @@ monitorAndSyncDevices();
             throw new Error('Error fetching data');
           }
           res.json({ data: rows });
-          console.log(rows);
+          
         });
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -761,7 +761,7 @@ monitorAndSyncDevices();
             throw new Error('Error fetching data');
           }
           res.json({ data: rows });
-          console.log(rows);
+          
         });
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -777,7 +777,7 @@ monitorAndSyncDevices();
             throw new Error('Error fetching data');
           }
           res.json({ data: rows });
-          console.log(rows);
+          
         });
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -793,7 +793,7 @@ monitorAndSyncDevices();
             throw new Error('Error fetching data');
           }
           res.json({ data: rows });
-          console.log(rows);
+          
         });
       } catch (error) {
         console.error('Error fetching data:', error);
