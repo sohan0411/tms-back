@@ -738,7 +738,6 @@ monitorAndSyncDevices();
     }
     
     
-
 module.exports = {
   fetchAllUsers,
   fetchAllDevices,
