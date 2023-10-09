@@ -211,7 +211,7 @@ function updatePassword(req, res) {
 
 function fetchAllDeviceTrigger(req, res){
   const CompanyEmail = req.params.CompanyEmail;
-  const deviceTriggerQuery = 'select * from tms_trigger where assignee = ?';
+  const deviceTriggerQuery = 'select * from tms_trigger where CompanyEmail = ?';
 
     try {
       db.query(deviceTriggerQuery, [CompanyEmail], (error, triggers) => {
@@ -241,7 +241,7 @@ function editDeviceTrigger(req, res) {
 
     try {
       if (deviceCheckResult.length === 0) {
-        const insertTriggerQuery = 'INSERT INTO tms_trigger (DeviceUID, TriggerValue, assignee) VALUES (?,?,?)';
+        const insertTriggerQuery = 'INSERT INTO tms_trigger (DeviceUID, TriggerValue, CompanyEmail) VALUES (?,?,?)';
 
         db.query(insertTriggerQuery, [deviceId, TriggerValue, CompanyEmail], (error, insertResult) => {
           if (error) {
@@ -252,7 +252,7 @@ function editDeviceTrigger(req, res) {
           return res.json({ message: 'Device added successfully!' });
         });
       } else {
-        const updateDeviceTriggerQuery = 'UPDATE tms_trigger SET TriggerValue = ?, assignee = ? WHERE DeviceUID = ?';
+        const updateDeviceTriggerQuery = 'UPDATE tms_trigger SET TriggerValue = ?, CompanyEmail = ? WHERE DeviceUID = ?';
 
         db.query(updateDeviceTriggerQuery, [TriggerValue, CompanyEmail, deviceId], (error, updateResult) => {
           if (error) {
@@ -698,7 +698,7 @@ function fetchCompanyUser(req, res) {
 function addDeviceTrigger(req, res) {
   const { DeviceUID, TriggerValue, CompanyEmail } = req.body;
     try {
-        const insertTriggerQuery = 'INSERT INTO tms_trigger (DeviceUID, TriggerValue, assignee) VALUES (?,?,?)';
+        const insertTriggerQuery = 'INSERT INTO tms_trigger (DeviceUID, TriggerValue, CompanyEmail) VALUES (?,?,?)';
 
         db.query(insertTriggerQuery, [DeviceUID, TriggerValue, CompanyEmail], (error, insertResult) => {
           if (error) {
@@ -715,36 +715,84 @@ function addDeviceTrigger(req, res) {
     }
 }
 
-function addDevice(req, res) {
-  const { DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName } = req.body;
-  try {
-    const checkDeviceQuery = 'SELECT * FROM tms_devices WHERE DeviceUID = ?';
-    const insertDeviceQuery = 'INSERT INTO tms_devices (DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName) VALUES (?,?,?,?,?)';
+// function addDevice(req, res) {
+//   const { DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName } = req.body;
+//   try {
+//     const checkDeviceQuery = 'SELECT * FROM tms_devices WHERE DeviceUID = ?';
+//     const insertDeviceQuery = 'INSERT INTO tms_devices (DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName) VALUES (?,?,?,?,?)';
 
-    db.query(checkDeviceQuery, [DeviceUID], (error, checkResult) => {
-      if (error) {
-        console.error('Error while checking device:', error);
-        return res.status(500).json({ message: 'Internal server error' });
+//     db.query(checkDeviceQuery, [DeviceUID], (error, checkResult) => {
+//       if (error) {
+//         console.error('Error while checking device:', error);
+//         return res.status(500).json({ message: 'Internal server error' });
+//       }
+
+//       if (checkResult.length > 0) {
+//         return res.status(400).json({ message: 'Device already added' });
+//       }
+
+//       db.query(insertDeviceQuery, [DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName], (insertError, insertResult) => {
+//         if (insertError) {
+//           console.error('Error while inserting device:', insertError);
+//           return res.status(500).json({ message: 'Internal server error' });
+//         }
+
+//         return res.json({ message: 'Device added successfully!' });
+//       });
+//     });
+//   } catch (error) {
+//     console.error('Error in device check:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// }
+
+    function addDevice(req, res) {
+      try {
+        const {
+          EntryId,
+          DeviceUID,
+          DeviceLocation,
+          DeviceName,
+          CompanyEmail,
+          CompanyName,
+          SMS,
+          email,
+          type,
+        } = req.body;
+    
+        const createDeviceQuery = `
+          INSERT INTO tms_devices (
+            EntryId, DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName, IssueDate, SMS, email, type, endDate
+          ) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 365 DAY))
+        `;
+    
+        const values = [
+          EntryId,
+          DeviceUID,
+          DeviceLocation,
+          DeviceName,
+          CompanyEmail,
+          CompanyName,
+          SMS,
+          email,
+          type,
+        ];
+    
+        db.query(createDeviceQuery, values, (error, result) => {
+          if (error) {
+            console.error('Error adding device:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+          }
+    
+          res.json({ message: 'Device added successfully' });
+        });
+      } catch (error) {
+        console.error('Error adding device:', error);
+        res.status(500).json({ message: 'Internal server error' });
       }
-
-      if (checkResult.length > 0) {
-        return res.status(400).json({ message: 'Device already added' });
-      }
-
-      db.query(insertDeviceQuery, [DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName], (insertError, insertResult) => {
-        if (insertError) {
-          console.error('Error while inserting device:', insertError);
-          return res.status(500).json({ message: 'Internal server error' });
-        }
-
-        return res.json({ message: 'Device added successfully!' });
-      });
-    });
-  } catch (error) {
-    console.error('Error in device check:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-}
+    }
+    
+  
 
 function Manish_energy(req ,res){
   

@@ -70,24 +70,7 @@ function userByCompanyname(req, res) {
 
 
   //DEVICES
-  function addDevice(req, res) {
-    try {
-      const { EntryId, DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName } = req.body;
-      const createDeviceQuery = 'INSERT INTO tms_devices (EntryId, DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName) VALUES (?, ?, ?, ?, ?, ?)';
   
-      db.query(createDeviceQuery, [EntryId, DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName], (error, result) => {
-        if (error) {
-          console.error('Error adding device:', error);
-          return res.status(500).json({ message: 'Internal server error' });
-        }
-  
-        res.json({ message: 'Device added successfully' });
-      });
-    } catch (error) {
-      console.error('Error adding device:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  }
 
   function getDeviceByUID(req, res) {
     try {
@@ -338,6 +321,20 @@ function userByCompanyname(req, res) {
         res.status(500).json({ message: 'Internal server error' });
       }
     }
+    function deviceInfo(req, res) {
+      try {
+        const query = 'SELECT * FROM dev_info';
+        db.query(query, (error, rows) => {
+          if (error) {
+            throw new Error('Error fetching logs');
+          }
+          res.json({ logs: rows });
+        });
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
     function companyinfo(req, res) {
       try {
         const query = 'SELECT * FROM company_info';
@@ -370,7 +367,7 @@ function userByCompanyname(req, res) {
   
     function notification(req, res) {
       try {
-        const query = 'SELECT * FROM messages';
+        const query = 'SELECT * FROM info_twi';
         db.query(query, (error, rows) => {
           if (error) {
             throw new Error('Error fetching logs');
@@ -391,6 +388,9 @@ function userByCompanyname(req, res) {
     
         let duration;
         switch (timeInterval) {
+          case '30min':
+        duration = 'INTERVAL 30 MINUTE';
+        break;
           case '10hour':
             duration = 'INTERVAL 10 HOUR';
             break;
@@ -576,7 +576,7 @@ function userByCompanyname(req, res) {
             return res.status(400).json({ message: 'Invalid time interval' });
         }
     
-        const sql = `SELECT * FROM transport WHERE Date >= DATE_SUB(NOW(), ${duration})`;
+        const sql = `SELECT * FROM tmp WHERE Date >= DATE_SUB(NOW(), ${duration})`;
     
         db.query(sql, (error, results) => {
           if (error) {
@@ -607,7 +607,7 @@ function monitorAndSyncDevices() {
       // Update the existing record in alarms
       const updateAlarmQuery = `
         UPDATE tms_trigger
-        SET DeviceName=?, company_name=?, assignee=?, status=?, type=?
+        SET DeviceName=?, company_name=?, CompanyEmail=?, status=?, type=?
         WHERE DeviceUID=?
       `;
 
@@ -742,7 +742,6 @@ module.exports = {
   fetchAllUsers,
   fetchAllDevices,
   fetchCompanyDetails,
-  addDevice,
   getDeviceByUID,
   updateDevice,
   fetchCounts,
@@ -750,6 +749,7 @@ module.exports = {
   apilogs,
   devicelogs,
   userInfo,
+  deviceInfo,
   companyinfo,
   alarms,
   notification,

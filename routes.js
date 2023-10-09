@@ -48,7 +48,7 @@ router.post('/manishenergy',dashboard.Manish_energy);
 //SA
 router.get('/fetchAllDevices', SA.fetchAllDevices);
 router.get('/fetchAllUsers', SA.fetchAllUsers);
-router.post('/addDevice', SA.addDevice);
+//router.post('/SAaddDevice', SA.SAaddDevice);
 router.get('/getDeviceByUID/:deviceUID', SA.getDeviceByUID);
 router.get('/userByCompanyname/:company_name', SA.userByCompanyname);
 router.put('/updateDevice/:deviceUID', SA.updateDevice);
@@ -61,12 +61,13 @@ router.get('/devicelogs', SA.devicelogs);
 router.delete('/removeUser/:userId', SA.removeUser);
 router.get('/usermanagement', SA.usermanagement);
 router.get('/userInfo', SA.userInfo);
+router.get('/devInfo', SA.deviceInfo);
 router.get('/compInfo', SA.companyinfo);
 router.get('/alarms', SA.alarms);
 router.get('/notification', SA.notification);
 
 ///router.put('/editDevice/:deviceId', dashboard.editDevice);
-router.get('/transport/:interval', SA.graph1);
+router.get('/transports/:interval', SA.graph1);
 router.get('/Jsfunction/:interval', SA.graph2);
 router.get('/alarmsActivity/:interval', SA.graph3);
 router.get('/ruleEngine/:interval', SA.graph4);
