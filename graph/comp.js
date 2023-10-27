@@ -1,19 +1,10 @@
-const mysql = require('mysql2');
-
-const dbConfig = {
-  host: 'senselivedb.cn5vfllmzwrp.ap-south-1.rds.amazonaws.com',
-  user: 'admin',
-  password: 'sense!123',
-  database: 'tmp',
-};
-
-const pool = mysql.createPool(dbConfig);
+const db = require('../db');
 
 function updateCompanyInfo() {
   const getCompanyNamesQuery = 'SELECT DISTINCT CompanyName FROM tms_users';
 
   try {
-    pool.getConnection((err, connection) => {
+    db.getConnection((err, connection) => {
       if (err) {
         console.error('Error getting a database connection:', err);
         return;
@@ -103,7 +94,7 @@ function calculateCompanyStatistics(connection, companyName) {
             if (err) {
               console.error(`Error inserting company data for ${companyName}:`, err);
             }
-            connection.release();
+          
           });
         });
       });

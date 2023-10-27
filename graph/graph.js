@@ -1,4 +1,4 @@
-const db = require('./db');
+const db = require('../db');
 
 function logExecution(functionName, tenantId, status, message) {
     const createdTime = new Date().toISOString(); 

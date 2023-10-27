@@ -1,4 +1,4 @@
-const db = require('./db');
+const db = require('../db');
 
 function userInfo() {
   // Define variables in the outermost scope
