@@ -81,7 +81,7 @@ function editDevice(req, res) {
 
 function companyDetails(req, res) {
   const UserId = req.params.UserId;
-  const { Designation, ContactNo,CompanyName, Location}  = req.body; 
+  const { Designation, ContactNo, Location}  = req.body; 
   const userCheckQuery = 'SELECT * FROM tms_users WHERE UserId = ?';
 
   db.query(userCheckQuery, [UserId], (error, useridCheckResult) => {
@@ -96,9 +96,9 @@ function companyDetails(req, res) {
         return res.status(400).json({ message: 'User not found!' });
       }
 
-      const userQuery = 'Update tms_users SET Designation=?, ContactNo=?,CompanyName=?, Location=? WHERE UserId=?';
+      const userQuery = 'Update tms_users SET Designation=?, ContactNo=?, Location=? WHERE UserId=?';
 
-      db.query(userQuery, [Designation, ContactNo, CompanyName,Location, UserId],(error, details) => {
+      db.query(userQuery, [Designation, ContactNo, Location, UserId],(error, details) => {
         if (error) {
           console.error('Error fetching company details:', error);
           return res.status(500).json({ message: 'Internal server error' });
@@ -716,10 +716,10 @@ function addDeviceTrigger(req, res) {
 }
 
 function addDevice(req, res) {
-   const { DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName, SMS, email, type } = req.body;
+  const { DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName } = req.body;
   try {
     const checkDeviceQuery = 'SELECT * FROM tms_devices WHERE DeviceUID = ?';
-    const insertDeviceQuery = 'INSERT INTO tms_devices (DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName, IssueDate, SMS, email, type, endDate) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 365 DAY))';
+    const insertDeviceQuery = 'INSERT INTO tms_devices (DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName) VALUES (?,?,?,?,?)';
 
     db.query(checkDeviceQuery, [DeviceUID], (error, checkResult) => {
       if (error) {
@@ -731,7 +731,7 @@ function addDevice(req, res) {
         return res.status(400).json({ message: 'Device already added' });
       }
 
-      db.query(insertDeviceQuery, [DeviceUID,DeviceLocation,DeviceName,CompanyEmail,CompanyName,SMS,email,type], (insertError, insertResult) => {
+      db.query(insertDeviceQuery, [DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName], (insertError, insertResult) => {
         if (insertError) {
           console.error('Error while inserting device:', insertError);
           return res.status(500).json({ message: 'Internal server error' });
@@ -746,72 +746,9 @@ function addDevice(req, res) {
   }
 }
 
-    // function addDevice(req, res) {
-    //   try {
-    //     const {
-    //       EntryId,
-    //       DeviceUID,
-    //       DeviceLocation,
-    //       DeviceName,
-    //       CompanyEmail,
-    //       CompanyName,
-    //       SMS,
-    //       email,
-    //       type,
-    //     } = req.body;
-    
-    //     const createDeviceQuery = `
-    //       INSERT INTO tms_devices (
-    //         EntryId, DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName, IssueDate, SMS, email, type, endDate
-    //       ) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 365 DAY))
-    //     `;
-    
-    //     const values = [
-    //       EntryId,
-    //       DeviceUID,
-    //       DeviceLocation,
-    //       DeviceName,
-    //       CompanyEmail,
-    //       CompanyName,
-    //       SMS,
-    //       email,
-    //       type,
-    //     ];
-    
-    //     db.query(createDeviceQuery, values, (error, result) => {
-    //       if (error) {
-    //         console.error('Error adding device:', error);
-    //         return res.status(500).json({ message: 'Internal server error' });
-    //       }
-    
-    //       res.json({ message: 'Device added successfully' });
-    //     });
-    //   } catch (error) {
-    //     console.error('Error adding device:', error);
-    //     res.status(500).json({ message: 'Internal server error' });
-    //   }
-    // }
-    
-  
-
-function Manish_energy(req ,res){
-  
-  const jsonString = req.body; // Access the JSON data sent in the request
-  // Process jsonData here as needed
-  if(jsonString){
-  // Send a response with the processed data
-    res.status(200).json({ message: 'Data received and processed successfully', data: jsonString });
-    console.log(jsonString);
-  }else{
-    res.status(404).json({
-      message : "Data not found"
-    });
-  }
-}
-
 
 module.exports = {
-	userDevices,
+  userDevices,
   editDevice,
   fetchDeviceTrigger,
   fetchAllDeviceTrigger,
@@ -833,7 +770,5 @@ module.exports = {
   getUserMessages,
   fetchCompanyUser,
   addDeviceTrigger,
-  addDevice,
-  Manish_energy
+  addDevice
 };
-
