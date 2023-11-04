@@ -6,9 +6,9 @@ const fs = require('fs');
 const path = require('path');
 const uuid = require('uuid');
 
-const accountSid = 'AC0d478e22325d6f2a719c3cdb78060b63';
-const authToken = '30573a2b8cb6918f0d530c8120417b99';
-const twilioPhoneNumber = '+12187182899';
+const accountSid = 'ACb8754fe2a8a8139f772c8681da354639';
+const authToken = '42fdd26013e50a0b3c5495f3bd26825e';
+const twilioPhoneNumber = '+18148134128';
 const twilioClient = twilio(accountSid, authToken);
 
 const dbConfig = {
@@ -57,12 +57,14 @@ function checkState() {
       return;
     }
 
-    connection.query('SELECT EntryId, DeviceUID, DeviceName, phone_number, email, status FROM tms_devices', (err, queryResults) => {
+    connection.query('SELECT EntryId, DeviceUID, DeviceName, SMS, email, status FROM tms_devices', (err, queryResults) => {
       if (err) {
         console.error('Error fetching data from the database:', err);
         connection.end();
         return;
       }
+
+      //console.log('Database query result:', queryResults); // Log the query results
 
       const devices = queryResults;
 
@@ -87,8 +89,8 @@ function checkState() {
             message = `${device.DeviceName} has an unknown status: ${currentState.status}`;
           }
 
-          const emailContent = renderEmailTemplate([device]); // Pass the device as an array
-          sendSMS(device.phone_number, message);
+          const emailContent = renderEmailTemplate([device]);
+          sendSMS(device.SMS, message);
           sendEmail(device.email, emailContent, 'Device Status Update', message);
         }
       });
@@ -100,19 +102,27 @@ function checkState() {
 
 function sendSMS(to, body) {
   const messageId = uuid.v4();
-  twilioClient.messages
-    .create({
-      body: body,
-      to: to,
-      from: twilioPhoneNumber,
-    })
-    .then(() => {
-      console.log('SMS sent successfully:', body);
-      insertInfo(new Date(), 'SMS', 'Device Status Update', body, to, messageId);
-    })
-    .catch((err) => {
-      console.error('Error sending SMS:', err);
-    });
+  try {
+    if (!to) {
+      throw new Error('Recipient phone number is missing.');
+    }
+
+    twilioClient.messages
+      .create({
+        body: body,
+        to: to,
+        from: twilioPhoneNumber,
+      })
+      .then(() => {
+        console.log('SMS sent successfully:', body);
+        insertInfo(new Date(), 'SMS', 'Device Status Update', body, to, messageId);
+      })
+      .catch((err) => {
+        console.error('Error sending SMS:', err);
+      });
+  } catch (error) {
+    console.error('Error sending SMS:', error.message);
+  }
 }
 
 function sendEmail(to, body, subject, message) {
@@ -143,10 +153,12 @@ function sendEmail(to, body, subject, message) {
 }
 
 function renderEmailTemplate(devices) {
-  const templateFilePath = path.join(__dirname, 'views', 'device-status.ejs');
+  const templateFilePath = path.join(__dirname, './views/device-status.ejs');
   const template = fs.readFileSync(templateFilePath, 'utf-8');
 
   return ejs.render(template, { devices });
 }
+
+setInterval(checkState, 1000);
 
 module.exports = { checkState, renderEmailTemplate };
