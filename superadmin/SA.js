@@ -1218,7 +1218,7 @@ function JsLog() {
 
 //User Count
 
-function userInfo() {
+function userInfoscript() {
   // Define variables in the outermost scope
   let totalUsers, activeUsers, inactiveUsers;
 
@@ -1324,7 +1324,7 @@ function userInfo() {
   });
 }
 
-setInterval(userInfo, 10000);
+setInterval(userInfoscript, 10000);
 setInterval(JsLog,  15 * 60 * 1000);
 setInterval(notiLog,  15 * 60 * 1000);
 setInterval(monitorLogsAndLogCount,  15 * 60 * 1000);
