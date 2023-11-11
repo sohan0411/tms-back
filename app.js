@@ -4,12 +4,6 @@ const router = require('./routes');
 const fs = require('fs');
 const bodyParser = require('body-parser');
 const SA = require('./superadmin/SA');
-const auditlogs = require('./graph/graph log');
-const Logs2 = require('./graph/graph_sms');
-const Logs3 = require('./graph/graph');
-const userCount = require('./graph/userCount');
-const deviceCount = require('./graph/devcount');
-const comp = require('./graph/comp');
 const TMS_logs = require('./tms_trigger_logs');
 //const checkState = require('./SMS/smsController');
 
@@ -31,7 +25,7 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(auditlogs.log);
+app.use(SA.log);
 
 // Use the router for handling routes
 app.use(router);

@@ -801,7 +801,535 @@ monitorAndSyncDevices();
       }
     }
   
+    //Update comp 
+
+    function updateCompanyInfo() {
+      const getCompanyNamesQuery = 'SELECT DISTINCT CompanyName FROM tms_users';
+    
+      try {
+        db.getConnection((err, connection) => {
+          if (err) {
+            console.error('Error getting a database connection:', err);
+            return;
+          }
+    
+          connection.query(getCompanyNamesQuery, (err, results) => {
+            if (err) {
+              console.error('Error fetching company names:', err);
+              connection.release();
+              return;
+            }
+    
+            const companyNames = results.map((row) => row.CompanyName);
+    
+            // Retrieve existing company names from the company_info table
+            const existingCompanyNamesQuery = 'SELECT company_name FROM company_info';
+            connection.query(existingCompanyNamesQuery, (err, existingCompanyNames) => {
+              if (err) {
+                console.error('Error fetching existing company names:', err);
+                connection.release();
+                return;
+              }
+    
+              // Check if each existing company name exists in the retrieved list
+              existingCompanyNames.forEach((existingCompanyName) => {
+                if (!companyNames.includes(existingCompanyName.company_name)) {
+                  // Delete company data if the company name is not in the list
+                  const deleteCompanyDataQuery = 'DELETE FROM company_info WHERE company_name = ?';
+                  connection.query(deleteCompanyDataQuery, [existingCompanyName.company_name], (err) => {
+                    if (err) {
+                      console.error(`Error deleting old company data for ${existingCompanyName.company_name}:`, err);
+                    }
+                  });
+                }
+              });
+    
+              // Calculate statistics for each company
+              for (const companyName of companyNames) {
+                calculateCompanyStatistics(connection, companyName);
+              }
+    
+              connection.release();
+            });
+          });
+        });
+      } catch (err) {
+        console.error('Error updating company info:', err);
+      }
+    }
+    
+    function calculateCompanyStatistics(connection, companyName) {
+      const userCountQuery = 'SELECT COUNT(*) AS total_users FROM tms_users WHERE CompanyName = ?';
+      const activeUserCountQuery = 'SELECT COUNT(*) AS active_users FROM tms_users WHERE CompanyName = ? AND is_online = 1';
+      const inactiveUserCountQuery = 'SELECT COUNT(*) AS inactive_users FROM tms_users WHERE CompanyName = ? AND is_online = 0';
+    
+      connection.query(userCountQuery, [companyName], (err, [userCountResult]) => {
+        if (err) {
+          console.error(`Error calculating total users for ${companyName}:`, err);
+          return;
+        }
+    
+        connection.query(activeUserCountQuery, [companyName], (err, [activeUserCountResult]) => {
+          if (err) {
+            console.error(`Error calculating active users for ${companyName}:`, err);
+            return;
+          }
+    
+          connection.query(inactiveUserCountQuery, [companyName], (err, [inactiveUserCountResult]) => {
+            if (err) {
+              console.error(`Error calculating inactive users for ${companyName}:`, err);
+              return;
+            }
+    
+            const totalUsers = userCountResult.total_users;
+            const activeUsers = activeUserCountResult.active_users;
+            const inactiveUsers = inactiveUserCountResult.inactive_users;
+            const insertCompanyDataQuery = 'INSERT INTO company_info (company_name, total_users, active_users, inactive_users) VALUES (?, ?, ?, ?)';
+            const deleteCompanyDataQuery = 'DELETE FROM company_info WHERE company_name = ?';
+    
+            connection.query(deleteCompanyDataQuery, [companyName], (err) => {
+              if (err) {
+                console.error(`Error deleting old company data for ${companyName}:`, err);
+                return;
+              }
+    
+              connection.query(insertCompanyDataQuery, [companyName, totalUsers, activeUsers, inactiveUsers], (err) => {
+                if (err) {
+                  console.error(`Error inserting company data for ${companyName}:`, err);
+                }
+              
+              });
+            });
+          });
+        });
+      });
+    }
+    
+    updateCompanyInfo();
+
+    //dev count 
+
+function updateDeviceInfo() {
+  const activeDeviceCountQuery = 'SELECT COUNT(*) as active_device_count FROM tms_devices WHERE status IN ("online", "heating")';
+  const inactiveDeviceCountQuery = 'SELECT COUNT(*) as inactive_device_count FROM tms_devices WHERE status = "offline"';
+  const totalDeviceCountQuery = 'SELECT COUNT(*) as total_device_count FROM tms_devices';
+
+  db.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error connecting to the database:', err);
+      return;
+    }
+
+    // Start a transaction to ensure data consistency
+    connection.beginTransaction((err) => {
+      if (err) {
+        console.error('Error starting transaction:', err);
+        connection.release();
+        return;
+      }
+
+      // Delete old data from the dev_info table
+      const deleteStatisticsQuery = 'DELETE FROM dev_info';
+      connection.query(deleteStatisticsQuery, (err) => {
+        if (err) {
+          console.error('Error deleting old device statistics:', err);
+          connection.rollback(() => {
+            console.error('Transaction rolled back.');
+            connection.release();
+          });
+          return;
+        }
+
+        // Fetch active device count
+        connection.query(activeDeviceCountQuery, (err, activeDeviceCountResult) => {
+          if (err) {
+            console.error('Error calculating active device count:', err);
+            connection.rollback(() => {
+              console.error('Transaction rolled back.');
+              connection.release();
+            });
+            return;
+          }
+
+          const activeDeviceCount = activeDeviceCountResult[0].active_device_count;
+
+          // Fetch inactive device count
+          connection.query(inactiveDeviceCountQuery, (err, inactiveDeviceCountResult) => {
+            if (err) {
+              console.error('Error calculating inactive device count:', err);
+              connection.rollback(() => {
+                console.error('Transaction rolled back.');
+                connection.release();
+              });
+              return;
+            }
+
+            const inactiveDeviceCount = inactiveDeviceCountResult[0].inactive_device_count;
+
+            // Fetch total device count
+            connection.query(totalDeviceCountQuery, (err, totalDeviceCountResult) => {
+              if (err) {
+                console.error('Error calculating total device count:', err);
+                connection.rollback(() => {
+                  console.error('Transaction rolled back.');
+                  connection.release();
+                });
+                return;
+              }
+
+              const totalDeviceCount = totalDeviceCountResult[0].total_device_count;
+
+              // Insert the calculated statistics into the dev_info table
+              const insertDeviceInfoQuery = 'INSERT INTO dev_info (all_devices, active_devices, inactive_devices) VALUES (?, ?, ?)';
+              connection.query(insertDeviceInfoQuery, [totalDeviceCount, activeDeviceCount, inactiveDeviceCount], (err) => {
+                if (err) {
+                  console.error('Error inserting device info:', err);
+                  connection.rollback(() => {
+                    console.error('Transaction rolled back.');
+                    connection.release();
+                  });
+                } else {
+                  connection.commit((err) => {
+                    if (err) {
+                      console.error('Error committing transaction:', err);
+                      connection.rollback(() => {
+                        console.error('Transaction rolled back.');
+                        connection.release();
+                      });
+                    } else {
+                      //console.log('Device info updated successfully.');
+                      connection.release();
+                    }
+                  });
+                }
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+}
+
+//Graph logs
+
+
+function extractIPv4(ipv6MappedAddress) {
+    const parts = ipv6MappedAddress.split(':');
+    return parts[parts.length - 1];
+  }
+
+function log(req, res, next) {
+    const { method, url, body, ip } = req;
+    const timestamp = new Date().toISOString();
+    const entity = body.userType || 'User';
+    const entityName = body.companyName || 'SenseLive';
+    const user = req.body.Username || req.body.companyEmail || 'N/A';
+    const userType = req.body.designation || 'std';
+    const type = method; 
+    const status = res.statusCode >= 200 && res.statusCode < 400 ? 'successful' : 'failure';
+    const details = `URL: ${url}`;
+    
+    const ipv4Address = extractIPv4(ip);
   
+    const logMessage = `${timestamp} | IP: ${ipv4Address} | Entity Type: ${entity} | Entity Name: ${entityName} | User: ${user} (${userType}) | Type: ${type} | Status: ${status} | Details: ${details}`;
+  
+    db.query('INSERT INTO tmp.logs (timestamp, ip, entity_type, entity_name, username, user_type, request_type, status, details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [timestamp, ipv4Address, entity, entityName, user, userType, type, status, details],
+      function (error, results) {
+        if (error) {
+          console.error('Error writing to database:', error);
+        } else {
+          //console.log('Log data inserted into the database');
+        }
+        next();
+      });
+  }
+
+function monitorLogsAndLogCount() {
+  const currentTimestamp = new Date().toISOString();
+  const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+
+  const query = `
+    SELECT COUNT(*) as requestCount
+    FROM tmp.logs
+    WHERE timestamp >= ? AND timestamp <= ?;
+  `;
+
+  db.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error getting database connection:', err);
+      return;
+    }
+
+    connection.query(query, [fifteenMinutesAgo, currentTimestamp], (error, results) => {
+      if (error) {
+        console.error('Error querying the database for request count:', error);
+        connection.release();
+      } else {
+        const requestCount = results[0].requestCount;
+
+        const insertQuery = `
+          INSERT INTO log_count_table (timestamp, request_count)
+          VALUES (?, ?);
+        `;
+
+        connection.query(insertQuery, [currentTimestamp, requestCount], (insertError) => {
+          if (insertError) {
+            console.error('Error inserting request count into log_count_table:', insertError);
+          } else {
+            console.log('Logged request count successfully:', requestCount);
+          }
+
+          connection.release();
+        });
+      }
+    });
+  });
+}
+//Graph SMS
+
+
+function notiLog() {
+  const currentTimestamp = new Date().toISOString();
+  const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+
+  const query = `
+    SELECT COUNT(*) as requestCount
+    FROM info_twi
+    WHERE created_time >= ? AND created_time <= ?;
+  `;
+
+  db.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error getting database connection:', err);
+      return;
+    }
+
+    connection.query(query, [fifteenMinutesAgo, currentTimestamp], (error, results) => {
+      if (error) {
+        console.error('Error querying the database:', error);
+        connection.release();
+      } else {
+        const requestCount = results[0].requestCount;
+
+        const insertQuery = `
+          INSERT INTO info_twi_log (timestamp, request_count)
+          VALUES (?, ?);
+        `;
+
+        connection.query(insertQuery, [currentTimestamp, requestCount], (insertError) => {
+          if (insertError) {
+            console.error('Error inserting into log_table:', insertError);
+          } else {
+            console.log('Logged request count successfully:', requestCount);
+          }
+
+          connection.release();
+        });
+      }
+    });
+  });
+}
+
+//Graph logs
+
+function logExecution(functionName, tenantId, status, message) {
+    const createdTime = new Date().toISOString(); 
+    const entity_type = 'SenseLive';
+    const entity_id = tenantId; 
+    const transport = 'ENABLED'; 
+    const db_storage = 'ENABLED'; 
+    const re_exec = 'ENABLED'; 
+    const js_exec = 'ENABLED';
+    const email_exec = 'ENABLED';
+    const sms_exec = 'ENABLED'; 
+    const alarm_exec = 'ENABLED';
+  
+    const query = `
+      INSERT INTO tmp_api_usage (created_time, tenant_id, entity_type, entity_id, transport, db_storage, re_exec, js_exec, email_exec, sms_exec, alarm_exec, status, message)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    `;
+  
+    db.query(query, [
+      createdTime,
+      tenantId,
+      entity_type,
+      entity_id,
+      transport,
+      db_storage,
+      re_exec,
+      js_exec,
+      email_exec,
+      sms_exec,
+      alarm_exec,
+      status,
+      message,
+    ], (error, results) => {
+      if (error) {
+        console.error(`Error logging execution of function '${functionName}':`, error);
+      } else {
+        console.log(`Function '${functionName}' executed and logged successfully.`);
+      }
+    });
+  }
+
+function JsLog() {
+  const currentTimestamp = new Date().toISOString();
+  const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+
+  const query = `
+    SELECT COUNT(*) as requestCount
+    FROM tmp_api_usage
+    WHERE created_time >= ? AND created_time <= ?;
+  `;
+
+  db.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error getting database connection:', err);
+      return;
+    }
+
+    connection.query(query, [fifteenMinutesAgo, currentTimestamp], (error, results) => {
+      if (error) {
+        console.error('Error querying the database:', error);
+        connection.release();
+      } else {
+        const requestCount = results[0].requestCount;
+
+        const insertQuery = `
+          INSERT INTO log_table (timestamp, request_count)
+          VALUES (?, ?);
+        `;
+
+        connection.query(insertQuery, [currentTimestamp, requestCount], (insertError) => {
+          if (insertError) {
+            console.error('Error inserting into log_table:', insertError);
+          } else {
+            console.log('Logged request count successfully:', requestCount);
+          }
+
+          connection.release();
+        });
+      }
+    });
+  });
+}
+
+//User Count
+
+function userInfo() {
+  // Define variables in the outermost scope
+  let totalUsers, activeUsers, inactiveUsers;
+
+  const userCountQuery = 'SELECT COUNT(*) as total_users FROM tms_users';
+  const activeUserCountQuery = 'SELECT COUNT(*) as active_users FROM tms_users WHERE is_online = 1';
+  const inactiveUserCountQuery = 'SELECT COUNT(*) as inactive_users FROM tms_users WHERE is_online = 0';
+
+  db.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error connecting to the database:', err);
+      return;
+    }
+
+    // Start a transaction to ensure data consistency
+    connection.beginTransaction((err) => {
+      if (err) {
+        console.error('Error starting Inserted:', err);
+        connection.release();
+        return;
+      }
+
+      // Delete old data from user_info table
+      const deleteStatisticsQuery = 'DELETE FROM user_info';
+      connection.query(deleteStatisticsQuery, (err) => {
+        if (err) {
+          console.error('Error deleting old user statistics:', err);
+          connection.rollback(() => {
+            console.error('Inserted rolled back.');
+            connection.release();
+          });
+          return;
+        }
+
+        // After deleting old data, proceed to fetch new data and insert it
+        connection.query(userCountQuery, (err, userCountResult) => {
+          if (err) {
+            console.error('Error calculating total users:', err);
+            connection.rollback(() => {
+              console.error('Inserted rolled back.');
+              connection.release();
+            });
+            return;
+          }
+
+          // Assign values to the variables
+          totalUsers = userCountResult[0].total_users;
+
+          connection.query(activeUserCountQuery, (err, activeUserCountResult) => {
+            if (err) {
+              console.error('Error calculating active users:', err);
+              connection.rollback(() => {
+                console.error('Inserted rolled back.');
+                connection.release();
+              });
+              return;
+            }
+
+            // Assign values to the variables
+            activeUsers = activeUserCountResult[0].active_users;
+
+            connection.query(inactiveUserCountQuery, (err, inactiveUserCountResult) => {
+              if (err) {
+                console.error('Error calculating inactive users:', err);
+                connection.rollback(() => {
+                  console.error('Inserted rolled back.');
+                  connection.release();
+                });
+                return;
+              }
+
+              // Assign values to the variables
+              inactiveUsers = inactiveUserCountResult[0].inactive_users;
+
+              // Insert the calculated statistics into the user_info table
+              const insertStatisticsQuery = 'INSERT INTO user_info (all_users, active_users, inactive_users) VALUES (?, ?, ?)';
+              connection.query(insertStatisticsQuery, [totalUsers, activeUsers, inactiveUsers], (err) => {
+                if (err) {
+                  console.error('Error inserting user statistics:', err);
+                  connection.rollback(() => {
+                    console.error('Inserted rolled back.');
+                    connection.release();
+                  });
+                } else {
+                  connection.commit((err) => {
+                    if (err) {
+                      console.error('Error committing Inserted:', err);
+                      connection.rollback(() => {
+                        console.error('Inserted rolled back.');
+                        connection.release();
+                      });
+                    } else {
+                      //console.log('Inserted successfully.');
+                      connection.release();
+                    }
+                  });
+                }
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+}
+
+setInterval(userInfo, 10000);
+setInterval(JsLog,  15 * 60 * 1000);
+setInterval(notiLog,  15 * 60 * 1000);
+setInterval(monitorLogsAndLogCount,  15 * 60 * 1000);
+setInterval(updateDeviceInfo, 10000);
+setInterval(updateCompanyInfo, 10000);
   
   
 module.exports = {
@@ -831,7 +1359,9 @@ module.exports = {
   transportdata,
   ruleEnginedata,
   JSdata,
-  telementrydata
+  telementrydata,
+  log,
+  logExecution
 
 
   
