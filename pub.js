@@ -40,7 +40,7 @@ client.on('connect', () => {
     setInterval(() => {
       const message = generateRandomData(deviceId);
       client.publish(topic, message);
-    }, 20000);
+    }, 2000);
   }
 });
 
