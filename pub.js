@@ -11,12 +11,18 @@ function generateRandomData(deviceId) {
   const DeviceUID = deviceId;
   const Temperature = getRandomNumber(35, 50).toFixed(1);
   const Humidity = getRandomNumber(40, 70).toFixed(1);
+  const TemperatureR= getRandomNumber(35, 50).toFixed(1);
+  const TemperatureY= getRandomNumber(35, 50).toFixed(1);
+  const TemperatureB = getRandomNumber(35, 50).toFixed(1);
   const Timestamp = new Date().toISOString();
 
   const data = {
     DeviceUID,
     Temperature,
     Humidity,
+    TemperatureR,
+    TemperatureY,
+    TemperatureB,
     Timestamp
   };
 

@@ -60,15 +60,18 @@ mqttClient.on('message', (topic, message) => {
     const data = JSON.parse(message);
 
     const insertQuery = `
-    INSERT INTO actual_data (DeviceUID, Temperature, Humidity, Timestamp,ip_address)
-    VALUES (?, ?, ?, ?,?)
+    INSERT INTO actual_data (DeviceUID, Temperature, Timestamp, TemperatureR, TemperatureY, TemperatureB, Humidity,ip_address)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const insertValues = [
       data.DeviceUID,
       data.Temperature,
-      data.Humidity,
       data.Timestamp,
+      data.TemperatureR,
+      data.TemperatureY,
+      data.TemperatureB,
+      data.Humidity,
       localIpAddress,
     ];
 
