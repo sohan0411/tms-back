@@ -64,7 +64,7 @@ mqttClient.on('message', (topic, message) => {
     const data = JSON.parse(message);
     const date = new Date().toISOString();
 
-    console.log(data);
+    //console.log(data);
     const insertQuery = `
     INSERT INTO actual_data (DeviceUID, Temperature, Timestamp, TemperatureR, TemperatureY, TemperatureB, Humidity,ip_address)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)

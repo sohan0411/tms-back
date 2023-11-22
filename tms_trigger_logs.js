@@ -32,7 +32,7 @@ function monitorDevice() {
         return;
       }
 
-      const insertLogQuery = 'INSERT INTO tms_trigger_logs (DeviceUID, Temperature, Humidity, TimeStamp, Status) VALUES ?';
+      const insertLogQuery = 'INSERT INTO tms_trigger_logs (DeviceUID, Temperature, Humidity,  TemperatureR, TemperatureY, TemperatureB, TimeStamp, Status) VALUES ?';
       const insertLogValues = [];
       const currentTimestamp = new Date().toISOString();
 
@@ -40,7 +40,7 @@ function monitorDevice() {
         const latestData = latestDataResults.find((data) => data.DeviceUID === device.DeviceUID);
 
         if (latestData) {
-          const { DeviceUID, Temperature, Humidity, TimeStamp } = latestData;
+          const { DeviceUID, Temperature, Humidity, TemperatureR, TemperatureY, TemperatureB, TimeStamp } = latestData;
           const latestDateTime = new Date(TimeStamp);
           
           const timeDifference = new Date() - latestDateTime;
@@ -49,15 +49,15 @@ function monitorDevice() {
           let status = ''; // Define the status variable within the loop
 
           if (isDeviceOnline) {
-            if (Temperature > device.TriggerValue) {
-              insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimestamp, 'heating']);
+            if (Temperature > device.TriggerValue || TemperatureR > device.TriggerValue || TemperatureY > device.TriggerValue || TemperatureB > device.TriggerValue ) {
+              insertLogValues.push([DeviceUID, Temperature, Humidity, TemperatureR, TemperatureY, TemperatureB, currentTimestamp, 'heating']);
               status = 'heating';
             } else {
-              insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimestamp, 'online']);
+              insertLogValues.push([DeviceUID, Temperature, Humidity, TemperatureR, TemperatureY, TemperatureB, currentTimestamp, 'online']);
               status = 'online';
             }
           } else {
-            insertLogValues.push([DeviceUID, Temperature, Humidity, currentTimestamp, 'offline']);
+            insertLogValues.push([DeviceUID, Temperature, Humidity, TemperatureR, TemperatureY, TemperatureB, currentTimestamp, 'offline']);
             status = 'offline';
           }
 
