@@ -1,7 +1,7 @@
 const mqtt = require('mqtt');
 
 // MQTT broker URL
-const brokerUrl = 'ws://broker.emqx.io:8083/mqtt';
+const brokerUrl = 'ws://dashboard.senselive.in:9001';
 
 function getRandomNumber(min, max) {
   return Math.random() * (max - min) + min;
@@ -51,7 +51,10 @@ function generateRandomData2(deviceId) {
   return JSON.stringify(data);
 }
 
-const client = mqtt.connect(brokerUrl);
+const client = mqtt.connect(brokerUrl,{
+  username: 'Sense2023',
+  password: 'sense123',
+});
 
 client.on('connect', () => {
   console.log('Connected to MQTT broker');
@@ -62,7 +65,7 @@ client.on('connect', () => {
     setInterval(() => {
       const message = generateRandomData(deviceId);
       client.publish(topic, message);
-      console.log("publish for ", topic);
+      console.log("publish for ", topic, message);
     }, 20000);
 
     const deviceId2 = `SL02202353`;

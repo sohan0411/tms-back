@@ -3,7 +3,7 @@ const mysql = require('mysql2');
 const os = require('os');
 
 // MQTT broker URL
-const broker = 'ws://broker.emqx.io:8083/mqtt';
+const broker = 'ws://dashboard.senselive.in:9001';
 
 // MySQL configuration
 const mysqlConfig = {
@@ -35,21 +35,25 @@ function getLocalIpAddress() {
 
 console.log('Local IP Address:', localIpAddress);
 
+const options = {
+  username: 'Sense2023', // Replace with your MQTT broker username
+  password: 'sense123', // Replace with your MQTT broker password
+};
 // Connect to the MQTT broker
-const mqttClient = mqtt.connect(broker);
+const mqttClient = mqtt.connect(broker,options);
 
 // Handle MQTT connection event
 mqttClient.on('connect', () => {
   //console.log('Connected to MQTT broker');
 
-  for (let i = 52; i <= 53; i++) {
+  for (let i = 10; i <= 62; i++) {
     const deviceId = `SL022023${i}`;
-    const topic = `sense/live/${deviceId}`;
+    const topic = `Sense/Live/${deviceId}`;
     mqttClient.subscribe(topic, (error) => {
       if (error) {
         console.error(`Error subscribing to ${topic}:`, error);
       } else {
-       // console.log(`Subscribed to ${topic}`);
+       console.log(`Subscribed to ${topic}`);
       }
     });
   }
@@ -58,20 +62,24 @@ mqttClient.on('connect', () => {
 mqttClient.on('message', (topic, message) => {
   try {
     const data = JSON.parse(message);
+    const date = new Date().toISOString();
 
+    //console.log(data);
     const insertQuery = `
-    INSERT INTO actual_data (DeviceUID, Temperature, Timestamp, TemperatureR, TemperatureY, TemperatureB, Humidity,ip_address)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO actual_data (DeviceUID, Temperature, Timestamp, TemperatureR, TemperatureY, TemperatureB, Humidity, flowRate, totalVolume, ip_address)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const insertValues = [
       data.DeviceUID,
       data.Temperature,
-      data.Timestamp,
+      date,
       data.TemperatureR,
       data.TemperatureY,
       data.TemperatureB,
       data.Humidity,
+      data.flowRate,
+      data.totalVolume,
       localIpAddress,
     ];
 
