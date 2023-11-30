@@ -46,7 +46,7 @@ const mqttClient = mqtt.connect(broker,options);
 mqttClient.on('connect', () => {
   //console.log('Connected to MQTT broker');
 
-  for (let i = 50; i <= 62; i++) {
+  for (let i = 10; i <= 62; i++) {
     const deviceId = `SL022023${i}`;
     const topic = `Sense/Live/${deviceId}`;
     mqttClient.subscribe(topic, (error) => {
@@ -66,8 +66,8 @@ mqttClient.on('message', (topic, message) => {
 
     //console.log(data);
     const insertQuery = `
-    INSERT INTO actual_data (DeviceUID, Temperature, Timestamp, TemperatureR, TemperatureY, TemperatureB, Humidity,ip_address)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO actual_data (DeviceUID, Temperature, Timestamp, TemperatureR, TemperatureY, TemperatureB, Humidity, flowRate, totalVolume, ip_address)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const insertValues = [
@@ -78,6 +78,8 @@ mqttClient.on('message', (topic, message) => {
       data.TemperatureY,
       data.TemperatureB,
       data.Humidity,
+      data.flowRate,
+      data.totalVolume,
       localIpAddress,
     ];
 
