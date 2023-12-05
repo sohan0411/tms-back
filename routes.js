@@ -44,6 +44,7 @@ router.get('/messages/:receiver', dashboard.getUserMessages);
 router.get('/Company-users/:CompanyEmail', dashboard.fetchCompanyUser);
 router.post('/addDeviceTrigger', dashboard.addDeviceTrigger);
 router.post('/addDevice', dashboard.addDevice);
+router.post('/barChartCustom', dashboard.barChartCustom);
 
 //SA
 router.get('/fetchAllDevices', SA.fetchAllDevices);

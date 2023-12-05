@@ -4,7 +4,7 @@ const router = require('./routes');
 const fs = require('fs');
 const bodyParser = require('body-parser');
 const SA = require('./superadmin/SA');
-const TMS_logs = require('./tms_trigger_logs');
+//const TMS_logs = require('./tms_trigger_logs');
 //const checkState = require('./SMS/smsController');
 
 /*               Interval                */

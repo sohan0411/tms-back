@@ -715,36 +715,6 @@ function addDeviceTrigger(req, res) {
     }
 }
 
-// function addDevice(req, res) {
-//   const { DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName } = req.body;
-//   try {
-//     const checkDeviceQuery = 'SELECT * FROM tms_devices WHERE DeviceUID = ?';
-//     const insertDeviceQuery = 'INSERT INTO tms_devices (DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName) VALUES (?,?,?,?,?)';
-
-//     db.query(checkDeviceQuery, [DeviceUID], (error, checkResult) => {
-//       if (error) {
-//         console.error('Error while checking device:', error);
-//         return res.status(500).json({ message: 'Internal server error' });
-//       }
-
-//       if (checkResult.length > 0) {
-//         return res.status(400).json({ message: 'Device already added' });
-//       }
-
-//       db.query(insertDeviceQuery, [DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName], (insertError, insertResult) => {
-//         if (insertError) {
-//           console.error('Error while inserting device:', insertError);
-//           return res.status(500).json({ message: 'Internal server error' });
-//         }
-
-//         return res.json({ message: 'Device added successfully!' });
-//       });
-//     });
-//   } catch (error) {
-//     console.error('Error in device check:', error);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// }
 function addDevice(req, res) {
   const { DeviceUID, DeviceLocation, DeviceName, CompanyEmail, CompanyName, SMS, email, type, DeviceType } = req.body;
 
@@ -777,6 +747,44 @@ function addDevice(req, res) {
   }
 }
 
+function barChartCustom(req, res) {
+  const deviceId = req.params.deviceId;
+  const startDate = req.query.start;
+  const endDate = req.query.end;
+
+  if (!startDate || !endDate) {
+    return res.status(400).json({ message: 'Invalid parameters' });
+  }
+
+
+  // Fetch data for the given date range
+  const queryRange = `
+    SELECT DATE(TimeStamp) AS date,
+           MAX(totalVolume) AS endVolume,
+           MIN(totalVolume) AS startVolume
+    FROM actual_data
+    WHERE DeviceUID = ? AND TimeStamp BETWEEN ? AND ?
+    GROUP BY DATE(TimeStamp)
+    ORDER BY date ASC
+  `;
+
+  db.query(queryRange, [deviceId, startDate, endDate], (err, resultRange) => {
+      connection.release();
+
+      if (err) {
+        console.error('Error executing query:', err);
+        return res.status(500).json({ message: 'Internal Server Error' });
+      }
+
+      // Calculate total consumption for each date
+      const datewiseConsumption = resultRange.map((row) => ({
+        date: row.date,
+        totalConsumption: row.endVolume - row.startVolume,
+      }));
+
+      return res.json(datewiseConsumption);
+    });
+}
 
 
 module.exports = {
@@ -802,5 +810,6 @@ module.exports = {
   getUserMessages,
   fetchCompanyUser,
   addDeviceTrigger,
-  addDevice
+  addDevice,
+  barChartCustom
 };
