@@ -49,12 +49,7 @@ function monitorDevice() {
           let status = ''; // Define the status variable within the loop
 
           if (isDeviceOnline) {
-            if (
-              (Temperature !== null && Temperature > device.TriggerValue) ||
-              (TemperatureR !== null && TemperatureR > device.TriggerValue) ||
-              (TemperatureY !== null && TemperatureY > device.TriggerValue) ||
-              (TemperatureB !== null && TemperatureB > device.TriggerValue)
-            )  {
+            if (Temperature > device.TriggerValue || TemperatureR > device.TriggerValue || TemperatureY > device.TriggerValue || TemperatureB > device.TriggerValue ) {
               insertLogValues.push([DeviceUID, Temperature, Humidity, TemperatureR, TemperatureY, TemperatureB, currentTimestamp, 'heating']);
               status = 'heating';
             } else {

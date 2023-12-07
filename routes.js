@@ -45,7 +45,11 @@ router.get('/Company-users/:CompanyEmail', dashboard.fetchCompanyUser);
 router.post('/addDeviceTrigger', dashboard.addDeviceTrigger);
 router.post('/addDevice', dashboard.addDevice);
 router.post('/barChartCustom', dashboard.barChartCustom);
-
+router.get('/Total-Volume-Today/:deviceId', dashboard.getTotalVolumeForToday);
+router.get('/Total-Volume-Month/:deviceId', dashboard.getTotalVolumeForMonth);
+router.get('/Total-Volume-Today-Email/:CompanyEmail', dashboard.getTotalVolumeForTodayEmail);
+router.get('/Total-Volume-Month-Email/:CompanyEmail', dashboard.getTotalVolumeForMonthEmail);
+router.get('/abcd/:deviceId', dashboard.getTotalVolumeForDuration);
 //SA
 router.get('/fetchAllDevices', SA.fetchAllDevices);
 router.get('/fetchAllUsers', SA.fetchAllUsers);

@@ -64,6 +64,15 @@ mqttClient.on('message', (topic, message) => {
     const data = JSON.parse(message);
     const date = new Date().toISOString();
 
+    // Check if flowRate and totalVolume exist before dividing by 1000
+    if ('flowRate' in data) {
+      data.flowRate /= 1000;
+    }
+
+    if ('totalVolume' in data) {
+      data.totalVolume /= 1000;
+    }
+
     //console.log(data);
     const insertQuery = `
     INSERT INTO actual_data (DeviceUID, Temperature, Timestamp, TemperatureR, TemperatureY, TemperatureB, Humidity, flowRate, totalVolume, ip_address)
