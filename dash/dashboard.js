@@ -1053,13 +1053,43 @@ function getTotalVolumeForDuration(req, res) {
     let loopLimit;
 
     switch (duration) {
-      case 'day':
+      case '30sec':
         loopLimit = 1;
         break;
-      case 'week':
+      case '1min':
+        loopLimit = 1;
+        break;
+      case '2min':
+        loopLimit = 1;
+        break;
+      case '5min':
+        loopLimit = 1;
+        break;
+      case '10min':
+        loopLimit = 1;
+        break;
+      case '30min':
+        loopLimit = 1;
+        break;
+      case '1hour':
+        loopLimit = 1;
+        break;
+      case '2hour':
+        loopLimit = 1;
+        break;
+      case '10hour':
+        loopLimit = 1;
+        break;
+      case '12hour':
+        loopLimit = 1;
+        break;
+      case '1day':
+        loopLimit = 1;
+        break;
+      case '7day':
         loopLimit = 7;
         break;
-      case 'month':
+      case '30day':
         loopLimit = 30;
         break;
       default:
