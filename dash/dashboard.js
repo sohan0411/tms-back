@@ -1141,7 +1141,102 @@ function getTotalVolumeForDuration(req, res) {
   }
 }
 
+function getWaterConsumptionForDateRange(req, res) {
+  const { deviceId, startDate, endDate } = req.params;
 
+  try {
+    // Fetch entries within the specified date range
+    const fetchEntriesQuery = 'SELECT * FROM actual_data WHERE DeviceUID = ? AND DATE(TimeStamp) BETWEEN ? AND ? ORDER BY TimeStamp ASC';
+
+    db.query(fetchEntriesQuery, [deviceId, startDate, endDate], (fetchError, fetchResult) => {
+      if (fetchError) {
+        console.error('Error while fetching entries:', fetchError);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      if (fetchResult.length === 0) {
+        return res.json({ message: 'No data available for the specified date range' });
+      }
+
+      const consumptionData = [];
+
+      // Calculate water consumption for each day
+      for (let i = 0; i < fetchResult.length - 1; i++) {
+        const currentEntry = fetchResult[i];
+        const nextEntry = fetchResult[i + 1];
+
+        const dailyConsumption = nextEntry.totalVolume - currentEntry.totalVolume;
+        const entryDate = new Date(currentEntry.TimeStamp).toLocaleDateString();
+
+        consumptionData.push({ date: entryDate, consumption: dailyConsumption });
+      }
+
+      return res.json({ consumptionData });
+    });
+  } catch (error) {
+    console.error('Error in device retrieval:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+function deleteDevice(req, res) {
+  try {
+    const deviceUID = req.params.deviceUID;
+    const deleteDeviceQuery = 'DELETE FROM tms_devices WHERE DeviceUID = ?';
+
+    db.query(deleteDeviceQuery, [deviceUID], (error, result) => {
+      if (error) {
+        console.error('Error deleting device:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Device not found' });
+      }
+
+      res.json({ message: 'Device deleted successfully' });
+    });
+  } catch (error) {
+    console.error('Error deleting device:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+
+function editUser(req, res) {
+  const userId = req.params.userId;
+  const { FirstName, LastName, PersonalEmail, ContactNo, Location, Designation, UserType}  = req.body; 
+  const UserCheckQuery = 'SELECT * FROM tms_users WHERE UserId = ?';
+
+  db.query(UserCheckQuery, [userId], (error, UserCheckResult) => {
+    if (error) {
+      console.error('Error during device check:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+
+    try {
+      if (UserCheckResult.length === 0) {
+        console.log('User not found!');
+        return res.status(400).json({ message: 'User not found!' });
+      }
+
+      const usersQuery = 'Update tms_users SET FirstName = ?, LastName = ?, PersonalEmail = ?, ContactNo = ?, Location = ?, Designation = ?, UserType = ? WHERE UserId = ?';
+
+      db.query(usersQuery, [FirstName, LastName, PersonalEmail, ContactNo, Location, Designation, UserType, userId], (error, devices) => {
+        if (error) {
+          console.error('Error fetching users:', error);
+          return res.status(500).json({ message: 'Internal server error' });
+        }
+
+        res.json({ message: 'User Updated SuccessFully' });
+      });
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+}
 
 module.exports = {
   userDevices,
@@ -1172,5 +1267,8 @@ module.exports = {
   getTotalVolumeForMonth,
   getTotalVolumeForTodayEmail,
   getTotalVolumeForMonthEmail,
-  getTotalVolumeForDuration
+  getTotalVolumeForDuration,
+  getWaterConsumptionForDateRange,
+  deleteDevice,
+  editUser
 };

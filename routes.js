@@ -50,6 +50,9 @@ router.get('/Total-Volume-Month/:deviceId', dashboard.getTotalVolumeForMonth);
 router.get('/Total-Volume-Today-Email/:CompanyEmail', dashboard.getTotalVolumeForTodayEmail);
 router.get('/Total-Volume-Month-Email/:CompanyEmail', dashboard.getTotalVolumeForMonthEmail);
 router.get('/ConsuptionByIntervalBar/:deviceId', dashboard.getTotalVolumeForDuration);
+
+router.delete('/delete-device/:deviceUID', dashboard.deleteDevice);
+router.put('/edit-User/:userId', dashboard.editUser);
 //SA
 router.get('/fetchAllDevices', SA.fetchAllDevices);
 router.get('/fetchAllUsers', SA.fetchAllUsers);

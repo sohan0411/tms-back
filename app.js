@@ -5,18 +5,7 @@ const fs = require('fs');
 const bodyParser = require('body-parser');
 const SA = require('./superadmin/SA');
 const TMS_logs = require('./tms_trigger_logs');
-//const checkState = require('./SMS/smsController');
 
-/*               Interval                */
-
-// const MinuteData = require('./dash/interval_min');
-// const hourData = require('./dash/interval_hour');
-// const weekData = require('./dash/interval_week');
-// const dayData = require('./dash/interval_day');
-// const MonthData = require('./dash/interval_month');
-/*                 MQTT                  */
-// const mqtt_sub = require('./sub');
-// const mqtt_pub = require('./pub');
 const app = express();
 
 const port = 3000;

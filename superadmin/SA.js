@@ -123,31 +123,6 @@ function userByCompanyname(req, res) {
       res.status(500).json({ message: 'Internal server error' });
     }
   }
-
-  // function deleteDevice(req, res) {
-  //   try {
-  //     const deviceUID = req.params.deviceUID;
-  //     const deleteDeviceQuery = 'DELETE FROM tms_devices WHERE DeviceUID = ?';
-  
-  //     db.query(deleteDeviceQuery, [deviceUID], (error, result) => {
-  //       if (error) {
-  //         console.error('Error deleting device:', error);
-  //         return res.status(500).json({ message: 'Internal server error' });
-  //       }
-  
-  //       if (result.affectedRows === 0) {
-  //         return res.status(404).json({ message: 'Device not found' });
-  //       }
-  
-  //       res.json({ message: 'Device deleted successfully' });
-  //     });
-  //   } catch (error) {
-  //     console.error('Error deleting device:', error);
-  //     res.status(500).json({ message: 'Internal server error' });
-  //   }
-  // }
-
-
  
   function fetchCompanyDetails(req, res) {
     const CompanyEmail = req.params.CompanyEmail;
