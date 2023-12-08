@@ -2,9 +2,10 @@
   "name": "tms-back",
   "version": "1.0.0",
   "description": "Backend For the Temperature Monitoring System.",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev" : "pm2 start app.js"
   },
   "author": "Kaushal Pohekar",
   "license": "ISC",
