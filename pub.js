@@ -1,7 +1,7 @@
 const mqtt = require('mqtt');
 
 // MQTT broker URL
-const brokerUrl = 'ws://dashboard.senselive.in:9001';
+const brokerUrl = 'mqtt://65.2.127.156:1883';
 
 function getRandomNumber(min, max) {
   return Math.random() * (max - min) + min;
@@ -59,7 +59,7 @@ const client = mqtt.connect(brokerUrl,{
 client.on('connect', () => {
   console.log('Connected to MQTT broker');
 
-  const deviceId = `SL02202352`;
+  const deviceId = `SL123`;
     const topic = `sense/live/${deviceId}`;
 
     setInterval(() => {
@@ -68,14 +68,14 @@ client.on('connect', () => {
       console.log("publish for ", topic, message);
     }, 20000);
 
-    const deviceId2 = `SL02202353`;
-    const topic2 = `sense/live/${deviceId2}`;
+    // const deviceId2 = `SL02202353`;
+    // const topic2 = `sense/live/${deviceId2}`;
 
-    setInterval(() => {
-      const message2 = generateRandomData2(deviceId2);
-      client.publish(topic2, message2);
-      console.log("publish for ", topic2);
-    }, 20000);
+    // setInterval(() => {
+    //   const message2 = generateRandomData2(deviceId2);
+    //   client.publish(topic2, message2);
+    //   console.log("publish for ", topic2);
+    // }, 20000);
   // for (let i = 52; i <= 53; i++) {
   //   const deviceId = `SL022023${i}`;
   //   const topic = `sense/live/${deviceId}`;

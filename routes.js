@@ -50,6 +50,7 @@ router.get('/Total-Volume-Month/:deviceId', dashboard.getTotalVolumeForMonth);
 router.get('/Total-Volume-Today-Email/:CompanyEmail', dashboard.getTotalVolumeForTodayEmail);
 router.get('/Total-Volume-Month-Email/:CompanyEmail', dashboard.getTotalVolumeForMonthEmail);
 router.get('/ConsuptionByIntervalBar/:deviceId', dashboard.getTotalVolumeForDuration);
+router.get('/ConsuptionByCustomBar/:deviceId/:startDate/:endDate', dashboard.getWaterConsumptionForDateRange);
 
 router.delete('/delete-device/:deviceUID', dashboard.deleteDevice);
 router.put('/edit-User/:userId', dashboard.editUser);
