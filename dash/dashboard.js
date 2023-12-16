@@ -42,7 +42,6 @@ function userDevices(req, res) {
   });
 }
 
-
 function editDevice(req, res) {
   const deviceId = req.params.deviceId;
   const { DeviceLocation, DeviceName}  = req.body; 
@@ -111,7 +110,6 @@ function companyDetails(req, res) {
   });
 }
 
-
 function personalDetails(req, res) {
   const UserId = req.params.UserId;
   const {FirstName, LastName}  = req.body; 
@@ -145,7 +143,6 @@ function personalDetails(req, res) {
     }
   });
 }
-
 
 function updatePassword(req, res) {
   const UserId = req.params.UserId;
@@ -185,24 +182,23 @@ function updatePassword(req, res) {
   });
 }
 
+function fetchDeviceTrigger(req, res){
+ const deviceId = req.params.deviceId;
+ const deviceTriggerQuery = 'select * from tms_trigger where DeviceUID = ?';
+   try {
+     db.query(deviceTriggerQuery, [deviceId], (error, devicetriggerkResult) => {
+       if (error) {
+         console.error('Error during device check:', error);
+         return res.status(500).json({ message: 'Internal server error' });
+       }
 
- function fetchDeviceTrigger(req, res){
-   const deviceId = req.params.deviceId;
-   const deviceTriggerQuery = 'select * from tms_trigger where DeviceUID = ?';
-     try {
-       db.query(deviceTriggerQuery, [deviceId], (error, devicetriggerkResult) => {
-         if (error) {
-           console.error('Error during device check:', error);
-           return res.status(500).json({ message: 'Internal server error' });
-         }
-
-         res.status(200).json(devicetriggerkResult);
-       });
-     } catch (error) {
-       console.error('Error in device check:', error);
-       res.status(500).json({ message: 'Internal server error' });
-     }
- }
+       res.status(200).json(devicetriggerkResult);
+     });
+   } catch (error) {
+     console.error('Error in device check:', error);
+     res.status(500).json({ message: 'Internal server error' });
+   }
+}
 
 function fetchAllDeviceTrigger(req, res){
   const CompanyEmail = req.params.CompanyEmail;
@@ -264,8 +260,6 @@ function editDeviceTrigger(req, res) {
     }
   });
 }
-
-
 
 function getDataByTimeInterval(req, res) {
   try {
@@ -412,7 +406,6 @@ function getDataByTimeIntervalStatus(req, res) {
   });
 }
 
-
 function getDataByCustomDate(req, res) {
   try {
     const deviceId = req.params.deviceId;
@@ -473,7 +466,6 @@ function getDataByCustomDateStatus(req, res) {
   }
 }
 
-
 function getDeviceDetails(req, res) {
   try {
     const deviceId = req.params.deviceId;
@@ -499,7 +491,6 @@ function getDeviceDetails(req, res) {
     res.status(500).json({ message: 'Internal server error' });
   }
 }
-
 
 function getLiveStatusDetails(req, res) {
   try {
@@ -583,7 +574,6 @@ function insertNewMessage(req, res) {
   }
 }
 
-
 function markMessageAsRead(req, res) {
   try {
     const messageId = req.params.messageId;
@@ -607,7 +597,6 @@ function markMessageAsRead(req, res) {
   }
 }
 
-
 function deleteMessage(req, res) {
   try {
     const messageId = req.params.messageId;
@@ -630,7 +619,6 @@ function deleteMessage(req, res) {
     res.status(500).json({ message: 'Internal server error' });
   }
 }
-
 
 function countUnreadMessages(req, res) {
   try {
@@ -688,7 +676,6 @@ function fetchCompanyUser(req, res) {
     res.status(500).json({ message: 'Internal server error' });
   }
 }
-
 
 function addDeviceTrigger(req, res) {
   const { DeviceUID, TriggerValue, CompanyEmail } = req.body;
@@ -1023,7 +1010,6 @@ function getTotalVolumeForMonthEmail(req, res) {
   }
 }
 
-
 // function getTotalVolumeForDuration(req, res) {
 //   const { deviceId } = req.params;
 //   const { duration } = req.query;
@@ -1230,7 +1216,6 @@ function deleteDevice(req, res) {
     res.status(500).json({ message: 'Internal server error' });
   }
 }
-
 
 function editUser(req, res) {
   const userId = req.params.userId;

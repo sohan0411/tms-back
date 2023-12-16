@@ -123,6 +123,9 @@ function userByCompanyname(req, res) {
       res.status(500).json({ message: 'Internal server error' });
     }
   }
+
+
+
  
   function fetchCompanyDetails(req, res) {
     const CompanyEmail = req.params.CompanyEmail;
