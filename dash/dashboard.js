@@ -1186,7 +1186,7 @@ function getWaterConsumptionForDateRange(req, res) {
         return res.status(500).json({ message: 'Internal server error' });
       }
 
-      return res.json({ fetchResult });
+      return res.json({ data:fetchResult });
     });
   } catch (error) {
     console.error('Error in device retrieval:', error);
