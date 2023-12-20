@@ -1251,6 +1251,58 @@ function editUser(req, res) {
   });
 }
 
+function fetchLatestEntry(req, res) {
+  const { companyEmail } = req.params;
+  const fetchUserDevicesQuery = `SELECT * FROM tms_devices WHERE CompanyEmail = ?`;
+  const fetchLatestEntryQuery = `SELECT * FROM actual_data WHERE DeviceUID = ? ORDER BY EntryID DESC LIMIT 1`;
+  const defaultEntry = {
+    EntryID: 0,
+    DeviceUID: null,
+    Temperature: null,
+    TemperatureR: null,
+    TemperatureY: null,
+    TemperatureB: null,
+    Humidity: null,
+    flowRate: null,
+    totalVolume: null,
+    TimeStamp: "0000-00-00T00:00:00.000Z",
+    ip_address: "0.0.0.0",
+    status: null
+  };
+
+  db.query(fetchUserDevicesQuery, [companyEmail], (fetchUserDevicesError, devices) => {
+    if (fetchUserDevicesError) {
+      return res.status(401).json({ message: 'Error while fetching devices' });
+    }
+
+    if (devices.length === 0) {
+      return res.status(404).json({ message: 'No devices found for the user' });
+    }
+
+    const promises = devices.map(device => {
+      return new Promise((resolve, reject) => {
+        const deviceId = device.DeviceUID;
+        db.query(fetchLatestEntryQuery, [deviceId], (fetchLatestEntryError, fetchLatestEntryResult) => {
+          if (fetchLatestEntryError) {
+            reject({ [deviceId]: { entry: [defaultEntry] } });
+          } else {
+            const deviceEntry = fetchLatestEntryResult.length === 0 ? [defaultEntry] : fetchLatestEntryResult;
+            resolve({ [deviceId]: { entry: deviceEntry } });
+          }
+        });
+      });
+    });
+
+    Promise.all(promises)
+      .then(results => {
+        res.json({ latestEntry: results });
+      })
+      .catch(error => {
+        res.status(500).json({ message: 'Error while fetching data for some devices', error });
+      });
+  });
+}
+
 module.exports = {
   userDevices,
   editDevice,
@@ -1284,4 +1336,5 @@ module.exports = {
   getWaterConsumptionForDateRange,
   deleteDevice,
   editUser,
+  fetchLatestEntry
 };
