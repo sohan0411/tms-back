@@ -86,7 +86,7 @@ mqttClient.on('message', (topic, message) => {
       if (error) {
         console.error('Error inserting data into MySQL:', error);
       } else {
-       console.log('Data inserted into MySQL');
+      //console.log('Data inserted into MySQL');
       }
     });
   } catch (error) {
