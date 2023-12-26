@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev" : "pm2 start app.js"
+    "dev": "pm2 start app.js"
   },
   "author": "Kaushal Pohekar",
   "license": "ISC",
@@ -29,7 +29,7 @@
     "mqtt": "^5.0.4",
     "mssql": "^9.1.1",
     "mysql": "^2.18.1",
-    "mysql2": "^3.6.1",
+    "mysql2": "^3.6.5",
     "node-cache": "^5.1.2",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.5",
