@@ -1,5 +1,5 @@
 const mqtt = require('mqtt');
-const mysql = require('mysql2');
+const mysql = require('mysql');
 const os = require('os');
 
 // MQTT broker URL
@@ -7,8 +7,8 @@ const broker = 'ws://dashboard.senselive.in:9001';
 
 // MySQL configuration
 const mysqlConfig = {
-    host: '13.232.174.42',
-        user: 'mysql',
+        host: '13.200.38.129',
+        user: 'admin',
         password: 'sense!123',
         database: 'tms',
   port: 3306, // MySQL default port is 3306
