@@ -1304,12 +1304,12 @@ function userInfoscript() {
   });
 }
 
-setInterval(userInfoscript, 10000);
-setInterval(JsLog,  15 * 60 * 1000);
-setInterval(notiLog,  15 * 60 * 1000);
-setInterval(monitorLogsAndLogCount,  15 * 60 * 1000);
-setInterval(updateDeviceInfo, 10000);
-setInterval(updateCompanyInfo, 10000);
+// setInterval(userInfoscript, 10000);
+// setInterval(JsLog,  15 * 60 * 1000);
+// setInterval(notiLog,  15 * 60 * 1000);
+// setInterval(monitorLogsAndLogCount,  15 * 60 * 1000);
+// setInterval(updateDeviceInfo, 10000);
+// setInterval(updateCompanyInfo, 10000);
   
   
 module.exports = {
