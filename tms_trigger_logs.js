@@ -67,6 +67,7 @@ function monitorDevice() {
             if (error) {
               console.error('Error updating status in tms_devices table: ', error);
             }
+            // console.log('updated status');
           });
         }
       });
@@ -77,10 +78,11 @@ function monitorDevice() {
             console.error('Error inserting the device data into tms_log: ', error);
             return;
           }
+          // console.log('inserted log values');
         });
       }
     });
   });
 }
 
-setInterval(monitorDevice, 20000);
+setInterval(monitorDevice, 2000);

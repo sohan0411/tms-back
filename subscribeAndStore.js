@@ -7,7 +7,7 @@ const dbOptions = {
   host: 'senselivedb.cn5vfllmzwrp.ap-south-1.rds.amazonaws.com',
   user: 'admin',
   password: 'sense!123',
-  database: 'tmp'
+  database: 'tms'
 };
 
 // MQTT broker details

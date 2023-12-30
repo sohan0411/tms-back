@@ -271,24 +271,6 @@ function getDataByTimeInterval(req, res) {
 
     let duration;
     switch (timeInterval) {
-      case '30sec':
-        duration = 'INTERVAL 30 SECOND';
-        break;
-      case '1min':
-        duration = 'INTERVAL 1 MINUTE';
-        break;
-      case '2min':
-        duration = 'INTERVAL 2 MINUTE';
-        break;
-      case '5min':
-        duration = 'INTERVAL 5 MINUTE';
-        break;
-      case '10min':
-        duration = 'INTERVAL 10 MINUTE';
-        break;
-      case '30min':
-        duration = 'INTERVAL 30 MINUTE';
-        break;
       case '1hour':
         duration = 'INTERVAL 1 HOUR';
         break;
@@ -314,7 +296,31 @@ function getDataByTimeInterval(req, res) {
         return res.status(400).json({ message: 'Invalid time interval' });
     }
 
-    const sql = `SELECT * FROM actual_data WHERE DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), ${duration})`;
+    const sql = `
+      SELECT
+        DeviceUID,
+        FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (10 * 60)) * (10 * 60)) AS bucket_start_time,
+        AVG(Temperature) AS average_temperature,
+        AVG(Humidity) AS average_humidity,
+        AVG(flowRate) AS average_flowRate,
+        AVG(totalVolume) AS average_totalVolume,
+        AVG(TemperatureR) AS average_temperatureR,
+        AVG(TemperatureB) AS average_temperatureB,
+        AVG(TemperatureY) AS average_temperatureY,
+        AVG(flowRate) AS average_flowRate,
+        AVG(totalVolume) AS average_totalVolume
+      FROM
+        actual_data
+      WHERE
+        DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), ${duration})
+      GROUP BY
+        DeviceUID,
+        bucket_start_time
+      ORDER BY
+        DeviceUID,
+        bucket_start_time;
+    `;
+
     db.query(sql, [deviceId], (error, results) => {
       if (error) {
         console.error('Error fetching data:', error);
@@ -327,6 +333,7 @@ function getDataByTimeInterval(req, res) {
     res.status(500).json({ message: 'Internal server error' });
   }
 }
+
 
 function getDataByTimeIntervalStatus(req, res) {
   const deviceId = req.params.deviceId;
