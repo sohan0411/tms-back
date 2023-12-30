@@ -300,15 +300,12 @@ function getDataByTimeInterval(req, res) {
       SELECT
         DeviceUID,
         FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (10 * 60)) * (10 * 60)) AS bucket_start_time,
-        AVG(Temperature) AS average_temperature,
-        AVG(Humidity) AS average_humidity,
-        AVG(flowRate) AS average_flowRate,
-        AVG(totalVolume) AS average_totalVolume,
-        AVG(TemperatureR) AS average_temperatureR,
-        AVG(TemperatureB) AS average_temperatureB,
-        AVG(TemperatureY) AS average_temperatureY,
-        AVG(flowRate) AS average_flowRate,
-        AVG(totalVolume) AS average_totalVolume
+        AVG(Temperature) AS Temperature,
+        AVG(Humidity) AS Humidity,
+        AVG(flowRate) AS flowRate,
+        AVG(TemperatureR) AS TemperatureR,
+        AVG(TemperatureB) AS TemperatureB,
+        AVG(TemperatureY) AS TemperatureY
       FROM
         actual_data
       WHERE
