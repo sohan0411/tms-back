@@ -1001,7 +1001,7 @@ function extractIPv4(ipv6MappedAddress) {
 
 function log(req, res, next) {
     const { method, url, body, ip } = req;
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date();
     const entity = body.userType || 'User';
     const entityName = body.companyName || 'SenseLive';
     const user = req.body.Username || req.body.companyEmail || 'N/A';
@@ -1014,7 +1014,7 @@ function log(req, res, next) {
   
     const logMessage = `${timestamp} | IP: ${ipv4Address} | Entity Type: ${entity} | Entity Name: ${entityName} | User: ${user} (${userType}) | Type: ${type} | Status: ${status} | Details: ${details}`;
   
-    db.query('INSERT INTO tmp.logs (timestamp, ip, entity_type, entity_name, username, user_type, request_type, status, details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    db.query('INSERT INTO logs (TimeStamp, ip, entity_type, entity_name, username, user_type, request_type, status, details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [timestamp, ipv4Address, entity, entityName, user, userType, type, status, details],
       function (error, results) {
         if (error) {
@@ -1032,7 +1032,7 @@ function monitorLogsAndLogCount() {
 
   const query = `
     SELECT COUNT(*) as requestCount
-    FROM tmp.logs
+    FROM logs
     WHERE timestamp >= ? AND timestamp <= ?;
   `;
 
