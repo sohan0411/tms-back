@@ -1,7 +1,14 @@
 const mqtt = require('mqtt');
 
 // MQTT broker URL
-const brokerUrl = 'mqtt://65.2.127.156:1883';
+// const brokerUrl = 'mqtt://65.2.127.156:1883';
+const brokerOptions = {
+  hostname: '65.2.127.156',
+  port: 8884,         // Make sure to use the correct port for WSS
+  protocol: 'wss',    // Use 'wss' for WebSocket Secure
+  username: 'senselive',
+  password: 'innovation',
+};
 
 function getRandomNumber(min, max) {
   return Math.random() * (max - min) + min;
@@ -51,10 +58,7 @@ function generateRandomData2(deviceId) {
   return JSON.stringify(data);
 }
 
-const client = mqtt.connect(brokerUrl,{
-  username: 'Sense2023',
-  password: 'sense123',
-});
+const client = mqtt.connect(brokerOptions);
 
 client.on('connect', () => {
   console.log('Connected to MQTT broker');

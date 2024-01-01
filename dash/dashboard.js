@@ -269,54 +269,151 @@ function getDataByTimeInterval(req, res) {
       return res.status(400).json({ message: 'Invalid time interval' });
     }
 
-    let duration;
+    let sql;
     switch (timeInterval) {
       case '1hour':
-        duration = 'INTERVAL 1 HOUR';
+        sql = `
+        SELECT
+          DeviceUID,
+          FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / 60) * 60) AS bucket_start_time,
+          AVG(Temperature) AS average_temperature,
+          AVG(Humidity) AS Humidity,
+          AVG(flowRate) AS average_flowRate,
+          AVG(TemperatureR) AS TemperatureR,
+          AVG(TemperatureB) AS TemperatureB,
+          AVG(TemperatureY) AS TemperatureY
+        FROM
+          actual_data
+        WHERE
+          DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+        GROUP BY
+          DeviceUID,
+          bucket_start_time
+        ORDER BY
+          DeviceUID,
+          bucket_start_time;`;
         break;
-      case '2hour':
-        duration = 'INTERVAL 2 HOUR';
-        break;
-      case '10hour':
-        duration = 'INTERVAL 10 HOUR';
-        break;
+
       case '12hour':
-        duration = 'INTERVAL 12 HOUR';
+        sql = `
+        SELECT
+          DeviceUID,
+          FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (2 * 60)) * (2 * 60)) AS bucket_start_time,
+          AVG(Temperature) AS average_temperature,
+          AVG(Humidity) AS Humidity,
+          AVG(flowRate) AS average_flowRate,
+          AVG(TemperatureR) AS TemperatureR,
+          AVG(TemperatureB) AS TemperatureB,
+          AVG(TemperatureY) AS TemperatureY
+        FROM
+          actual_data
+        WHERE
+          DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), INTERVAL 12 HOUR)
+        GROUP BY
+          DeviceUID,
+          bucket_start_time
+        ORDER BY
+          DeviceUID,
+          bucket_start_time;`;
         break;
+
       case '1day':
-        duration = 'INTERVAL 1 DAY';
+        sql = `
+        SELECT
+          DeviceUID,
+          FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (2 * 60)) * (2 * 60)) AS bucket_start_time,
+          AVG(Temperature) AS average_temperature,
+          AVG(Humidity) AS Humidity,
+          AVG(flowRate) AS average_flowRate,
+          AVG(TemperatureR) AS TemperatureR,
+          AVG(TemperatureB) AS TemperatureB,
+          AVG(TemperatureY) AS TemperatureY
+        FROM
+          actual_data
+        WHERE
+          DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), INTERVAL 1 DAY)
+        GROUP BY
+          DeviceUID,
+          bucket_start_time
+        ORDER BY
+          DeviceUID,
+          bucket_start_time;`;
         break;
+
       case '7day':
-        duration = 'INTERVAL 7 DAY';
+        sql = `
+        SELECT
+          DeviceUID,
+          FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (5 * 60)) * (5 * 60)) AS bucket_start_time,
+          AVG(Temperature) AS average_temperature,
+          AVG(Humidity) AS Humidity,
+          AVG(flowRate) AS average_flowRate,
+          AVG(TemperatureR) AS TemperatureR,
+          AVG(TemperatureB) AS TemperatureB,
+          AVG(TemperatureY) AS TemperatureY
+        FROM
+          actual_data
+        WHERE
+          DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        GROUP BY
+          DeviceUID,
+          bucket_start_time
+        ORDER BY
+          DeviceUID,
+          bucket_start_time;`;
         break;
+
       case '30day':
-        duration = 'INTERVAL 30 DAY';
+        sql = `
+        SELECT
+          DeviceUID,
+          FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (10 * 60)) * (10 * 60)) AS bucket_start_time,
+          AVG(Temperature) AS average_temperature,
+          AVG(Humidity) AS Humidity,
+          AVG(flowRate) AS average_flowRate,
+          AVG(TemperatureR) AS TemperatureR,
+          AVG(TemperatureB) AS TemperatureB,
+          AVG(TemperatureY) AS TemperatureY
+        FROM
+          actual_data
+        WHERE
+          DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        GROUP BY
+          DeviceUID,
+          bucket_start_time
+        ORDER BY
+          DeviceUID,
+          bucket_start_time;`;
         break;
+
       default:
         return res.status(400).json({ message: 'Invalid time interval' });
     }
 
-    const sql = `
-      SELECT
-        DeviceUID,
-        FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (10 * 60)) * (10 * 60)) AS bucket_start_time,
-        AVG(Temperature) AS Temperature,
-        AVG(Humidity) AS Humidity,
-        AVG(flowRate) AS flowRate,
-        AVG(TemperatureR) AS TemperatureR,
-        AVG(TemperatureB) AS TemperatureB,
-        AVG(TemperatureY) AS TemperatureY
-      FROM
-        actual_data
-      WHERE
-        DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), ${duration})
-      GROUP BY
-        DeviceUID,
-        bucket_start_time
-      ORDER BY
-        DeviceUID,
-        bucket_start_time;
-    `;
+    // const sql2 = `
+    //   SELECT
+    //     DeviceUID,
+    //     FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (10 * 60)) * (10 * 60)) AS bucket_start_time,
+    //     AVG(Temperature) AS average_temperature,
+    //     AVG(Humidity) AS average_humidity,
+    //     AVG(flowRate) AS average_flowRate,
+    //     AVG(totalVolume) AS average_totalVolume,
+    //     AVG(TemperatureR) AS average_temperatureR,
+    //     AVG(TemperatureB) AS average_temperatureB,
+    //     AVG(TemperatureY) AS average_temperatureY,
+    //     AVG(flowRate) AS average_flowRate,
+    //     AVG(totalVolume) AS average_totalVolume
+    //   FROM
+    //     actual_data
+    //   WHERE
+    //     DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), ${duration})
+    //   GROUP BY
+    //     DeviceUID,
+    //     bucket_start_time
+    //   ORDER BY
+    //     DeviceUID,
+    //     bucket_start_time;
+    // `;
 
     db.query(sql, [deviceId], (error, results) => {
       if (error) {
@@ -1013,6 +1110,104 @@ function getTotalVolumeForMonthEmail(req, res) {
     res.status(500).json({ message: 'Internal server error' });
   }
 }
+
+// function getTotalVolumeForDuration(req, res) {
+//   const { deviceId } = req.params;
+//   const { duration } = req.query;
+
+//   try {
+//     const durationData = [];
+//     let currentDate = new Date();
+//     let loopLimit;
+
+//     switch (duration) {
+//       case '30sec':
+//         loopLimit = 1;
+//         break;
+//       case '1min':
+//         loopLimit = 1;
+//         break;
+//       case '2min':
+//         loopLimit = 1;
+//         break;
+//       case '5min':
+//         loopLimit = 1;
+//         break;
+//       case '10min':
+//         loopLimit = 1;
+//         break;
+//       case '30min':
+//         loopLimit = 1;
+//         break;
+//       case '1hour':
+//         loopLimit = 1;
+//         break;
+//       case '2hour':
+//         loopLimit = 1;
+//         break;
+//       case '10hour':
+//         loopLimit = 1;
+//         break;
+//       case '12hour':
+//         loopLimit = 1;
+//         break;
+//       case '1day':
+//         loopLimit = 1;
+//         break;
+//       case '7day':
+//         loopLimit = 7;
+//         break;
+//       case '30day':
+//         loopLimit = 30;
+//         break;
+//       default:
+//         return res.status(400).json({ message: 'Invalid duration parameter' });
+//     }
+
+//     for (let i = 0; i < loopLimit; i++) {
+//       const formattedDate = currentDate.toISOString().split('T')[0];
+
+//       const fetchFirstEntryQuery = 'SELECT * FROM actual_data WHERE DeviceUID = ? AND DATE(TimeStamp) = ? ORDER BY EntryID ASC LIMIT 1';
+//       const fetchLatestEntryQuery = 'SELECT * FROM actual_data WHERE DeviceUID = ? AND DATE(TimeStamp) = ? ORDER BY EntryID DESC LIMIT 1';
+
+//       const handleResult = (error, result) => {
+//         if (error) {
+//           console.error('Error while fetching data:', error);
+//           return 0;
+//         }
+//         return result.length > 0 ? result[0].totalVolume : 0;
+//       };
+
+//       db.query(fetchFirstEntryQuery, [deviceId, formattedDate], (fetchFirstError, fetchFirstResult) => {
+//         if (fetchFirstError) {
+//           console.error('Error while fetching the first entry:', fetchFirstError);
+//           return res.status(500).json({ message: 'Internal server error' });
+//         }
+
+//         db.query(fetchLatestEntryQuery, [deviceId, formattedDate], (fetchLatestError, fetchLatestResult) => {
+//           if (fetchLatestError) {
+//             console.error('Error while fetching the latest entry:', fetchLatestError);
+//             return res.status(500).json({ message: 'Internal server error' });
+//           }
+
+//           const dailyConsumption = handleResult(fetchLatestError, fetchLatestResult) - handleResult(fetchFirstError, fetchFirstResult);
+
+//           durationData.push({ date: formattedDate, consumption: dailyConsumption });
+
+//           if (durationData.length === loopLimit) {
+//             const totalConsumption = durationData.reduce((sum, entry) => sum + entry.consumption, 0);
+//             return res.json({ total: totalConsumption, daily: durationData });
+//           }
+//         });
+//       });
+
+//       currentDate.setDate(currentDate.getDate() - 1);
+//     }
+//   } catch (error) {
+//     console.error('Error in device retrieval:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// }
 
 function getTotalVolumeForDuration(req, res) {
   const { deviceId } = req.params;
