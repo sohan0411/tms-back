@@ -269,52 +269,127 @@ function getDataByTimeInterval(req, res) {
       return res.status(400).json({ message: 'Invalid time interval' });
     }
 
-    let duration;
+    let sql;
     switch (timeInterval) {
-      case '30sec':
-        duration = 'INTERVAL 30 SECOND';
-        break;
-      case '1min':
-        duration = 'INTERVAL 1 MINUTE';
-        break;
-      case '2min':
-        duration = 'INTERVAL 2 MINUTE';
-        break;
-      case '5min':
-        duration = 'INTERVAL 5 MINUTE';
-        break;
-      case '10min':
-        duration = 'INTERVAL 10 MINUTE';
-        break;
-      case '30min':
-        duration = 'INTERVAL 30 MINUTE';
-        break;
       case '1hour':
-        duration = 'INTERVAL 1 HOUR';
+        sql = `
+        SELECT
+          DeviceUID,
+          FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / 60) * 60) AS bucket_start_time,
+          AVG(Temperature) AS Temperature,
+          AVG(Humidity) AS Humidity,
+          AVG(flowRate) AS flowRate,
+          AVG(TemperatureR) AS TemperatureR,
+          AVG(TemperatureB) AS TemperatureB,
+          AVG(TemperatureY) AS TemperatureY
+        FROM
+          actual_data
+        WHERE
+          DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+        GROUP BY
+          DeviceUID,
+          bucket_start_time
+        ORDER BY
+          DeviceUID,
+          bucket_start_time;`;
         break;
-      case '2hour':
-        duration = 'INTERVAL 2 HOUR';
-        break;
-      case '10hour':
-        duration = 'INTERVAL 10 HOUR';
-        break;
+
       case '12hour':
-        duration = 'INTERVAL 12 HOUR';
+        sql = `
+        SELECT
+          DeviceUID,
+          FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (2 * 60)) * (2 * 60)) AS bucket_start_time,
+          AVG(Temperature) AS Temperature,
+          AVG(Humidity) AS Humidity,
+          AVG(flowRate) AS flowRate,
+          AVG(TemperatureR) AS TemperatureR,
+          AVG(TemperatureB) AS TemperatureB,
+          AVG(TemperatureY) AS TemperatureY
+        FROM
+          actual_data
+        WHERE
+          DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), INTERVAL 12 HOUR)
+        GROUP BY
+          DeviceUID,
+          bucket_start_time
+        ORDER BY
+          DeviceUID,
+          bucket_start_time;`;
         break;
+
       case '1day':
-        duration = 'INTERVAL 1 DAY';
+        sql = `
+        SELECT
+          DeviceUID,
+          FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (2 * 60)) * (2 * 60)) AS bucket_start_time,
+          AVG(Temperature) AS Temperature,
+          AVG(Humidity) AS Humidity,
+          AVG(flowRate) AS flowRate,
+          AVG(TemperatureR) AS TemperatureR,
+          AVG(TemperatureB) AS TemperatureB,
+          AVG(TemperatureY) AS TemperatureY
+        FROM
+          actual_data
+        WHERE
+          DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), INTERVAL 1 DAY)
+        GROUP BY
+          DeviceUID,
+          bucket_start_time
+        ORDER BY
+          DeviceUID,
+          bucket_start_time;`;
         break;
+
       case '7day':
-        duration = 'INTERVAL 7 DAY';
+        sql = `
+        SELECT
+          DeviceUID,
+          FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (5 * 60)) * (5 * 60)) AS bucket_start_time,
+          AVG(Temperature) AS Temperature,
+          AVG(Humidity) AS Humidity,
+          AVG(flowRate) AS flowRate,
+          AVG(TemperatureR) AS TemperatureR,
+          AVG(TemperatureB) AS TemperatureB,
+          AVG(TemperatureY) AS TemperatureY
+        FROM
+          actual_data
+        WHERE
+          DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        GROUP BY
+          DeviceUID,
+          bucket_start_time
+        ORDER BY
+          DeviceUID,
+          bucket_start_time;`;
         break;
+
       case '30day':
-        duration = 'INTERVAL 30 DAY';
+        sql = `
+        SELECT
+          DeviceUID,
+          FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (10 * 60)) * (10 * 60)) AS bucket_start_time,
+          AVG(Temperature) AS Temperature,
+          AVG(Humidity) AS Humidity,
+          AVG(flowRate) AS flowRate,
+          AVG(TemperatureR) AS TemperatureR,
+          AVG(TemperatureB) AS TemperatureB,
+          AVG(TemperatureY) AS TemperatureY
+        FROM
+          actual_data
+        WHERE
+          DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        GROUP BY
+          DeviceUID,
+          bucket_start_time
+        ORDER BY
+          DeviceUID,
+          bucket_start_time;`;
         break;
+
       default:
         return res.status(400).json({ message: 'Invalid time interval' });
     }
 
-    const sql = `SELECT * FROM actual_data WHERE DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), ${duration})`;
     db.query(sql, [deviceId], (error, results) => {
       if (error) {
         console.error('Error fetching data:', error);
@@ -327,6 +402,7 @@ function getDataByTimeInterval(req, res) {
     res.status(500).json({ message: 'Internal server error' });
   }
 }
+
 
 function getDataByTimeIntervalStatus(req, res) {
   const deviceId = req.params.deviceId;
