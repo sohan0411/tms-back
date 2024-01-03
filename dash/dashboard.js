@@ -511,7 +511,6 @@ function avg_interval(req,res){
       break;
     default:
       res.status(400).json({ message: 'Invalid time interval' });
-
     }
     const fetchbucketavgquery = `SELECT
     CONCAT(SUBSTR(DATE_FORMAT(TimeStamp, '%y-%m-%d %H.%i'), 1, 13), '0.00') AS bucket_start,
