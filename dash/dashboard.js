@@ -408,21 +408,50 @@ function getDataByTimeIntervalStatus(req, res) {
 
 function avg_interval(req,res){
   const id = req.params.id;
-  const fetchbucketavgquery = `SELECT
-  CONCAT(SUBSTR(DATE_FORMAT(TimeStamp, '%y-%m-%d %H.%i'), 1, 13), '0.00') AS bucket_start,
-  CONCAT(SUBSTR(DATE_FORMAT(TimeStamp, '%y-%m-%d %H.%i'), 1, 13), '9.59') AS bucket_end,
-  COUNT(*) AS count_bucket,
-  AVG(TemperatureR) as avg_temp_R,
-  AVG(TemperatureY) as avg_temp_Y,
-  AVG(TemperatureB) as avg_temp_B
-FROM
-  actual_data
-WHERE
-  DeviceUID=?
-GROUP BY
-  bucket_start,bucket_end
-ORDER BY
-  bucket_start`;    
+  const timeInterval = req.params.interval;
+  if (!timeInterval) {
+    return res.status(400).json({ message: 'Invalid time interval' });
+  }  
+  let duration;
+  switch (timeInterval) {
+
+    case '1hour':
+      duration = 'INTERVAL 1 HOUR';
+      break;
+    case '12hour':
+      duration = 'INTERVAL 12 HOUR';
+      break;
+    case '24hour':
+      duration = 'INTERVAL 24 HOUR';
+      break;
+    case '1day':
+      duration = 'INTERVAL 1 DAY';
+      break;
+    case '7day':
+      duration = 'INTERVAL 7 DAY';
+      break;
+    case '30day':
+      duration = 'INTERVAL 30 DAY';
+      break;
+    default:
+      res.status(400).json({ message: 'Invalid time interval' });
+
+    }
+    const fetchbucketavgquery = `SELECT
+    CONCAT(SUBSTR(DATE_FORMAT(TimeStamp, '%y-%m-%d %H.%i'), 1, 13), '0.00') AS bucket_start,
+    CONCAT(SUBSTR(DATE_FORMAT(TimeStamp, '%y-%m-%d %H.%i'), 1, 13), '9.59') AS bucket_end,
+    COUNT(*) AS count_bucket,
+    AVG(TemperatureR) as avg_temp_R,
+    AVG(TemperatureY) as avg_temp_Y,
+    AVG(TemperatureB) as avg_temp_B
+  FROM
+    actual_data
+  WHERE
+    DeviceUID=? AND TimeStamp >= DATE_SUB(NOW(), ${duration})
+  GROUP BY
+    bucket_start,bucket_end
+  ORDER BY
+    bucket_start`;    
 
   try{
       db.query(fetchbucketavgquery,[id],(fetchavgError,fetchavgResult) => {
