@@ -1,7 +1,10 @@
 const db = require('./db');
 
 function monitorDevice() {
-  const selectTriggerQuery = 'SELECT tms_devices.DeviceUID, tms_trigger.TriggerValue FROM tms_trigger JOIN tms_devices ON tms_trigger.DeviceUID = tms_devices.DeviceUID';
+  const selectTriggerQuery = `SELECT tms_devices.DeviceUID, tms_trigger.TriggerValue
+                              FROM tms_trigger USE INDEX (trigger_index) 
+                              JOIN tms_devices USE INDEX (device_index) 
+                              ON tms_trigger.DeviceUID = tms_devices.DeviceUID`;
 
   db.query(selectTriggerQuery, (error, triggerResults) => {
     if (error) {
@@ -33,10 +36,12 @@ function monitorDevice() {
       }
 
       const insertLogQuery = 'INSERT INTO tms_trigger_logs (DeviceUID, Temperature, Humidity,  TemperatureR, TemperatureY, TemperatureB, TimeStamp, Status) VALUES ?';
-      const insertLogValues = [];
+      //const insertLogValues = [];
+      
       const currentTimestamp = new Date().toISOString();
 
-      deviceData.forEach((device) => {
+      // deviceData.forEach((device) => {
+      const insertLogValues = deviceData.map((device) => {  
         const latestData = latestDataResults.find((data) => data.DeviceUID === device.DeviceUID);
 
         if (latestData) {
@@ -50,25 +55,28 @@ function monitorDevice() {
 
           if (isDeviceOnline) {
             if (Temperature > device.TriggerValue || TemperatureR > device.TriggerValue || TemperatureY > device.TriggerValue || TemperatureB > device.TriggerValue ) {
-              insertLogValues.push([DeviceUID, Temperature, Humidity, TemperatureR, TemperatureY, TemperatureB, currentTimestamp, 'heating']);
               status = 'heating';
+              return [DeviceUID,Temperature,Humidity,TemperatureR,TemperatureY,TemperatureB,currentTimestamp,'heating'];
+              // insertLogValues.push([DeviceUID, Temperature, Humidity, TemperatureR, TemperatureY, TemperatureB, currentTimestamp, 'heating']);
             } else {
-              insertLogValues.push([DeviceUID, Temperature, Humidity, TemperatureR, TemperatureY, TemperatureB, currentTimestamp, 'online']);
+              // insertLogValues.push([DeviceUID, Temperature, Humidity, TemperatureR, TemperatureY, TemperatureB, currentTimestamp, 'online']);
               status = 'online';
+              return [DeviceUID,Temperature,Humidity,TemperatureR,TemperatureY,TemperatureB,currentTimestamp,'online'];
             }
           } else {
-            insertLogValues.push([DeviceUID, Temperature, Humidity, TemperatureR, TemperatureY, TemperatureB, currentTimestamp, 'offline']);
+            // insertLogValues.push([DeviceUID, Temperature, Humidity, TemperatureR, TemperatureY, TemperatureB, currentTimestamp, 'offline']);
             status = 'offline';
+            return [DeviceUID,Temperature,Humidity,TemperatureR,TemperatureY,TemperatureB,currentTimestamp,'offline'];
           }
 
-          // Update status in 'tms_devices' table
-          const updateStatusQueryTMS = 'UPDATE tms_devices SET Status = ? WHERE DeviceUID = ?';
-          db.query(updateStatusQueryTMS, [status, DeviceUID], (error) => {
-            if (error) {
-              console.error('Error updating status in tms_devices table: ', error);
-            }
-            // console.log('updated status');
-          });
+          // // Update status in 'tms_devices' table
+          // const updateStatusQueryTMS = 'UPDATE tms_devices SET Status = ? WHERE DeviceUID = ?';
+          // db.query(updateStatusQueryTMS, [status, DeviceUID], (error) => {
+          //   if (error) {
+          //     console.error('Error updating status in tms_devices table: ', error);
+          //   }
+          //   // console.log('updated status');
+          // });
         }
       });
 
@@ -78,11 +86,33 @@ function monitorDevice() {
             console.error('Error inserting the device data into tms_log: ', error);
             return;
           }
-          // console.log('inserted log values');
+          //console.log('inserted log values');
         });
       }
+
+      // const updateStatusQueryTMS = 'UPDATE tms_devices SET Status = ? WHERE DeviceUID = ?';
+      // db.query(updateStatusQueryTMS, [status, DeviceUID], (error) => {
+      //   if (error) {
+      //     console.error('Error updating status in tms_devices table: ', error);
+      //   }
+      //   // console.log('updated status');
+      // });
+
+      deviceData.forEach((device) => {
+        const latestData = latestDataResults.find((data) => data.DeviceUID === device.DeviceUID);
+        const status = latestData ? (isDeviceOnline ? 'online' : 'offline') : '';
+    
+        const updateStatusQueryTMS = 'UPDATE tms_devices SET Status = ? WHERE DeviceUID = ?';
+        db.query(updateStatusQueryTMS, [status, device.DeviceUID], (error) => {
+            if (error) {
+                console.error('Error updating status in tms_devices table: ', error);
+            }
+            console.log('updated status');
+        });
+    });
+      
     });
   });
 }
 
-setInterval(monitorDevice, 2000);
+setInterval(monitorDevice, 20000);
