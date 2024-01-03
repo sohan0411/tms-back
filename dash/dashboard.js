@@ -543,7 +543,26 @@ function getDataByCustomDate(req, res) {
       return res.status(400).json({ message: 'Invalid parameters' });
     }
 
-    const sql = `SELECT * FROM actual_data WHERE DeviceUID = ? AND TimeStamp >= ? AND TimeStamp <= ?`;
+    const sql = `SELECT
+          DeviceUID,
+          FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (30 * 60)) * (30 * 60)) AS bucket_start_time,
+          AVG(Temperature) AS Temperature,
+          AVG(Humidity) AS Humidity,
+          AVG(flowRate) AS flowRate,
+          AVG(TemperatureR) AS TemperatureR,
+          AVG(TemperatureB) AS TemperatureB,
+          AVG(TemperatureY) AS TemperatureY
+        FROM
+          actual_data
+        WHERE
+          DeviceUID = ? AND TimeStamp >= ? AND TimeStamp <= ?
+        GROUP BY
+          DeviceUID,
+          bucket_start_time
+        ORDER BY
+          DeviceUID,
+          bucket_start_time`;
+    const sql2 = `SELECT * FROM actual_data WHERE DeviceUID = ? AND TimeStamp >= ? AND TimeStamp <= ?`;
     db.query(sql, [deviceId, startDate + 'T00:00:00.000Z', endDate + 'T23:59:59.999Z'], (error, results) => {
       if (error) {
         console.error('Error fetching data:', error);
