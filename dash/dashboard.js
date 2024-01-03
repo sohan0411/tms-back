@@ -1,13 +1,5 @@
 const bcrypt = require('bcrypt');
 const db = require('../db');
-const jwtUtils = require('../token/jwtUtils');
-const CircularJSON = require('circular-json');
-const secure = require('../token/secure');
-const nodemailer = require('nodemailer');
-const fs = require('fs');
-const path = require('path');
-const ejs = require('ejs');
-
 
 function userDevices(req, res) {
   const companyEmail = req.params.companyEmail;
@@ -276,9 +268,9 @@ function getDataByTimeInterval(req, res) {
         SELECT
           DeviceUID,
           FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / 60) * 60) AS bucket_start_time,
-          AVG(Temperature) AS average_temperature,
+          AVG(Temperature) AS Temperature,
           AVG(Humidity) AS Humidity,
-          AVG(flowRate) AS average_flowRate,
+          AVG(flowRate) AS flowRate,
           AVG(TemperatureR) AS TemperatureR,
           AVG(TemperatureB) AS TemperatureB,
           AVG(TemperatureY) AS TemperatureY
@@ -299,9 +291,9 @@ function getDataByTimeInterval(req, res) {
         SELECT
           DeviceUID,
           FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (2 * 60)) * (2 * 60)) AS bucket_start_time,
-          AVG(Temperature) AS average_temperature,
+          AVG(Temperature) AS Temperature,
           AVG(Humidity) AS Humidity,
-          AVG(flowRate) AS average_flowRate,
+          AVG(flowRate) AS flowRate,
           AVG(TemperatureR) AS TemperatureR,
           AVG(TemperatureB) AS TemperatureB,
           AVG(TemperatureY) AS TemperatureY
@@ -322,9 +314,9 @@ function getDataByTimeInterval(req, res) {
         SELECT
           DeviceUID,
           FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (2 * 60)) * (2 * 60)) AS bucket_start_time,
-          AVG(Temperature) AS average_temperature,
+          AVG(Temperature) AS Temperature,
           AVG(Humidity) AS Humidity,
-          AVG(flowRate) AS average_flowRate,
+          AVG(flowRate) AS flowRate,
           AVG(TemperatureR) AS TemperatureR,
           AVG(TemperatureB) AS TemperatureB,
           AVG(TemperatureY) AS TemperatureY
@@ -345,9 +337,9 @@ function getDataByTimeInterval(req, res) {
         SELECT
           DeviceUID,
           FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (5 * 60)) * (5 * 60)) AS bucket_start_time,
-          AVG(Temperature) AS average_temperature,
+          AVG(Temperature) AS Temperature,
           AVG(Humidity) AS Humidity,
-          AVG(flowRate) AS average_flowRate,
+          AVG(flowRate) AS flowRate,
           AVG(TemperatureR) AS TemperatureR,
           AVG(TemperatureB) AS TemperatureB,
           AVG(TemperatureY) AS TemperatureY
@@ -368,9 +360,9 @@ function getDataByTimeInterval(req, res) {
         SELECT
           DeviceUID,
           FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (10 * 60)) * (10 * 60)) AS bucket_start_time,
-          AVG(Temperature) AS average_temperature,
+          AVG(Temperature) AS Temperature,
           AVG(Humidity) AS Humidity,
-          AVG(flowRate) AS average_flowRate,
+          AVG(flowRate) AS flowRate,
           AVG(TemperatureR) AS TemperatureR,
           AVG(TemperatureB) AS TemperatureB,
           AVG(TemperatureY) AS TemperatureY
@@ -389,31 +381,6 @@ function getDataByTimeInterval(req, res) {
       default:
         return res.status(400).json({ message: 'Invalid time interval' });
     }
-
-    // const sql2 = `
-    //   SELECT
-    //     DeviceUID,
-    //     FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (10 * 60)) * (10 * 60)) AS bucket_start_time,
-    //     AVG(Temperature) AS average_temperature,
-    //     AVG(Humidity) AS average_humidity,
-    //     AVG(flowRate) AS average_flowRate,
-    //     AVG(totalVolume) AS average_totalVolume,
-    //     AVG(TemperatureR) AS average_temperatureR,
-    //     AVG(TemperatureB) AS average_temperatureB,
-    //     AVG(TemperatureY) AS average_temperatureY,
-    //     AVG(flowRate) AS average_flowRate,
-    //     AVG(totalVolume) AS average_totalVolume
-    //   FROM
-    //     actual_data
-    //   WHERE
-    //     DeviceUID = ? AND TimeStamp >= DATE_SUB(NOW(), ${duration})
-    //   GROUP BY
-    //     DeviceUID,
-    //     bucket_start_time
-    //   ORDER BY
-    //     DeviceUID,
-    //     bucket_start_time;
-    // `;
 
     db.query(sql, [deviceId], (error, results) => {
       if (error) {
