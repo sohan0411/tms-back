@@ -56,6 +56,7 @@ router.delete('/delete-device/:deviceUID', dashboard.deleteDevice);
 router.put('/edit-User/:userId', dashboard.editUser);
 
 router.get('/avginterval/:id/:interval',dashboard.avg_interval);
+router.get('/FetchTodayConsumption/:deviceId', dashboard.fetchDeviceTotal);
 
 //SA
 router.get('/fetchAllDevices', SA.fetchAllDevices);
