@@ -536,8 +536,8 @@ function avg_interval(req,res){
 function getDataByCustomDate(req, res) {
   try {
     const deviceId = req.params.deviceId;
-    const startDate = req.query.start;
-    const endDate = req.query.end;
+    const {startDate,endDate} = req.body;
+    // const endDate = req.body;
 
     if (!startDate || !endDate) {
       return res.status(400).json({ message: 'Invalid parameters' });
@@ -563,17 +563,17 @@ function getDataByCustomDate(req, res) {
           DeviceUID,
           bucket_start_time`;
     const sql2 = `SELECT * FROM actual_data WHERE DeviceUID = ? AND TimeStamp >= ? AND TimeStamp <= ?`;
-    db.query(sql, [deviceId, startDate + 'T00:00:00.000Z', endDate + 'T23:59:59.999Z'], (error, results) => {
-      if (error) {
-        console.error('Error fetching data:', error);
-        return res.status(500).json({ message: 'Internal server error' });
+    db.query(sql, [deviceId, startDate + 'T00:00:00.000Z', endDate + 'T23:59:59.999Z'], (fetchError, results) => {
+      if (fetchError) {
+        // console.error('Error fetching data:', error);
+        return res.status(401).json({ message: 'Error while fetching data',fetchError });
       }
 
       res.json({ data: results });
     });
   } catch (error) {
-    console.error('An error occurred:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    // console.error('An error occurred:', error);
+    res.status(500).json({ message: 'Internal server error',error });
   }
 }
 
