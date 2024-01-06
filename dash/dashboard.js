@@ -268,12 +268,12 @@ function getDataByTimeInterval(req, res) {
         SELECT
           DeviceUID,
           FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / 60) * 60) AS bucket_start_time,
-          AVG(Temperature) AS Temperature,
-          AVG(Humidity) AS Humidity,
-          AVG(flowRate) AS flowRate,
-          AVG(TemperatureR) AS TemperatureR,
-          AVG(TemperatureB) AS TemperatureB,
-          AVG(TemperatureY) AS TemperatureY
+          ROUND(AVG(Temperature), 1) AS Temperature,
+          ROUND(AVG(Humidity), 1) AS Humidity,
+          ROUND(AVG(flowRate), 1) AS flowRate,
+          ROUND(AVG(TemperatureR), 1) AS TemperatureR,
+          ROUND(AVG(TemperatureB), 1) AS TemperatureB,
+          ROUND(AVG(TemperatureY), 1) AS TemperatureY
         FROM
           actual_data
         WHERE
@@ -291,12 +291,12 @@ function getDataByTimeInterval(req, res) {
         SELECT
           DeviceUID,
           FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (2 * 60)) * (2 * 60)) AS bucket_start_time,
-          AVG(Temperature) AS Temperature,
-          AVG(Humidity) AS Humidity,
-          AVG(flowRate) AS flowRate,
-          AVG(TemperatureR) AS TemperatureR,
-          AVG(TemperatureB) AS TemperatureB,
-          AVG(TemperatureY) AS TemperatureY
+          ROUND(AVG(Temperature), 1) AS Temperature,
+          ROUND(AVG(Humidity), 1) AS Humidity,
+          ROUND(AVG(flowRate), 1) AS flowRate,
+          ROUND(AVG(TemperatureR), 1) AS TemperatureR,
+          ROUND(AVG(TemperatureB), 1) AS TemperatureB,
+          ROUND(AVG(TemperatureY), 1) AS TemperatureY
         FROM
           actual_data
         WHERE
@@ -314,12 +314,12 @@ function getDataByTimeInterval(req, res) {
         SELECT
           DeviceUID,
           FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (2 * 60)) * (2 * 60)) AS bucket_start_time,
-          AVG(Temperature) AS Temperature,
-          AVG(Humidity) AS Humidity,
-          AVG(flowRate) AS flowRate,
-          AVG(TemperatureR) AS TemperatureR,
-          AVG(TemperatureB) AS TemperatureB,
-          AVG(TemperatureY) AS TemperatureY
+          ROUND(AVG(Temperature), 1) AS Temperature,
+          ROUND(AVG(Humidity), 1) AS Humidity,
+          ROUND(AVG(flowRate), 1) AS flowRate,
+          ROUND(AVG(TemperatureR), 1) AS TemperatureR,
+          ROUND(AVG(TemperatureB), 1) AS TemperatureB,
+          ROUND(AVG(TemperatureY), 1) AS TemperatureY
         FROM
           actual_data
         WHERE
@@ -337,12 +337,12 @@ function getDataByTimeInterval(req, res) {
         SELECT
           DeviceUID,
           FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (5 * 60)) * (5 * 60)) AS bucket_start_time,
-          AVG(Temperature) AS Temperature,
-          AVG(Humidity) AS Humidity,
-          AVG(flowRate) AS flowRate,
-          AVG(TemperatureR) AS TemperatureR,
-          AVG(TemperatureB) AS TemperatureB,
-          AVG(TemperatureY) AS TemperatureY
+          ROUND(AVG(Temperature), 1) AS Temperature,
+          ROUND(AVG(Humidity), 1) AS Humidity,
+          ROUND(AVG(flowRate), 1) AS flowRate,
+          ROUND(AVG(TemperatureR), 1) AS TemperatureR,
+          ROUND(AVG(TemperatureB), 1) AS TemperatureB,
+          ROUND(AVG(TemperatureY), 1) AS TemperatureY
         FROM
           actual_data
         WHERE
@@ -359,13 +359,13 @@ function getDataByTimeInterval(req, res) {
         sql = `
         SELECT
           DeviceUID,
-          FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (10 * 60)) * (10 * 60)) AS bucket_start_time,
-          AVG(Temperature) AS Temperature,
-          AVG(Humidity) AS Humidity,
-          AVG(flowRate) AS flowRate,
-          AVG(TemperatureR) AS TemperatureR,
-          AVG(TemperatureB) AS TemperatureB,
-          AVG(TemperatureY) AS TemperatureY
+          FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(TimeStamp) / (30 * 60)) * (30 * 60)) AS bucket_start_time,
+          ROUND(AVG(Temperature), 1) AS Temperature,
+          ROUND(AVG(Humidity), 1) AS Humidity,
+          ROUND(AVG(flowRate), 1) AS flowRate,
+          ROUND(AVG(TemperatureR), 1) AS TemperatureR,
+          ROUND(AVG(TemperatureB), 1) AS TemperatureB,
+          ROUND(AVG(TemperatureY), 1) AS TemperatureY
         FROM
           actual_data
         WHERE
@@ -644,7 +644,7 @@ function getLiveStatusDetails(req, res) {
 
     // Validate the deviceId parameter if necessary
 
-    const liveStatusQuery = 'SELECT * FROM tms_trigger_logs WHERE DeviceUID = ? ORDER BY TimeStamp DESC LIMIT 1';
+    const liveStatusQuery = 'SELECT * FROM actual_data WHERE DeviceUID = ? ORDER BY TimeStamp DESC LIMIT 1';
     db.query(liveStatusQuery, [deviceId], (error, liveStatus) => {
       if (error) {
         console.error('Error fetching data:', error);
@@ -1449,6 +1449,27 @@ function fetchLatestEntry(req, res) {
   });
 }
 
+
+function fetchDeviceTotal(req, res){
+ const deviceId = req.params.deviceId;
+ const deviceQuery = 'select * from tms_Day_Consumption where DeviceUID = ? AND (TimeStamp) = CURDATE()';
+   try {
+     db.query(deviceQuery, [deviceId], (error, deviceResult) => {
+       if (error) {
+         console.error('Error during device check:', error);
+         return res.status(500).json({ message: 'Internal server error' });
+       }
+
+       res.status(200).json(deviceResult);
+     });
+   } catch (error) {
+     console.error('Error in device check:', error);
+     res.status(500).json({ message: 'Internal server error' });
+   }
+}
+
+
+
 module.exports = {
   userDevices,
   editDevice,
@@ -1483,5 +1504,6 @@ module.exports = {
   deleteDevice,
   editUser,
   fetchLatestEntry,
-  avg_interval
+  avg_interval,
+  fetchDeviceTotal
 };
