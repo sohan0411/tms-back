@@ -10,12 +10,13 @@ const accountSid = 'ACb8754fe2a8a8139f772c8681da354639';
 const authToken = '42fdd26013e50a0b3c5495f3bd26825e';
 const twilioPhoneNumber = '+18148134128';
 const twilioClient = twilio(accountSid, authToken);
+require('dotenv').config();
 
 const dbConfig = {
-  host: 'senselivedb.cn5vfllmzwrp.ap-south-1.rds.amazonaws.com',
-  user: 'admin',
-  password: 'sense!123',
-  database: 'tmp',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 };
 
 const previousDeviceStates = {};
@@ -159,6 +160,6 @@ function renderEmailTemplate(devices) {
   return ejs.render(template, { devices });
 }
 
-setInterval(checkState, 1000);
+// setInterval(checkState, 1000);
 
 module.exports = { checkState, renderEmailTemplate };
