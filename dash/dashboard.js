@@ -536,7 +536,9 @@ function avg_interval(req,res){
 function getDataByCustomDate(req, res) {
   try {
     const deviceId = req.params.deviceId;
-    const {startDate,endDate} = req.body;
+    const startDate = req.query.start;
+    const endDate = req.query.end;
+
     // const endDate = req.body;
 
     if (!startDate || !endDate) {
