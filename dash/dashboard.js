@@ -1303,10 +1303,12 @@ function getTotalVolumeForDuration(req, res) {
 
   try {
 
+    let duration2;
     let duration;
     switch (interval) {
       case '30sec':
         duration = 'INTERVAL 1 DAY';
+        duration2 = '12:00:0000';
         break;
       case '1min':
         duration = 'INTERVAL 1 DAY';
