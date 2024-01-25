@@ -47,7 +47,19 @@ const mqttClient = mqtt.connect(broker,options);
 mqttClient.on('connect', () => {
   //console.log('Connected to MQTT broker');
 
-  for (let i = 1; i <= 62; i++) {
+  for (let i = 1; i <= 9; i++) {
+    const deviceId = `SL0220230${i}`;
+    const topic = `Sense/Live/${deviceId}`;
+    mqttClient.subscribe(topic, (error) => {
+      if (error) {
+        console.error(`Error subscribing to ${topic}:`, error);
+      } else {
+       console.log(`Subscribed to ${topic}`);
+      }
+    });
+  }
+
+  for (let i = 10; i <= 62; i++) {
     const deviceId = `SL022023${i}`;
     const topic = `Sense/Live/${deviceId}`;
     mqttClient.subscribe(topic, (error) => {
