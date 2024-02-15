@@ -3,7 +3,8 @@ const mysql = require('mysql2');
 const os = require('os');
 
 // MQTT broker URL
-const broker = 'ws://dashboard.senselive.in:9001';
+//const broker = 'ws://dashboard.senselive.in:9001';
+const broker = 'ws://65.2.127.156:9001';
 
 // MySQL configuration
 const mysqlConfig = {
@@ -46,6 +47,18 @@ const mqttClient = mqtt.connect(broker,options);
 mqttClient.on('connect', () => {
   //console.log('Connected to MQTT broker');
 
+  for (let i = 1; i <= 9; i++) {
+    const deviceId = `SL0220230${i}`;
+    const topic = `Sense/Live/${deviceId}`;
+    mqttClient.subscribe(topic, (error) => {
+      if (error) {
+        console.error(`Error subscribing to ${topic}:`, error);
+      } else {
+       console.log(`Subscribed to ${topic}`);
+      }
+    });
+  }
+
   for (let i = 10; i <= 62; i++) {
     const deviceId = `SL022023${i}`;
     const topic = `Sense/Live/${deviceId}`;
@@ -86,7 +99,7 @@ mqttClient.on('message', (topic, message) => {
       if (error) {
         console.error('Error inserting data into MySQL:', error);
       } else {
-      //console.log('Data inserted into MySQL');
+      console.log('Data inserted into MySQL');
       }
     });
   } catch (error) {
