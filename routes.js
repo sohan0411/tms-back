@@ -92,4 +92,10 @@ router.get('/notification', SA.notification);
 
 
 
+//tms_trigger_CRUD
+router.get('/getData/:CompanyEmail',dashboard.getTriggerData);
+router.post('/insertData',dashboard.enteruser);
+router.put('/updatedata/:CompanyEmail',dashboard.updateuser);
+router.delete('/deletetrigger/:CompanyEmail',dashboard.deletetriggeruser);
+
 module.exports = router;

@@ -1516,7 +1516,89 @@ function fetchDeviceTotal(req, res){
 }
 
 
+//tms_triggers_apis
 
+function getTriggerData(req,res){
+  const CompanyEmail=req.params.CompanyEmail;
+
+  const getquery=`SELECT * FROM tms_trigger WHERE CompanyEmail=?`;
+
+  try{
+    db.query(getquery,[CompanyEmail],(error,getresult)=>{
+      if(error){
+        console.error('Error getting user data:',error);
+        return res.status(500).json({message:'Internet server error'});
+      }
+      res.status(200).json(getresult);
+    })
+  }
+  catch(error){
+    console.error('Error occured check:',error)
+    res.status(500).json({message:'Error in fetching data'})
+  }
+
+}
+
+
+function enteruser(req,res){
+  const {DeviceUID,TriggerValue,ComapanyEmail,ContactNO,DeviceName,interval}=req.body;
+  const enterquery=`INSERT INTO tms_trigger(DeviceUID,TriggerValue,ComapnyEmail,ContactNO,DeviceName,interval) VALUES(?,?,?,?,?,?)`;
+
+  try{
+    db.query(enterquery,[DeviceUID,TriggerValue,ComapanyEmail,ContactNO,DeviceName,interval],(error,insertresult)=>{
+      if(error){
+        console.error('Error inserting data:',error);
+        return res.status(500).json({message:'Internet server error'});
+      }
+      res.status(200).json(insertresult);
+    })
+  }
+  catch(error){
+    console.error('Error occured check:',error)
+    res.status(500).json({message:'Error inserting data'})
+  }
+
+
+}
+
+
+function updateuser(req,res){
+  const CompanyEmail=req.params.ComapanyEmail;
+  const {DeviceUID,TriggerValue,ContactNO,DeviceName,interval}=req.body;
+  const updatequery=`UPDATE tms_trigger SET DeviceUID=?,TriggerValue=?,ContactNO=?,DeviceName=?,interval=? WHERE ComapanyEmail=? `;
+
+  try{
+    db.query(updatequery,[DeviceUID,TriggerValue,ContactNO,DeviceName,interval,,CompanyEmail],(error,updateresult)=>{
+      if(error){
+        console.error('Error updating data:',error);
+        return res.status(500).json({message:'Internet server error'});
+      }
+      res.status(200).json(updateresult);
+    })
+  }
+  catch(error){
+    console.error('Error occured check:',error)
+    res.status(500).json({message:'Error updating data'})
+  }
+
+}
+
+
+
+function deletetriggeruser(req,res){
+
+  const CompanyEmail=req.params.CompanyEmail;
+  const deletequery=`DELETE FROM tms_trigger WHERE CompanyEmail=?`;
+  db.query(deletequery, [CompanyEmail], (error) => {
+    if (error) {
+      console.error('Error deleting data:', error);
+      res.status(404).send('error occured');
+      return;
+    }
+    res.json({ message: 'User deleted successfully' });
+  }) 
+
+}
 module.exports = {
   userDevices,
   editDevice,
@@ -1552,5 +1634,13 @@ module.exports = {
   editUser,
   fetchLatestEntry,
   avg_interval,
-  fetchDeviceTotal
+  fetchDeviceTotal,
+
+  //tms_triggers_apis
+  getTriggerData,
+  enteruser,
+  updateuser,
+  deletetriggeruser,
+
+
 };
