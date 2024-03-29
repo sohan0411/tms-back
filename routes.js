@@ -58,6 +58,8 @@ router.put('/edit-User/:userId', dashboard.editUser);
 router.get('/avginterval/:id/:interval',dashboard.avg_interval);
 router.get('/FetchTodayConsumption/:deviceId', dashboard.fetchDeviceTotal);
 
+router.get('/lastalerts/:DeviceUID',dashboard.last5alerts);
+
 //SA
 router.get('/fetchAllDevices', SA.fetchAllDevices);
 router.get('/fetchAllUsers', SA.fetchAllUsers);

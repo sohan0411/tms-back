@@ -1515,6 +1515,33 @@ function fetchDeviceTotal(req, res){
    }
 }
 
+function last5alerts(req,res){
+  const DeviceUID = req.params.DeviceUID;
+  const mailquery=`SELECT TimeStamp, Temperature
+  FROM actual_data
+  WHERE DeviceUID = 'SL02202302' 
+    AND Temperature >= (
+      SELECT TriggerValue 
+      FROM tms_trigger 
+      WHERE DeviceUID = 'SL02202302'
+    )
+  ORDER BY TimeStamp DESC
+  LIMIT 5;`;
+  try{
+  db.query(mailquery,[DeviceUID,DeviceUID],(err,results)=>{
+    if(err){
+      console.error('Error fething data',err);
+      res.status(404).send('error occured');
+      return;
+    }
+    res.status(200).json(results);
+
+  })
+}catch (error){
+  console.error('Error fetching last 5 enteries:', error);
+  res.status(500).json({ message: 'Error fetching last 5 enteries' });
+}
+}
 
 
 module.exports = {
@@ -1553,6 +1580,7 @@ module.exports = {
   fetchLatestEntry,
   avg_interval,
   fetchDeviceTotal,
+  last5alerts,
 
 
 };
