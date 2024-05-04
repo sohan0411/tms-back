@@ -58,6 +58,8 @@ router.put('/edit-User/:userId', dashboard.editUser);
 router.get('/avginterval/:id/:interval',dashboard.avg_interval);
 router.get('/FetchTodayConsumption/:deviceId', dashboard.fetchDeviceTotal);
 
+router.get('/lastalerts/:DeviceUID',dashboard.last5alerts);
+
 //SA
 router.get('/fetchAllDevices', SA.fetchAllDevices);
 router.get('/fetchAllUsers', SA.fetchAllUsers);
@@ -90,6 +92,9 @@ router.get('/notification', SA.notification);
 // router.get('/ruleEnginedata', SA.ruleEnginedata);
 // router.get('/telementrydata', SA.telementrydata);
 
+
+
+//tms_trigger_CRUD
 
 
 module.exports = router;
